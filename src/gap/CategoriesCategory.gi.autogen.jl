@@ -249,7 +249,7 @@ end );
 @BindGlobal( "CAP_INTERNAL_INSTALL_FUNCTOR_OPERATION",
   
   function( operation, func_list, filter_list, cache )
-    local current_filter_list, current_methend;
+    local current_filter_list, current_method;
     
     for current_method in func_list
         

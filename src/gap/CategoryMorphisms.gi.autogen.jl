@@ -781,7 +781,7 @@ end );
     # object_function_inverse and morphism_function_inverse define the inverse of ι on its image
     
     InstallMethodForCompilerForCAP( DistinguishedObjectOfHomomorphismStructureExtendedByFullEmbedding,
-                                    [ IsCapCategory && CategoryFilter( C ), IsCapCategory && CategoryFilter( E ) ],
+                                    [ CategoryFilter( C ), CategoryFilter( E ) ],
       function ( C, E )
         
         return object_function( C, E, DistinguishedObjectOfHomomorphismStructure( C ) );
@@ -789,7 +789,7 @@ end );
     end );
     
     InstallMethodForCompilerForCAP( HomomorphismStructureOnObjectsExtendedByFullEmbedding,
-                                    [ IsCapCategory && CategoryFilter( C ), IsCapCategory && CategoryFilter( E ), IsCapCategoryObject && ObjectFilter( C ), IsCapCategoryObject && ObjectFilter( C ) ],
+                                    [ CategoryFilter( C ), CategoryFilter( E ), ObjectFilter( C ), ObjectFilter( C ) ],
       function ( C, E, a, b )
         
         return object_function( C, E, HomomorphismStructureOnObjects( C, a, b ) );
@@ -797,7 +797,7 @@ end );
     end );
     
     InstallMethodForCompilerForCAP( HomomorphismStructureOnMorphismsExtendedByFullEmbedding,
-                                    [ IsCapCategory && CategoryFilter( C ), IsCapCategory && CategoryFilter( E ), IsCapCategoryMorphism && MorphismFilter( C ), IsCapCategoryMorphism && MorphismFilter( C ) ],
+                                    [ CategoryFilter( C ), CategoryFilter( E ), MorphismFilter( C ), MorphismFilter( C ) ],
       function ( C, E, alpha, beta )
         local mor;
         
@@ -808,7 +808,7 @@ end );
     end );
     
     InstallMethodForCompilerForCAP( HomomorphismStructureOnMorphismsWithGivenObjectsExtendedByFullEmbedding,
-                                    [ IsCapCategory && CategoryFilter( C ), IsCapCategory && CategoryFilter( E ), IsCapCategoryObject && ObjectFilter( E ), IsCapCategoryMorphism && MorphismFilter( C ), IsCapCategoryMorphism && MorphismFilter( C ), IsCapCategoryObject && ObjectFilter( E ) ],
+                                    [ CategoryFilter( C ), CategoryFilter( E ), ObjectFilter( E ), MorphismFilter( C ), MorphismFilter( C ), ObjectFilter( E ) ],
       function ( C, E, s, alpha, beta, r )
         local mor;
         
@@ -819,7 +819,7 @@ end );
     end );
     
     InstallMethodForCompilerForCAP( InterpretMorphismAsMorphismFromDistinguishedObjectToHomomorphismStructureExtendedByFullEmbedding,
-                                    [ IsCapCategory && CategoryFilter( C ), IsCapCategory && CategoryFilter( E ), IsCapCategoryMorphism && MorphismFilter( C ) ],
+                                    [ CategoryFilter( C ), CategoryFilter( E ), MorphismFilter( C ) ],
       function ( C, E, alpha )
         local mor;
         
@@ -830,7 +830,7 @@ end );
     end );
     
     InstallMethodForCompilerForCAP( InterpretMorphismAsMorphismFromDistinguishedObjectToHomomorphismStructureWithGivenObjectsExtendedByFullEmbedding,
-                                    [ IsCapCategory && CategoryFilter( C ), IsCapCategory && CategoryFilter( E ), IsCapCategoryObject && ObjectFilter( E ), IsCapCategoryMorphism && MorphismFilter( C ), IsCapCategoryObject && ObjectFilter( E ) ],
+                                    [ CategoryFilter( C ), CategoryFilter( E ), ObjectFilter( E ), MorphismFilter( C ), ObjectFilter( E ) ],
       function ( C, E, distinguished_object, alpha, r )
         local mor;
         
@@ -841,7 +841,7 @@ end );
     end );
     
     InstallMethodForCompilerForCAP( InterpretMorphismFromDistinguishedObjectToHomomorphismStructureAsMorphismExtendedByFullEmbedding,
-                                    [ IsCapCategory && CategoryFilter( C ), IsCapCategory && CategoryFilter( E ), IsCapCategoryObject && ObjectFilter( C ), IsCapCategoryObject && ObjectFilter( C ), IsCapCategoryMorphism && MorphismFilter( E ) ],
+                                    [ CategoryFilter( C ), CategoryFilter( E ), ObjectFilter( C ), ObjectFilter( C ), MorphismFilter( E ) ],
       function ( C, E, a, b, iota )
         
         return InterpretMorphismFromDistinguishedObjectToHomomorphismStructureAsMorphism( C, a, b, morphism_function_inverse( C, E, object_function_inverse( C, E, Source( iota ) ), iota, object_function_inverse( C, E, Range( iota ) ) ) );

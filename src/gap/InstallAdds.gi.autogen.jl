@@ -144,14 +144,14 @@ end );
             InstallOtherMethod( CAP_operation,
                     replaced_filter_list,
                     ( arg... ) -> CallFuncList( CAP_operation,
-                            List( arg, function( ar ) if ValueGlobal( "IsJuliaObject" )( ar ) then return ValueGlobal( "ConvertJuliaToGAP" )( ar ); fi; return ar; end ) ) );
+                            List( arg, function( ar ) if ValueGlobal( "IsJuliaObject" )( ar ) then return ValueGlobal( "ConvertJuliaToGAP" )( ar ); end; return ar; end ) ) );
             
             @Assert( 0, record.install_convenience_without_category );
             
             InstallOtherMethod( CAP_operation,
                     replaced_filter_list[(2):(Length( replaced_filter_list ))],
                     ( arg... ) -> CallFuncList( CAP_operation,
-                            List( arg, function( ar ) if ValueGlobal( "IsJuliaObject" )( ar ) then return ValueGlobal( "ConvertJuliaToGAP" )( ar ); fi; return ar; end ) ) );
+                            List( arg, function( ar ) if ValueGlobal( "IsJuliaObject" )( ar ) then return ValueGlobal( "ConvertJuliaToGAP" )( ar ); end; return ar; end ) ) );
             
         end;
         
