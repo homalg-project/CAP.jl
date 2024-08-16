@@ -3,14 +3,19 @@ struct Filter <: Function
 	abstract_type::Type
 	concrete_type::Type
 	subtypable::Bool
+	additional_predicate::Function
 end
 
 function Filter(name::String, abstract_type::Type)
-	Filter(name, abstract_type, Any, true)
+	Filter(name, abstract_type, obj -> true)
+end
+
+function Filter(name::String, abstract_type::Type, additional_predicate::Function)
+	Filter(name, abstract_type, Any, true, additional_predicate)
 end
 
 function (filter::Filter)(obj)
-	isa(obj, filter.abstract_type)
+	isa(obj, filter.abstract_type) && filter.additional_predicate(obj)
 end
 
 function IsFilter( obj )
@@ -28,7 +33,7 @@ macro DeclareFilter(name::String, parent_filter::Union{Symbol,Expr} = :IsObject)
 		struct $concrete_type_symbol{T} <: $abstract_type_symbol
 			dict::Dict
 		end
-		global const $filter_symbol = Filter($name, $abstract_type_symbol, $concrete_type_symbol, true)
+		global const $filter_symbol = Filter($name, $abstract_type_symbol, $concrete_type_symbol, true, obj -> true)
 	end)
 end
 
@@ -40,7 +45,7 @@ function NewFilter( name, parent_filter )
 	end
 	type_symbol = Symbol(name, gensym())
 	concrete_type = parent_filter.concrete_type{type_symbol}
-	Filter(name, concrete_type, concrete_type, false)
+	Filter(name, concrete_type, concrete_type, false, obj -> true)
 end
 
 global const NewCategory = NewFilter

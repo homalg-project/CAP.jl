@@ -74,7 +74,25 @@ end
 
 export @FunctionWithNamedArguments
 
-function DirectSum end
+function DirectSum(arg...)
+	
+    if IsCapCategory( arg[1] ) then
+        
+		Error( "this case should never be triggered" )
+        
+    end;
+    
+    if Length( arg ) == 1 &&
+       IsList( arg[1] ) &&
+       ForAll( arg[1], IsCapCategoryObject ) then
+       
+       return DirectSum( CapCategory( arg[1][1] ), arg[1] );
+       
+    end;
+    
+    return DirectSum( CapCategory( arg[1] ), arg );
+	
+end
 global const DirectSumOp = DirectSum
 function DirectProduct(arg...)
 	
@@ -336,10 +354,11 @@ global const IsInt = Filter("IsInt", Int)
 global const IsBigInt = Filter("IsBigInt", BigInt)
 global const IsRat = Filter("IsRat", Rational{BigInt})
 global const IsBool = Filter("IsBool", Bool)
-global const IsPosInt = Filter("IsPosInt", Int) # TODO
+global const IsPosInt = Filter("IsPosInt", Int, i -> i > 0)
+global const IsNegInt = Filter("IsNegInt", Int, i -> i < 0)
 global const IsRecord = Filter("IsRecord", CAPRecord)
 # integer or infinity (a float)
-global const IsCyclotomic = Filter("IsCyclotomic", Union{Int,Float64}) # TODO
+global const IsCyclotomic = Filter("IsCyclotomic", Union{Int,Float64}, i -> i isa Int || i === Inf)
 
 global const Float = Float64
 
@@ -399,6 +418,10 @@ function RingElementFilter(R::Ring)
 	else
 		throw("ring has no ring element filter")
 	end
+end
+
+function Zero(::Union{typeof(Integers), typeof(Rationals)})
+	BigInt( 0 )
 end
 
 ## GAP String, Print, View, Display
