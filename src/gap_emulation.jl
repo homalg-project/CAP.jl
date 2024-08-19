@@ -1,11 +1,24 @@
-import Base.==
-import Base.*
-import Base.-
-import Base.+
-import Base./
-import Base.getindex
-import Base.copy
-import Base.in
+global const ModulesForEvaluationStack = [ ]
+
+macro IMPORT_THE_WORLD()
+	imports = []
+	
+	for mod in vcat( [ Base ], ModulesForEvaluationStack)
+		for name in names(mod)
+			push!(imports, :(import $(Symbol(mod)).$(Symbol(name))))
+		end
+	end
+	
+	esc(quote
+		$(imports...)
+	end)
+end
+
+export @IMPORT_THE_WORLD
+
+@IMPORT_THE_WORLD()
+
+push!(ModulesForEvaluationStack, CAP)
 
 IS_PRECOMPILING = true
 
@@ -14,8 +27,6 @@ function CAP_precompile(args...)
 		precompile(args...)
 	end
 end
-
-global const ModulesForEvaluationStack = [ CAP ]
 
 function IsBoundGlobal( name )
 	any(m -> isdefined(m, Symbol(name)), ModulesForEvaluationStack)
@@ -206,7 +217,7 @@ struct Fail end
 
 global const fail = Fail()
 
-function Base.show(io::IO, fail::Fail)
+function show(io::IO, fail::Fail)
 	print(io, "fail")
 end
 
@@ -218,25 +229,25 @@ struct CAPRecord <: CAPDict
 	dict::Dict
 end
 
-function Base.getindex(obj::CAPDict, key::Union{String, Int64})
+function getindex(obj::CAPDict, key::Union{String, Int64})
 	getproperty(obj, Symbol(key))
 end
 
-function Base.getproperty(obj::CAPDict, key::Symbol)
+function getproperty(obj::CAPDict, key::Symbol)
 	dict = getfield(obj, :dict)
 	dict[key]
 end
 
-function Base.setindex!(obj::CAPDict, value, key::Union{String, Int64})
+function setindex!(obj::CAPDict, value, key::Union{String, Int64})
 	setproperty!(obj, Symbol(key), value)
 end
 
-function Base.setproperty!(obj::CAPDict, key::Symbol, value)
+function setproperty!(obj::CAPDict, key::Symbol, value)
 	dict = getfield(obj, :dict)
 	dict[key] = value
 end
 
-function Base.propertynames(obj::CAPDict)
+function propertynames(obj::CAPDict)
 	dict = getfield(obj, :dict)
 	keys(dict)
 end
@@ -426,7 +437,7 @@ end
 
 ## GAP String, Print, View, Display
 
-function Base.show(io::IO, obj::CAPDict)
+function show(io::IO, obj::CAPDict)
 	print(io, ViewString(obj))
 end
 
@@ -1452,48 +1463,5 @@ function RESTORE_CAP_STATE(state)
 	end
 end
 
-macro IMPORT_CAP_OPERATIONS()
-	if !IsBoundGlobal( "CAP_INTERNAL_METHOD_NAME_RECORDS_BY_PACKAGE" )
-		return nothing
-	end
-	
-	imports = Concatenation( List(
-		RecNames( CAP_INTERNAL_METHOD_NAME_RECORDS_BY_PACKAGE ),
-		function ( package )
-			
-			if isdefined(__module__, Symbol(package))
-				
-				return List(
-					RecNames( CAP_INTERNAL_METHOD_NAME_RECORDS_BY_PACKAGE[package] ),
-					function ( recname )
-						
-						operation = ValueGlobal( CAP_INTERNAL_METHOD_NAME_RECORD[recname].installation_name )
-						
-						if IsAttribute( operation )
-							
-							:(import $(Symbol(package)).$(Symbol(CAP_INTERNAL_METHOD_NAME_RECORD[recname].installation_name, "_OPERATION")))
-							
-						else
-							
-							:(import $(Symbol(package)).$(Symbol(CAP_INTERNAL_METHOD_NAME_RECORD[recname].installation_name)))
-						
-						end
-						
-					end
-				);
-				
-			else
-				
-				return [ ];
-				
-			end
-			
-		end
-	) )
-	
-	esc(quote
-		$(imports...)
-	end)
-end
-
-export @IMPORT_CAP_OPERATIONS
+pop!(ModulesForEvaluationStack)
+@Assert( 0, IsEmpty( ModulesForEvaluationStack ) )
