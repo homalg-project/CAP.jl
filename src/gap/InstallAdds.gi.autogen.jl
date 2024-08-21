@@ -542,7 +542,17 @@ end );
                 
             end;
             
-            install_func( i[ 1 ], i[ 2 ] );
+            if (IsEmpty( i[2] ))
+                
+                install_func( i[ 1 ], i[ 2 ] );
+                
+            else
+                
+                #= comment for Julia
+                install_func( i[ 1 ], i[ 2 ] );
+                # =#
+                
+            end;
             
         end;
         
@@ -562,6 +572,9 @@ end );
             category.primitive_operations[function_name] = true;
             
         end;
+        
+        # return void for Julia
+        return;
         
     end ) );
     

@@ -14,7 +14,7 @@
     [ "FinalizeCategory", true ],
   ],
   function( CAP_NAMED_ARGUMENTS, C, options )
-    local known_options_with_filters, filter, mandatory_options, category_constructor_options, list_of_operations_to_install, D, operations_of_homomorphism_structure, HC, object_function, morphism_function, object_function_inverse, morphism_function_inverse, option_name, option;
+    local known_options_with_filters, filter, mandatory_options, category_constructor_options, list_of_operations_to_install, D, operations_of_homomorphism_structure, HC, object_function, morphism_function, object_function_inverse, morphism_function_inverse, option_name, option, operation;
     
     ## check given options
     known_options_with_filters = @rec(
@@ -140,6 +140,14 @@
     
     category_constructor_options.list_of_operations_to_install = list_of_operations_to_install;
     
+    category_constructor_options.operation_weights = @rec( );
+    
+    for operation in list_of_operations_to_install
+        
+        category_constructor_options.operation_weights[operation] = CurrentOperationWeight( C.derivations_weight_list, operation );
+        
+    end;
+    
     if (@IsBound( C.supports_empty_limits ))
         
         category_constructor_options.supports_empty_limits = C.supports_empty_limits;
@@ -220,7 +228,7 @@
             return List( MorphismsOfExternalHom( ModelingCategory( cat ), ModelingObject( cat, a ), ModelingObject( cat, b ) ),
                          mor -> ReinterpretationOfMorphism( cat, a, mor, b ) );
             
-        end );
+        end, CurrentOperationWeight( C.derivations_weight_list, "MorphismsOfExternalHom" ) );
         
     end;
     
@@ -232,7 +240,7 @@
             return List( BasisOfExternalHom( ModelingCategory( cat ), ModelingObject( cat, a ), ModelingObject( cat, b ) ),
                          mor -> ReinterpretationOfMorphism( cat, a, mor, b ) );
             
-        end );
+        end, CurrentOperationWeight( C.derivations_weight_list, "BasisOfExternalHom" ) );
         
     end;
     
@@ -243,7 +251,7 @@
             
             return CoefficientsOfMorphism( ModelingCategory( cat ), ModelingMorphism( cat, alpha ) );
             
-        end );
+        end, CurrentOperationWeight( C.derivations_weight_list, "CoefficientsOfMorphism" ) );
         
     end;
     
@@ -324,7 +332,7 @@
                 
                 return DistinguishedObjectOfHomomorphismStructureExtendedByFullEmbedding( ModelingCategory( cat ), HC );
                 
-            end );
+            end, CurrentOperationWeight( C.derivations_weight_list, "DistinguishedObjectOfHomomorphismStructure" ) );
         end;
         
         if ("HomomorphismStructureOnObjects" in list_of_operations_to_install)
@@ -333,7 +341,7 @@
                 
                 return HomomorphismStructureOnObjectsExtendedByFullEmbedding( ModelingCategory( cat ), HC, ModelingObject( cat, a ), ModelingObject( cat, b ) );
                 
-            end );
+            end, CurrentOperationWeight( C.derivations_weight_list, "HomomorphismStructureOnObjects" ) );
         end;
         
         if ("HomomorphismStructureOnMorphisms" in list_of_operations_to_install)
@@ -342,7 +350,7 @@
                 
                 return HomomorphismStructureOnMorphismsExtendedByFullEmbedding( ModelingCategory( cat ), HC, ModelingMorphism( cat, alpha ), ModelingMorphism( cat, beta ) );
                 
-            end );
+            end, CurrentOperationWeight( C.derivations_weight_list, "HomomorphismStructureOnMorphisms" ) );
         end;
         
         if ("HomomorphismStructureOnMorphismsWithGivenObjects" in list_of_operations_to_install)
@@ -351,7 +359,7 @@
                 
                 return HomomorphismStructureOnMorphismsWithGivenObjectsExtendedByFullEmbedding( ModelingCategory( cat ), HC, s, ModelingMorphism( cat, alpha ), ModelingMorphism( cat, beta ), r );
                 
-            end );
+            end, CurrentOperationWeight( C.derivations_weight_list, "HomomorphismStructureOnMorphismsWithGivenObjects" ) );
         end;
         
         if ("InterpretMorphismAsMorphismFromDistinguishedObjectToHomomorphismStructure" in list_of_operations_to_install)
@@ -360,7 +368,7 @@
                 
                 return InterpretMorphismAsMorphismFromDistinguishedObjectToHomomorphismStructureExtendedByFullEmbedding( ModelingCategory( cat ), HC, ModelingMorphism( cat, alpha ) );
                 
-            end );
+            end, CurrentOperationWeight( C.derivations_weight_list, "InterpretMorphismAsMorphismFromDistinguishedObjectToHomomorphismStructure" ) );
         end;
         
         if ("InterpretMorphismAsMorphismFromDistinguishedObjectToHomomorphismStructureWithGivenObjects" in list_of_operations_to_install)
@@ -369,7 +377,7 @@
                 
                 return InterpretMorphismAsMorphismFromDistinguishedObjectToHomomorphismStructureWithGivenObjectsExtendedByFullEmbedding( ModelingCategory( cat ), HC, s, ModelingMorphism( cat, alpha ), r );
                 
-            end );
+            end, CurrentOperationWeight( C.derivations_weight_list, "InterpretMorphismAsMorphismFromDistinguishedObjectToHomomorphismStructureWithGivenObjects" ) );
         end;
         
         if ("InterpretMorphismFromDistinguishedObjectToHomomorphismStructureAsMorphism" in list_of_operations_to_install)
@@ -378,7 +386,7 @@
                 
                 return ReinterpretationOfMorphism( cat, a, InterpretMorphismFromDistinguishedObjectToHomomorphismStructureAsMorphismExtendedByFullEmbedding( ModelingCategory( cat ), HC, ModelingObject( cat, a ), ModelingObject( cat, b ), iota ), b );
                 
-            end );
+            end, CurrentOperationWeight( C.derivations_weight_list, "InterpretMorphismFromDistinguishedObjectToHomomorphismStructureAsMorphism" ) );
         end;
         
     end;

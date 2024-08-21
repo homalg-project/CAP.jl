@@ -27,6 +27,7 @@
         morphism_constructor = IsFunction,
         morphism_datum = IsFunction,
         list_of_operations_to_install = IsList,
+        operation_weights = IsRecord,
         is_computable = IsBool,
         supports_empty_limits = IsBool,
         underlying_category_getter_string = IsString,
@@ -501,7 +502,15 @@
         
         func = EvalString( func_string );
         
-        add( CC, func );
+        if (@IsBound( options.operation_weights ) && @IsBound( options.operation_weights[name] ))
+            
+            add( CC, func, options.operation_weights[name] );
+            
+        else
+            
+            add( CC, func );
+            
+        end;
         
     end;
     

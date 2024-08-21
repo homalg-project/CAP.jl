@@ -169,6 +169,10 @@ function SetCacheValue(cache, key_list, value)
 	return;
 end
 
+function FunctionWithCache(func::Function)
+	func
+end
+
 function SSortedList(list::Union{Vector, UnitRange, StepRange})
 	unique(sort(list))
 end
@@ -1067,6 +1071,9 @@ function ReturnFirst( arg1, args... )
 	arg1
 end
 
+function ReturnNothing( args... )
+end
+
 global const IdFunc = identity
 
 global const Append = append!
@@ -1191,6 +1198,10 @@ function Maximum(int1::Union{Int, BigInt}, int2::Union{Int, BigInt})
 end
 
 global const infinity = Inf
+
+function IsInfinity(val)
+	val === infinity
+end
 
 function IdentityMat(m::Int)
 	row = ListWithIdenticalEntries( m, 0 );

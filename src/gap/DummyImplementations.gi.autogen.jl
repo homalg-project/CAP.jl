@@ -115,7 +115,11 @@ end );
         "for a record of options",
         [ IsRecord ],
         
-  function( options )
+  @FunctionWithNamedArguments(
+  [
+    [ "FinalizeCategory", true ],
+  ],
+  function( CAP_NAMED_ARGUMENTS, options )
     local category_constructor_options, dummy_function, C, operation_name;
     
     category_constructor_options = ShallowCopy( options );
@@ -182,7 +186,11 @@ end );
     
     C = CategoryConstructor( category_constructor_options );
     
-    Finalize( C );
+    if (FinalizeCategory)
+        
+        Finalize( C );
+        
+    end;
     
     for operation_name in options.list_of_operations_to_install
         
@@ -196,4 +204,4 @@ end );
     
     return C;
     
-end );
+end ) );
