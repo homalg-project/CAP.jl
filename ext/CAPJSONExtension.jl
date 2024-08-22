@@ -1,3 +1,7 @@
+module CAPJSONExtension
+
+using CAP
+
 using JSON3
 
 # JSON -> record
@@ -22,7 +26,7 @@ function json_object_to_GAP_record(obj::Union{Bool, Int64, Float64, String})
 	obj
 end
 
-function JsonStringToGap(string)
+function CAP.JsonStringToGap(string)
 	json_object_to_GAP_record(JSON3.read(string))
 end
 
@@ -48,6 +52,8 @@ function GAP_record_to_dict(obj::Union{Bool, Int64, Float64, String})
 	obj
 end
 
-function GapToJsonString(obj)
+function CAP.GapToJsonString(obj)
 	JSON3.write(GAP_record_to_dict(obj))
 end
+
+end # module CAPJSONExtension

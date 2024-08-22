@@ -340,9 +340,6 @@ function copy(record::CAPRecord)
 	CAPRecord(copy(getfield(record, :dict)))
 end
 
-# json
-include("gap_emulation/json.jl")
-
 # filters
 include("gap_emulation/filters.jl")
 
