@@ -385,16 +385,19 @@ end );
   
   function( filter_list, additional_filters )
     local i;
+    
+    if (IsEmpty( additional_filters ))
+        return filter_list;
+    end;
+    
     filter_list = ShallowCopy( filter_list );
     
-    if (Length( filter_list ) < Length( additional_filters ))
-        Error( "too many additional filters" );
+    if (Length( filter_list ) != Length( additional_filters ))
+        Error( "wrong number of additional filters" );
     end;
     
     for i in (1):(Length( additional_filters ))
-        if (@IsBound( additional_filters[ i ] ))
-            filter_list[ i ] = filter_list[ i ] && additional_filters[ i ];
-        end;
+        filter_list[ i ] = filter_list[ i ] && additional_filters[ i ];
     end;
     
     return filter_list;

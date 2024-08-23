@@ -1058,9 +1058,9 @@ end );
     
     equality_func = function( a, b )
       
-      if (IsList( a ) && IsList( b ) && Size( a ) == Size( b ))
+      if (IsList( a ) && IsList( b ) && Length( a ) == Length( b ))
         
-        return ForAll( (1):(Size( a )), i -> equality_func(a[i], b[i]) );
+        return ForAll( (1):(Length( a )), i -> equality_func(a[i], b[i]) );
         
       else
         

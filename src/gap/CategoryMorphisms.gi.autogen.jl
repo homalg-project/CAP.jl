@@ -155,7 +155,7 @@ AdditionForMorphisms );
 SubtractionForMorphisms );
 
 ##
-@InstallMethod( AdditiveInverse,
+@InstallMethod( -,
                   [ IsCapCategoryMorphism ],
                   
 AdditiveInverseForMorphisms );
