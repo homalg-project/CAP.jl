@@ -4,8 +4,10 @@ macro IMPORT_THE_WORLD()
 	imports = []
 	
 	for mod in vcat( [ Base ], ModulesForEvaluationStack)
-		for name in names(mod)
-			push!(imports, :(import $(Symbol(mod)).$(Symbol(name))))
+		if isdefined(__module__, Symbol(mod))
+			for name in names(mod)
+				push!(imports, :(import $(Symbol(mod)).$(Symbol(name))))
+			end
 		end
 	end
 	
