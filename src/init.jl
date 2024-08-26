@@ -27,6 +27,19 @@ CAP_STATE = SAVE_CAP_STATE()
 
 function __init__()
 	
+	# simulate importing symbols from CAP packages which are not direct dependencies of the current package
+	# and hence are not imported during compilation by `@IMPORT_THE_WORLD()` above
+	if !is_precompiling()
+		for i in 1:length(ModulesForEvaluationStack)
+			mod = ModulesForEvaluationStack[i]
+			for name in names(mod)
+				if !isdefined(@__MODULE__, name)
+					eval(:(const $(Symbol(name)) = ModulesForEvaluationStack[$i].$(Symbol(name))))
+				end
+			end
+		end
+	end
+	
 	push!(ModulesForEvaluationStack, @__MODULE__)
 	
 	RESTORE_CAP_STATE(CAP_STATE)
