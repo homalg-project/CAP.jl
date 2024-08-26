@@ -2,8 +2,6 @@
 
 push!(ModulesForEvaluationStack, @__MODULE__)
 
-CAP.IS_PRECOMPILING = true
-
 include("init.g.autogen.jl")
 include("read.g.autogen.jl")
 
@@ -24,8 +22,6 @@ for derivation in CAP_INTERNAL_FINAL_DERIVATION_LIST
 end
 
 @init_CAP_package
-
-CAP.IS_PRECOMPILING = false
 
 CAP_STATE = SAVE_CAP_STATE()
 

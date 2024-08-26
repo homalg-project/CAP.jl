@@ -20,10 +20,18 @@ export @IMPORT_THE_WORLD
 
 push!(ModulesForEvaluationStack, CAP)
 
-IS_PRECOMPILING = true
+if Base.VERSION < v"1.11"
+	# https://github.com/JuliaLang/julia/blob/647753071a1e2ddbddf7ab07f55d7146238b6b72/base/reflection.jl#L2877
+	function generating_output()
+		ccall(:jl_generating_output, Cint, ()) != 0
+	end
+end
+
+# use a name more suitable for Julia laymen
+const is_precompiling = generating_output
 
 function CAP_precompile(args...)
-	if IS_PRECOMPILING
+	if is_precompiling()
 		precompile(args...)
 	end
 end
