@@ -27,6 +27,8 @@ if Base.VERSION < v"1.11"
 	function generating_output()
 		ccall(:jl_generating_output, Cint, ()) != 0
 	end
+else
+	const generating_output = Base.generating_output
 end
 
 # use a name more suitable for Julia laymen
