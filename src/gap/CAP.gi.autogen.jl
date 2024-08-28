@@ -141,10 +141,6 @@ end );
     
 end );
 
-@InstallValueConst( CAP_INTERNAL_DERIVATION_GRAPH,
-    
-    MakeDerivationGraph( [ ] ) );
-
 
 ######################################
 ##
@@ -658,8 +654,6 @@ end );
     return result_list;
     
 end );
-
-InstallDeprecatedAlias( "CheckConstructivenessOfCategory", "MissingOperationsForConstructivenessOfCategory", "2024.12.18" );
 
 ####################################
 ##

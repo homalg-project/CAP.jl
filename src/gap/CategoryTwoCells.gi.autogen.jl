@@ -62,16 +62,3 @@ end );
     
 end );
 
-###########################
-##
-## IsWellDefined
-##
-###########################
-
-##
-@InstallMethod( IsWellDefined,
-               [ IsCapCategoryTwoCell ],
-               
-  IsWellDefinedForTwoCells
-);
-

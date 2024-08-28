@@ -3,6 +3,7 @@
 #
 # Reading the declaration part of the package.
 #
+## the CAP core
 include( "gap/ToolsForCategories.gd.autogen.jl" );
 
 include( "gap/CAP.gd.autogen.jl" );
@@ -11,7 +12,7 @@ include( "gap/Derivations.gd.autogen.jl" );
 
 include( "gap/Finalize.gd.autogen.jl" );
 
-include( "gap/AddFunctions.autogen.gd.autogen.jl" );
+include( "gap/MethodRecordTools.gd.autogen.jl" );
 
 include( "gap/CategoryObjects.gd.autogen.jl" );
 
@@ -21,8 +22,6 @@ include( "gap/CategoryTwoCells.gd.autogen.jl" );
 
 include( "gap/LimitConvenience.gd.autogen.jl" );
 
-include( "gap/UniversalObjects.gd.autogen.jl" );
-
 include( "gap/InstallAdds.gd.autogen.jl" );
 
 #= comment for Julia
@@ -31,17 +30,29 @@ include( "gap/TheoremParser.gd.autogen.jl" );
 
 include( "gap/LogicForCAP.gd.autogen.jl" );
 
-include( "gap/MethodRecord.gd.autogen.jl" );
-
 include( "gap/ConstructiveCategoriesRecord.gd.autogen.jl" );
 
 include( "gap/PrintingFunctions.gd.autogen.jl" );
 
-include( "gap/PrepareFunctions.gd.autogen.jl" );
+include( "gap/PrepareFunctionsTools.gd.autogen.jl" );
 
-# category constructors (which might rely on some tools)
+# load tools required for the CAP library
 include( "gap/ToolsForCategories.gi.autogen.jl" );
 
+## the CAP library
+
+## pre-defined CAP operations
+include( "gap/CategoryObjectsOperations.gd.autogen.jl" );
+
+include( "gap/CategoryMorphismsOperations.gd.autogen.jl" );
+
+include( "gap/CategoryTwoCellsOperations.gd.autogen.jl" );
+
+include( "gap/UniversalObjects.gd.autogen.jl" );
+
+include( "gap/AddFunctions.autogen.gd.autogen.jl" );
+
+## pre-defined category constructors
 include( "gap/OppositeCategory.gd.autogen.jl" );
 
 include( "gap/ProductCategory.gd.autogen.jl" );

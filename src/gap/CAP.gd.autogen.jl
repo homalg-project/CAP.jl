@@ -63,8 +63,6 @@ DeclareGlobalVariable( "CAP_INTERNAL" );
 
 @DeclareGlobalFunction( "CAP_INTERNAL_INSTALL_PRINT_FUNCTION" );
 
-DeclareGlobalVariable( "CAP_INTERNAL_DERIVATION_GRAPH" );
-
 DeclareGlobalVariable( "CAP_INTERNAL_CATEGORICAL_PROPERTIES_LIST" );
 
 @InstallValueConst( CAP_INTERNAL_CATEGORICAL_PROPERTIES_LIST, [ ] );
