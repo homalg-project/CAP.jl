@@ -364,6 +364,9 @@ include("gap_emulation/attributes.jl")
 # files
 include("gap_emulation/files.jl")
 
+# rings
+include("gap_emulation/rings.jl")
+
 # GAP filters
 global const IsIO = Filter("IsIO", IO)
 global const IsObject = Filter("IsObject", Any)
@@ -385,68 +388,6 @@ global const IsRecord = Filter("IsRecord", CAPRecord)
 global const IsCyclotomic = Filter("IsCyclotomic", Union{Int,Float64}, i -> i isa Int || i === Inf)
 
 global const Float = Float64
-
-# AbstractAlgebra
-global const IsRing = Filter("IsRing", Ring)
-global const IsRingElement = Filter("IsRingElement", AbstractAlgebra.NCRingElement)
-
-function HasIsCommutative(R::AbstractAlgebra.NCRing)
-	R isa Ring
-end
-
-function IsCommutative(R::AbstractAlgebra.NCRing)
-	R isa Ring
-end
-
-global const Integers = ZZ
-global const Rationals = QQ
-
-global const IsIntegers = Filter("IsIntegers", AbstractAlgebra.Integers{BigInt})
-global const IsRationals = Filter("IsRationals", AbstractAlgebra.Rationals{BigInt})
-
-function HasRingFilter(R::Ring)
-	if R === Integers
-		return true
-	elseif R === Rationals
-		return true
-	else
-		return false
-	end
-end
-
-function RingFilter(R::Ring)
-	if R === Integers
-		return IsIntegers
-	elseif R === Rationals
-		return IsRationals
-	else
-		throw("ring has no ring filter")
-	end
-end
-
-function HasRingElementFilter(R::Ring)
-	if R === Integers
-		return true
-	elseif R === Rationals
-		return true
-	else
-		return false
-	end
-end
-
-function RingElementFilter(R::Ring)
-	if R === Integers
-		return IsBigInt
-	elseif R === Rationals
-		return IsRat
-	else
-		throw("ring has no ring element filter")
-	end
-end
-
-function Zero(::Union{typeof(Integers), typeof(Rationals)})
-	BigInt( 0 )
-end
 
 ## GAP String, Print, View, Display
 

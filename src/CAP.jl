@@ -7,8 +7,6 @@ module CAP
 function JsonStringToGap end
 function GapToJsonString end
 
-using AbstractAlgebra
-
 include("gap_emulation.jl")
 
 include("init.jl")
