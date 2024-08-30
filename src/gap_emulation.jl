@@ -459,9 +459,23 @@ end
 
 @InstallMethod( ViewString, [ IsBigInt ], n -> StringGAP( n ) );
 
+@InstallMethod( ViewString, [ IsRat ], n -> StringGAP( n ) );
+
 @InstallMethod( StringGAP, [ IsInt ], n -> string(n) );
 
 @InstallMethod( StringGAP, [ IsBigInt ], n -> string(n) );
+
+@InstallMethod( StringGAP, [ IsRat ], function( n )
+	
+	str = string( n );
+	
+	if EndsWith( str, "//1" )
+		str[1:length(str) - 3]
+	else
+		ReplacedString( str, "//", "/" );
+	end
+	
+end );
 
 # characters
 @InstallMethod( ViewString, [ IsChar ], c -> string("'", c, "'") );
@@ -1161,6 +1175,14 @@ function IdentityMat(m::Int)
         id[i][i] = 1;
     end;
     return id;
+end
+
+function TransposedMat(M)
+	if length(M) === 0
+		[]
+	else
+		[[M[j][i] for j=1:length(M)] for i=1:length(M[1])];
+	end
 end
 
 struct PermList

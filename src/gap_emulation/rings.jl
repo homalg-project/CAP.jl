@@ -52,3 +52,19 @@ end
 function Zero(R::Union{typeof(Integers), typeof(Rationals)})
 	zero(R)
 end
+
+function /(elem::AbstractAlgebra.NCRingElement, ::typeof(Integers))
+	BigInt(elem)
+end
+
+function /(elem::AbstractAlgebra.NCRingElement, ::typeof(Rationals))
+	Rational{BigInt}(elem)
+end
+
+function in(elem::AbstractAlgebra.NCRingElement, ::typeof(Integers))
+	elem isa BigInt
+end
+
+function in(elem::AbstractAlgebra.NCRingElement, ::typeof(Rationals))
+	elem isa Rational{BigInt}
+end
