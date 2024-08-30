@@ -405,8 +405,8 @@ end );
 
 @InstallGlobalFunction( "CAP_INTERNAL_ASSERT_VALUE_IS_OF_TYPE_GETTER",
   
-  function( data_type, human_readable_identifier_list )
-    local generic_help_string, filter, asserts_value_is_of_element_type, generic_assert_value_is_of_element_type;
+  function( data_type, human_readable_identifier_getter )
+    local generic_help_string, filter, asserts_value_is_of_element_type, assert_value_is_of_element_type;
     
     generic_help_string = " You can access the value via the local variable 'value' in a break loop.";
     
@@ -415,11 +415,11 @@ end );
     # `IsBool( fail ) == true`, but we do not want to include `fail`
     if (IsSpecializationOfFilter( IsBool, filter ))
         
-        return function( value )
+        return function( value, args... )
             
             if (!(value == true || value == false))
                 
-                CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " is neither `true` nor `false`.", generic_help_string ] ) );
+                Error( CallFuncList( human_readable_identifier_getter, args ), " is neither `true` nor `false`.", generic_help_string );
                 
             end;
             
@@ -427,17 +427,17 @@ end );
         
     elseif (IsSpecializationOfFilter( IsFunction, filter ))
         
-        return function( value )
+        return function( value, args... )
             
             if (@not filter( value ))
                 
-                CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " does not lie in the expected filter ", filter, ".", generic_help_string ] ) );
+                Error( CallFuncList( human_readable_identifier_getter, args ), " does not lie in the expected filter ", filter, ".", generic_help_string );
                 
             end;
             
             if (NumberArgumentsFunction( value ) >= 0 && NumberArgumentsFunction( value ) != Length( data_type.signature[1] ))
                 
-                CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " has ", NumberArgumentsFunction( value ), " arguments but ", Length( data_type.signature[1] ), " were expected.", generic_help_string ] ) );
+                Error( CallFuncList( human_readable_identifier_getter, args ), " has ", NumberArgumentsFunction( value ), " arguments but ", Length( data_type.signature[1] ), " were expected.", generic_help_string );
                 
             end;
             
@@ -445,20 +445,14 @@ end );
         
     elseif (IsSpecializationOfFilter( IsList, filter ))
         
-        # In principle, we have to create an assertion function for each integer to get the human readable identifier correct.
-        # The "correct" approach would be to generate those on demand but that would imply that we have to create assertion functions at runtime.
-        # Thus, we take the pragmatic approach: We generate an assertion function for the first few entries, and a generic assertion function for all other entries.
-        # For nested lists the number of assertion functions grows exponentially, so we choose a quite small number (4).
-        asserts_value_is_of_element_type = List( (1):(4), i -> CAP_INTERNAL_ASSERT_VALUE_IS_OF_TYPE_GETTER( data_type.element_type, @Concatenation( [ "the ", i, "-th entry of " ], human_readable_identifier_list ) ) );
+        assert_value_is_of_element_type = CAP_INTERNAL_ASSERT_VALUE_IS_OF_TYPE_GETTER( data_type.element_type, ( i, outer_args ) -> @Concatenation( "the ", StringGAP( i ), "-th entry of ", CallFuncList( human_readable_identifier_getter, outer_args ) ) );
         
-        generic_assert_value_is_of_element_type = CAP_INTERNAL_ASSERT_VALUE_IS_OF_TYPE_GETTER( data_type.element_type, @Concatenation( [ "some entry of " ], human_readable_identifier_list )  );
-        
-        return function( value )
+        return function( value, args... )
           local i;
             
             if (@not filter( value ))
                 
-                CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " does not lie in the expected filter ", filter, ".", generic_help_string ] ) );
+                Error( CallFuncList( human_readable_identifier_getter, args ), " does not lie in the expected filter ", filter, ".", generic_help_string );
                 
             end;
             
@@ -468,20 +462,12 @@ end );
                 # Julia does not have non-dense lists
                 if (@not @IsBound( value[i] ))
                     
-                    CallFuncList( Error, @Concatenation( [ "the ", i, "-th entry of " ], human_readable_identifier_list, [ " is not bound.", generic_help_string ] ) );
+                    Error( "the ", i, "-th entry of ", CallFuncList( human_readable_identifier_getter, args ), " is not bound.", generic_help_string );
                     
                 end;
                 # =#
                 
-                if (i <= 4)
-                    
-                    asserts_value_is_of_element_type[i]( value[i] );
-                    
-                else
-                    
-                    generic_assert_value_is_of_element_type( value[i] );
-                    
-                end;
+                assert_value_is_of_element_type( value[i], i, args );
                 
             end;
             
@@ -489,27 +475,27 @@ end );
         
     elseif (IsSpecializationOfFilter( IsNTuple, filter ))
         
-        asserts_value_is_of_element_type = List( (1):(Length( data_type.element_types )), i -> CAP_INTERNAL_ASSERT_VALUE_IS_OF_TYPE_GETTER( data_type.element_types[i], @Concatenation( [ "the ", i, "-th entry of " ], human_readable_identifier_list ) ) );
+        asserts_value_is_of_element_type = List( (1):(Length( data_type.element_types )), i -> CAP_INTERNAL_ASSERT_VALUE_IS_OF_TYPE_GETTER( data_type.element_types[i], ( outer_args ) -> @Concatenation( "the ", StringGAP( i ), "-th entry of ", CallFuncList( human_readable_identifier_getter, outer_args ) ) ) );
         
-        return function( value )
+        return function( value, args... )
           local i;
             
             # tuples are modeled as lists
             if (@not IsDenseList( value ))
                 
-                CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " does not lie in the expected filter IsDenseList (implementation filter of IsNTuple).", generic_help_string ] ) );
+                Error( CallFuncList( human_readable_identifier_getter, args ), " does not lie in the expected filter IsDenseList (implementation filter of IsNTuple).", generic_help_string );
                 
             end;
             
             if (Length( value ) != Length( data_type.element_types ))
                 
-                CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " has length ", Length( value ), " but ", Length( data_type.element_types ), " was expected.", generic_help_string ] ) );
+                Error( CallFuncList( human_readable_identifier_getter, args ), " has length ", Length( value ), " but ", Length( data_type.element_types ), " was expected.", generic_help_string );
                 
             end;
             
             for i in (1):(Length( value ))
                 
-                asserts_value_is_of_element_type[i]( value[i] );
+                asserts_value_is_of_element_type[i]( value[i], args );
                 
             end;
             
@@ -517,17 +503,17 @@ end );
         
     elseif (IsSpecializationOfFilter( IsCapCategory, filter ))
         
-        return function( value )
+        return function( value, args... )
             
             if (@not filter( value ))
                 
-                CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " does not lie in the expected filter ", filter, ".", generic_help_string ] ) );
+                Error( CallFuncList( human_readable_identifier_getter, args ), " does not lie in the expected filter ", filter, ".", generic_help_string );
                 
             end;
             
             if (@not IsIdenticalObj( value, data_type.category ))
                 
-                CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " is not the expected category although it lies in the category filter of the expected category. This should never happen, please report this using the CAP_project's issue tracker.", generic_help_string ] ) );
+                Error( CallFuncList( human_readable_identifier_getter, args ), " is not the expected category although it lies in the category filter of the expected category. This should never happen, please report this using the CAP_project's issue tracker.", generic_help_string );
                 
             end;
             
@@ -535,53 +521,53 @@ end );
         
     elseif (IsSpecializationOfFilter( IsCapCategoryObject, filter ))
         
-        return function( value )
+        return function( value, args... )
             
             if (@not filter( value ))
                 
-                CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " does not lie in the expected filter ", filter, ".", generic_help_string ] ) );
+                Error( CallFuncList( human_readable_identifier_getter, args ), " does not lie in the expected filter ", filter, ".", generic_help_string );
                 
             end;
             
-            CAP_INTERNAL_ASSERT_IS_OBJECT_OF_CATEGORY( value, data_type.category, human_readable_identifier_list );
+            CAP_INTERNAL_ASSERT_IS_OBJECT_OF_CATEGORY( value, data_type.category, () -> CallFuncList( human_readable_identifier_getter, args ) );
             
         end;
         
     elseif (IsSpecializationOfFilter( IsCapCategoryMorphism, filter ))
         
-        return function( value )
+        return function( value, args... )
             
             if (@not filter( value ))
                 
-                CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " does not lie in the expected filter ", filter, ".", generic_help_string ] ) );
+                Error( CallFuncList( human_readable_identifier_getter, args ), " does not lie in the expected filter ", filter, ".", generic_help_string );
                 
             end;
             
-            CAP_INTERNAL_ASSERT_IS_MORPHISM_OF_CATEGORY( value, data_type.category, human_readable_identifier_list );
+            CAP_INTERNAL_ASSERT_IS_MORPHISM_OF_CATEGORY( value, data_type.category, () -> CallFuncList( human_readable_identifier_getter, args ) );
             
         end;
         
     elseif (IsSpecializationOfFilter( IsCapCategoryTwoCell, filter ))
         
-        return function( value )
+        return function( value, args... )
             
             if (@not filter( value ))
                 
-                CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " does not lie in the expected filter ", filter, ".", generic_help_string ] ) );
+                Error( CallFuncList( human_readable_identifier_getter, args ), " does not lie in the expected filter ", filter, ".", generic_help_string );
                 
             end;
             
-            CAP_INTERNAL_ASSERT_IS_TWO_CELL_OF_CATEGORY( value, data_type.category, human_readable_identifier_list );
+            CAP_INTERNAL_ASSERT_IS_TWO_CELL_OF_CATEGORY( value, data_type.category, () -> CallFuncList( human_readable_identifier_getter, args ) );
             
         end;
         
     else
         
-        return function( value )
+        return function( value, args... )
             
             if (@not filter( value ))
                 
-                CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " does not lie in the expected filter ", filter, ".", generic_help_string ] ) );
+                Error( CallFuncList( human_readable_identifier_getter, args ), " does not lie in the expected filter ", filter, ".", generic_help_string );
                 
             end;
             
@@ -1984,21 +1970,21 @@ end;
 ##
 @InstallGlobalFunction( CAP_INTERNAL_ASSERT_IS_CELL_OF_CATEGORY,
   
-  function( cell, category, human_readable_identifier_list )
+  function( cell, category, human_readable_identifier_getter )
     local generic_help_string;
     
     generic_help_string = " You can access the category cell and category via the local variables 'cell' and 'category' in a break loop.";
     
     if (@not IsCapCategoryCell( cell ))
-        CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " does not lie in the filter IsCapCategoryCell.", generic_help_string ] ) );
+        Error( human_readable_identifier_getter( ), " does not lie in the filter IsCapCategoryCell.", generic_help_string );
     end;
     
     if (@not HasCapCategory( cell ))
-        CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " has no CAP category.", generic_help_string ] ) );
+        Error( human_readable_identifier_getter( ), " has no CAP category.", generic_help_string );
     end;
     
     if (category != false && @not IsIdenticalObj( CapCategory( cell ), category ))
-        CallFuncList( Error, @Concatenation( [ "The CapCategory of " ], human_readable_identifier_list, [ " is not identical to the category named \033[1m", Name( category ), "\033[0m.", generic_help_string ] ) );
+        Error( "The CapCategory of ", human_readable_identifier_getter( ), " is not identical to the category named \033[1m", Name( category ), "\033[0m.", generic_help_string );
     end;
     
 end );
@@ -2006,25 +1992,25 @@ end );
 ##
 @InstallGlobalFunction( CAP_INTERNAL_ASSERT_IS_OBJECT_OF_CATEGORY,
   
-  function( object, category, human_readable_identifier_list )
+  function( object, category, human_readable_identifier_getter )
     local generic_help_string;
     
     generic_help_string = " You can access the object and category via the local variables 'object' and 'category' in a break loop.";
     
     if (@not IsCapCategoryObject( object ))
-        CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " does not lie in the filter IsCapCategoryObject.", generic_help_string ] ) );
+        Error( human_readable_identifier_getter( ), " does not lie in the filter IsCapCategoryObject.", generic_help_string );
     end;
     
     if (@not HasCapCategory( object ))
-        CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " has no CAP category.", generic_help_string ] ) );
+        Error( human_readable_identifier_getter( ), " has no CAP category.", generic_help_string );
     end;
     
     if (category != false && @not IsIdenticalObj( CapCategory( object ), category ))
-        CallFuncList( Error, @Concatenation( [ "The CapCategory of " ], human_readable_identifier_list, [ " is not identical to the category named \033[1m", Name( category ), "\033[0m.", generic_help_string ] ) );
+        Error( "The CapCategory of ", human_readable_identifier_getter( ), " is not identical to the category named \033[1m", Name( category ), "\033[0m.", generic_help_string );
     end;
     
     if (category != false && @not ObjectFilter( category )( object ))
-        CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " does not lie in the object filter of the category named \033[1m", Name( category ), "\033[0m.", generic_help_string ] ) );
+        Error( human_readable_identifier_getter( ), " does not lie in the object filter of the category named \033[1m", Name( category ), "\033[0m.", generic_help_string );
     end;
     
 end );
@@ -2032,76 +2018,76 @@ end );
 ##
 @InstallGlobalFunction( CAP_INTERNAL_ASSERT_IS_MORPHISM_OF_CATEGORY,
   
-  function( morphism, category, human_readable_identifier_list )
+  function( morphism, category, human_readable_identifier_getter )
     local generic_help_string;
     
     generic_help_string = " You can access the morphism and category via the local variables 'morphism' and 'category' in a break loop.";
     
     if (@not IsCapCategoryMorphism( morphism ))
-        CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " does not lie in the filter IsCapCategoryMorphism.", generic_help_string ] ) );
+        Error( human_readable_identifier_getter( ), " does not lie in the filter IsCapCategoryMorphism.", generic_help_string );
     end;
     
     if (@not HasCapCategory( morphism ))
-        CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " has no CAP category.", generic_help_string ] ) );
+        Error( human_readable_identifier_getter( ), " has no CAP category.", generic_help_string );
     end;
     
     if (category != false && @not IsIdenticalObj( CapCategory( morphism ), category ))
-        CallFuncList( Error, @Concatenation( [ "the CAP-category of " ], human_readable_identifier_list, [ " is not identical to the category named \033[1m", Name( category ), "\033[0m.", generic_help_string ] ) );
+        Error( "the CAP-category of ", human_readable_identifier_getter( ), " is not identical to the category named \033[1m", Name( category ), "\033[0m.", generic_help_string );
     end;
     
     if (category != false && @not MorphismFilter( category )( morphism ))
-        CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " does not lie in the morphism filter of the category named \033[1m", Name( category ), "\033[0m.", generic_help_string ] ) );
+        Error( human_readable_identifier_getter( ), " does not lie in the morphism filter of the category named \033[1m", Name( category ), "\033[0m.", generic_help_string );
     end;
     
     if (@not HasSource( morphism ))
-        CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " has no source.", generic_help_string ] ) );
+        Error( human_readable_identifier_getter( ), " has no source.", generic_help_string );
     end;
     
-    CAP_INTERNAL_ASSERT_IS_OBJECT_OF_CATEGORY( Source( morphism ), category, @Concatenation( [ "the source of " ], human_readable_identifier_list ) );
+    CAP_INTERNAL_ASSERT_IS_OBJECT_OF_CATEGORY( Source( morphism ), category, () -> @Concatenation( "the source of ", human_readable_identifier_getter( ) ) );
     
     if (@not HasRange( morphism ))
-        CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " has no range.", generic_help_string ] ) );
+        Error( human_readable_identifier_getter( ), " has no range.", generic_help_string );
     end;
     
-    CAP_INTERNAL_ASSERT_IS_OBJECT_OF_CATEGORY( Range( morphism ), category, @Concatenation( [ "the range of " ], human_readable_identifier_list ) );
+    CAP_INTERNAL_ASSERT_IS_OBJECT_OF_CATEGORY( Range( morphism ), category, () -> @Concatenation( "the range of ", human_readable_identifier_getter( ) ) );
     
 end );
 
 ##
 @InstallGlobalFunction( CAP_INTERNAL_ASSERT_IS_TWO_CELL_OF_CATEGORY,
   
-  function( two_cell, category, human_readable_identifier_list )
+  function( two_cell, category, human_readable_identifier_getter )
     local generic_help_string;
     
     generic_help_string = " You can access the 2-cell and category via the local variables 'two_cell' and 'category' in a break loop.";
     
     if (@not IsCapCategoryTwoCell( two_cell ))
-        CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " does not lie in the filter IsCapCategoryTwoCell.", generic_help_string ] ) );
+        Error( human_readable_identifier_getter( ), " does not lie in the filter IsCapCategoryTwoCell.", generic_help_string );
     end;
     
     if (@not HasCapCategory( two_cell ))
-        CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " has no CAP category.", generic_help_string ] ) );
+        Error( human_readable_identifier_getter( ), " has no CAP category.", generic_help_string );
     end;
     
     if (category != false && @not IsIdenticalObj( CapCategory( two_cell ), category ))
-        CallFuncList( Error, @Concatenation( [ "the CapCategory of " ], human_readable_identifier_list, [ " is not identical to the category named \033[1m", Name( category ), "\033[0m.", generic_help_string ] ) );
+        Error( "the CapCategory of ", human_readable_identifier_getter( ), " is not identical to the category named \033[1m", Name( category ), "\033[0m.", generic_help_string );
     end;
     
     if (category != false && @not TwoCellFilter( category )( two_cell ))
-        CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " does not lie in the 2-cell filter of the category named \033[1m", Name( category ), "\033[0m.", generic_help_string ] ) );
+        Error( human_readable_identifier_getter( ), " does not lie in the 2-cell filter of the category named \033[1m", Name( category ), "\033[0m.", generic_help_string );
     end;
     
     if (@not HasSource( two_cell ))
-        CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " has no source.", generic_help_string ] ) );
+        Error( human_readable_identifier_getter( ), " has no source.", generic_help_string );
     end;
     
-    CAP_INTERNAL_ASSERT_IS_MORPHISM_OF_CATEGORY( Source( two_cell ), category, @Concatenation( [ "the source of " ], human_readable_identifier_list ) );
+    CAP_INTERNAL_ASSERT_IS_MORPHISM_OF_CATEGORY( Source( two_cell ), category, () -> @Concatenation( "the source of ", human_readable_identifier_getter( ) ) );
     
     if (@not HasRange( two_cell ))
-        CallFuncList( Error, @Concatenation( human_readable_identifier_list, [ " has no range.", generic_help_string ] ) );
+        Error( human_readable_identifier_getter( ), " has no range.", generic_help_string );
     end;
     
-    CAP_INTERNAL_ASSERT_IS_MORPHISM_OF_CATEGORY( Range( two_cell ), category, @Concatenation( [ "the range of " ], human_readable_identifier_list ) );
+    CAP_INTERNAL_ASSERT_IS_MORPHISM_OF_CATEGORY( Range( two_cell ), category, () -> @Concatenation( "the range of ", human_readable_identifier_getter( ) ) );
     
 end );
 
