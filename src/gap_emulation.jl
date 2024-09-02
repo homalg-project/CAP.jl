@@ -755,15 +755,15 @@ function Product(list::Union{Vector, UnitRange, StepRange, Tuple})
 	end
 end
 
-function Sum(list::Union{Vector, UnitRange, StepRange, Tuple})
+function Sum(list::Union{Vector, UnitRange, StepRange, Tuple}, init = 0)
 	if length(list) == 0
-		0
+		init
 	else
 		sum(list)
 	end
 end
 
-function Sum(list::Union{Vector, UnitRange, StepRange, Tuple}, func)
+function Sum(list::Union{Vector, UnitRange, StepRange, Tuple}, func::Function)
 	Sum(map(func, list))
 end
 
@@ -894,7 +894,7 @@ function PositionProperty(list, func)
 end
 Positions(list, elm) = findall(e -> e == elm, list)
 
-function Filtered(list::Union{Vector, UnitRange, StepRange, Tuple}, func)
+function Filtered(list::Union{Vector, UnitRange, StepRange, Tuple, String}, func)
 	filter(func, list)
 end
 
@@ -1159,6 +1159,17 @@ end
 
 function Maximum(int1::Union{Int, BigInt}, int2::Union{Int, BigInt})
 	max(int1, int2)
+end
+
+function Minimum(int1::Union{Int, BigInt, Float64}, int2::Union{Int, BigInt, Float64})
+	# make sure that minimum of an integer and infinity returns the integer without converting it to a float
+	if int1 === infinity
+		int2
+	elseif int2 === infinity
+		int1
+	else
+		min(int1, int2)
+	end
 end
 
 global const infinity = Inf

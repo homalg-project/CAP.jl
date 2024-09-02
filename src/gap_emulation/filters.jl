@@ -34,6 +34,7 @@ macro DeclareFilter(name::String, parent_filter::Union{Symbol,Expr} = :IsObject)
 			dict::Dict
 		end
 		global const $filter_symbol = Filter($name, $abstract_type_symbol, $concrete_type_symbol, true, obj -> true)
+		nothing # suppress output when using the macro in tests
 	end)
 end
 

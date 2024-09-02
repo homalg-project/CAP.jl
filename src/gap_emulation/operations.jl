@@ -6,6 +6,7 @@ macro DeclareOperation(name::String, filter_list = [])
 	symbol = Symbol(name)
 	esc(quote
 		function $symbol end
+		nothing # suppress output when using the macro in tests
 	end)
 end
 
@@ -17,6 +18,7 @@ macro KeyDependentOperation(name::String, filter1, filter2, func)
 	esc(quote
 		@DeclareOperation($name)
 		global const $symbol_op = $symbol
+		nothing # suppress output when using the macro in tests
 	end)
 end
 
@@ -117,6 +119,7 @@ macro InstallMethod(operation::Symbol, filter_list, func)
 	
 	block = quote
 		$func
+		nothing # suppress output when using the macro in tests
 	end
 	
 	if filter_list !== :nothing
