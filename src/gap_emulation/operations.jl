@@ -1,3 +1,5 @@
+## macros
+
 macro DeclareOperation(name::String, filter_list = [])
 	# prevent attributes from being redefined as operations
 	if isdefined(__module__, Symbol(name))
@@ -130,6 +132,21 @@ macro InstallMethod(operation::Symbol, filter_list, func)
 end
 
 export @InstallMethod
+
+## runtime
+
+function DeclareOperation(name::String, filter_list = [])
+	NewOperation(last(ModulesForEvaluationStack), name, filter_list)
+	return;
+end
+
+function NewOperation(name::String, filter_list = [])
+	NewOperation(last(ModulesForEvaluationStack), name, filter_list)
+end
+
+function NewOperation(mod::Module, name::String, filter_list)
+	Base.eval(mod, :(function $(Symbol(name)) end))
+end
 
 function InstallMethod(operation, filter_list, func)
 	InstallMethod(last(ModulesForEvaluationStack), operation, filter_list, func)

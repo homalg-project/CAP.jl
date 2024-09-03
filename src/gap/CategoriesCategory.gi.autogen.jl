@@ -12,10 +12,6 @@
 # backwards compatibility
 @BindGlobal( "IsCapNaturalTransformationRep", IsCapNaturalTransformation );
 
-@BindGlobal( "TheTypeOfCapNaturalTransformations",
-        NewType( TheFamilyOfCapCategoryTwoCells,
-                IsCapNaturalTransformation ) );
-
 ##
 @BindGlobal( "CAP_INTERNAL_CREATE_Cat",
                
@@ -90,7 +86,7 @@ end );
         
     end;
     
-    return CallFuncList( Product, source_list );
+    return ProductCategory( source_list );
     
 end );
 
@@ -394,6 +390,8 @@ end );
     local is_object, cache, cache_return, computed_value,
           source_list, source_value, range_list, range_value, i, tmp, source_category, range_category, input_signature;
     
+    arguments = List( arguments ); # in Julia, `arguments` is a tuple which we can@not assign to below
+    
     source_category = AsCapCategory( Source( functor ) );
     range_category = AsCapCategory( Range( functor ) );
     input_signature = InputSignature( functor );
@@ -587,7 +585,7 @@ AddDirectProduct( category,
                   
   function( cat, object_product_list )
     
-    return AsCatObject( CallFuncList( Product, List( object_product_list, AsCapCategory ) ) );
+    return AsCatObject( ProductCategory( List( object_product_list, AsCapCategory ) ) );
     
 end );
 
@@ -645,7 +643,7 @@ AddUniversalMorphismIntoDirectProductWithGivenDirectProduct( category,
             
             object_list = List( sink, F -> ApplyFunctor( F, object ) );
             
-            return CallFuncList( Product, object_list );
+            return ProductCategoryObject( object_list );
             
         end );
         
@@ -656,7 +654,7 @@ AddUniversalMorphismIntoDirectProductWithGivenDirectProduct( category,
             
             morphism_list = List( sink, F -> ApplyFunctor( F, morphism ) );
             
-            return CallFuncList( Product, morphism_list );
+            return ProductCategoryMorphism( morphism_list );
             
         end );
         
@@ -803,10 +801,10 @@ end );
     
     for current_filters in install_list
         
-        CallFuncList( DeclareOperation, current_filters );
+        DeclareOperation( current_filters[1], current_filters[2] );
         
-        InstallMethod( ValueGlobal( current_filters[ 1 ] ),
-                      current_filters[ 2 ],
+        InstallMethod( ValueGlobal( current_filters[1] ),
+                       current_filters[2],
                       
           function( arg... )
             
@@ -995,14 +993,11 @@ end );
         
     end;
     
-    natural_transformation = ObjectifyWithAttributes( @rec( ), TheTypeOfCapNaturalTransformations,
-                                                       Name, name,
-                                                       Source, source,
-                                                       Range, range );
-    
-    Add( CapCategory( source ), natural_transformation );
-    
-    return natural_transformation;
+    return CreateCapCategoryTwoCellWithAttributes(
+        CapCategory( source ),
+        source, range,
+        Name, name
+    );
     
 end );
 
@@ -1073,11 +1068,13 @@ end );
 @InstallGlobalFunction( ApplyNaturalTransformation,
                
   function( arg... )
-    local trafo, source_functor, arguments, i, source_value, range_value, computed_value;
+    local trafo, source_functor, range_category, arguments, source_value, range_value, computed_value, i;
     
     trafo = arg[ 1 ];
     
     source_functor = Source( trafo );
+    
+    range_category = AsCapCategory( Range( source_functor ) );
     
     arguments = arg[(2):(Length( arg ))];
     
@@ -1102,7 +1099,11 @@ end );
     
     computed_value = CallFuncList( NaturalTransformationOperation( trafo ), @Concatenation( [ source_value ], arguments, [ range_value ] ) );
     
-    Add( AsCapCategory( Range( source_functor ) ), computed_value );
+    if (range_category.add_primitive_output)
+        
+        AddTwoCell( range_category, computed_value );
+        
+    end;
     
     ## TODO: this should be replaced by an "a => b" todo_list with more properties
     if (HasIsIsomorphism( trafo ) && IsIsomorphism( trafo ))

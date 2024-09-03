@@ -24,17 +24,34 @@
   function( category, twocell )
     local obj_filter, filter;
     
+    filter = TwoCellFilter( category );
+    
+    if (@not filter( twocell ))
+        
+        SetFilterObj( twocell, filter );
+        
+    end;
+    
     if (HasCapCategory( twocell ))
         
-        if (IsIdenticalObj( CapCategory( twocell ), category ))
+        if (@not IsIdenticalObj( CapCategory( twocell ), category ))
             
-            return;
-            
-        else
-            
-            Error( "this 2-cell already has a category" );
+            Error(
+                @Concatenation(
+                    "a two cell that lies in the CAP-category with the name\n",
+                    Name( CapCategory( twocell ) ),
+                    "\n",
+                    "was tried to be added to a different CAP-category with the name\n",
+                    Name( category ), ".\n",
+                    "(Please note that it is possible for different CAP-categories to have the same name)"
+                )
+            );
             
         end;
+        
+    else
+        
+        SetCapCategory( twocell, category );
         
     end;
     
@@ -42,17 +59,21 @@
     
     AddMorphism( category, Range( twocell ) );
     
-    filter = TwoCellFilter( category );
+end );
+
+##
+@InstallMethod( AddTwoCell,
+               [ IsCapCategory, IsCapCategoryTwoCell ],
+               
+  function( category, twocell )
     
-    SetFilterObj( twocell, filter );
-    
-    SetCapCategory( twocell, category );
+    Add( category, twocell );
     
 end );
 
 ##
 @InstallMethod( AddTwoCell,
-               [ IsCapCategory, IsObject ],
+               [ IsCapCategory, IsAttributeStoringRep ],
                
   function( category, twocell )
     
@@ -62,3 +83,16 @@ end );
     
 end );
 
+##
+@InstallGlobalFunction( CreateCapCategoryTwoCellWithAttributes,
+                       
+  function( category, source, range, additional_arguments_list... )
+    local arg_list;
+    
+    arg_list = @Concatenation(
+        [ @rec( ), category.two_cell_type, CapCategory, category, Source, source, Range, range ], additional_arguments_list
+    );
+    
+    return CallFuncList( ObjectifyWithAttributes, arg_list );
+    
+end );

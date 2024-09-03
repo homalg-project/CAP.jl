@@ -173,6 +173,10 @@ function CreateCrispCachingObject( args... )
 	"crisp_caching_object"
 end
 
+function CachingObject( args... )
+	"cache_object"
+end
+
 function CacheValue(cache, key_list)
 	[ ]
 end
