@@ -30,6 +30,20 @@ macro InstallMethod(operation::Symbol, description::String, filter_list, func)
 	esc(:(@InstallMethod($operation, $filter_list, $func)))
 end
 
+function get_operation_for_installation(operation, filter_list)
+	if IsAttribute(operation)
+		@assert filter_list !== :nothing
+		
+		attr = operation
+		
+		if length(filter_list) === 1 && filter_list[1].abstract_type <: IsAttributeStoringRep.abstract_type
+			return attr.operation
+		end
+	end
+	
+	return operation
+end
+
 macro InstallMethod(operation::Symbol, filter_list, func)
 	if operation === :ViewObj
 		println("ignoring installation for ViewObj, use ViewString instead")
@@ -66,24 +80,7 @@ macro InstallMethod(operation::Symbol, filter_list, func)
 	
 	@assert func.head === :function
 	
-	is_attribute = IsBoundGlobal( string(operation) ) && IsAttribute( ValueGlobal( string(operation) ) )
-	
-	if is_attribute
-		@assert filter_list !== :nothing
-		
-		attr = ValueGlobal( string(operation) )
-		
-		if length(filter_list.args) === 1 && ValueGlobal( string(filter_list.args[1]) ).abstract_type <: IsAttributeStoringRep.abstract_type
-			callable = Symbol(attr.operation)
-			operation_to_precompile = callable
-		else
-			callable = :(::typeof($operation))
-			operation_to_precompile = operation
-		end
-	else
-		callable = operation
-		operation_to_precompile = callable
-	end
+	callable = :(::typeof(get_operation_for_installation($operation, $filter_list)))
 	
 	if func.args[1].head === :tuple
 		func.args[1] = Expr(:call, callable, func.args[1].args...)
@@ -121,7 +118,7 @@ macro InstallMethod(operation::Symbol, filter_list, func)
 	end
 	
 	if filter_list !== :nothing
-		push!(block.args, :(CAP_precompile($operation_to_precompile, ($(types...),))))
+		push!(block.args, :(CAP_precompile(get_operation_for_installation($operation, $filter_list), ($(types...),))))
 	end
 	
 	esc(block)
