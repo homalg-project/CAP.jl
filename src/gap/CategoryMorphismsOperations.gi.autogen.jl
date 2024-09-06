@@ -633,3 +633,111 @@ end );
                
   IsWellDefinedForMorphisms
 );
+
+###################################
+##
+## Lift/Colift/SolveLinearSystemInAbCategory
+##
+###################################
+
+##
+@InstallMethod( LiftOrFail,
+               [ IsCapCategoryMorphism, IsCapCategoryMorphism ],
+               
+  function ( alpha, beta )
+    
+    return LiftOrFail( CapCategory( alpha ), alpha, beta );
+    
+end );
+
+##
+@InstallMethod( LiftOrFail,
+                                     [ IsCapCategory, IsCapCategoryMorphism, IsCapCategoryMorphism ],
+                                     
+  function( cat, alpha, beta )
+    
+    if (IsLiftable( cat, alpha, beta ))
+        
+        return Lift( cat, alpha, beta );
+        
+    else
+        
+        return fail;
+        
+    end;
+    
+end );
+
+CAP_INTERNAL_ADD_REPLACEMENTS_FOR_METHOD_RECORD(
+    @rec(
+        LiftOrFail = [ [ "IsLiftable", 1 ], [ "Lift", 1 ] ],
+    )
+);
+
+##
+@InstallMethod( ColiftOrFail,
+               [ IsCapCategoryMorphism, IsCapCategoryMorphism ],
+               
+  function ( alpha, beta )
+    
+    return ColiftOrFail( CapCategory( alpha ), alpha, beta );
+    
+end );
+
+##
+@InstallMethod( ColiftOrFail,
+                                     [ IsCapCategory, IsCapCategoryMorphism, IsCapCategoryMorphism ],
+                                     
+  function( cat, alpha, beta )
+    
+    if (IsColiftable( cat, alpha, beta ))
+        
+        return Colift( cat, alpha, beta );
+        
+    else
+        
+        return fail;
+        
+    end;
+    
+end );
+
+CAP_INTERNAL_ADD_REPLACEMENTS_FOR_METHOD_RECORD(
+    @rec(
+        ColiftOrFail = [ [ "IsColiftable", 1 ], [ "Colift", 1 ] ],
+    )
+);
+
+##
+@InstallMethod( SolveLinearSystemInAbCategoryOrFail,
+               [ IsList, IsList, IsList ],
+               
+  function ( left_coefficients, right_coefficients, right_side )
+    
+    return SolveLinearSystemInAbCategoryOrFail( CapCategory( right_side[1] ), left_coefficients, right_coefficients, right_side );
+    
+end );
+
+##
+@InstallMethod( SolveLinearSystemInAbCategoryOrFail,
+                                     [ IsCapCategory, IsList, IsList, IsList ],
+                                     
+  function( cat, left_coefficients, right_coefficients, right_side )
+    
+    if (MereExistenceOfSolutionOfLinearSystemInAbCategory( cat, left_coefficients, right_coefficients, right_side ))
+        
+        return SolveLinearSystemInAbCategory( cat, left_coefficients, right_coefficients, right_side );
+        
+    else
+        
+        return fail;
+        
+    end;
+    
+end );
+
+CAP_INTERNAL_ADD_REPLACEMENTS_FOR_METHOD_RECORD(
+    @rec(
+        SolveLinearSystemInAbCategoryOrFail = [ [ "MereExistenceOfSolutionOfLinearSystemInAbCategory", 1 ], [ "SolveLinearSystemInAbCategory", 1 ] ],
+    )
+);

@@ -540,13 +540,17 @@ MakeReadWriteGlobal( "Product" );
 ## HEHE!
 Product = function( arg... )
     
-    if (ForAll( arg, IsCapCategory ))
+    if (@not IsEmpty( arg ))
         
-        return ProductCategory( arg );
-        
-    elseif (ForAll( arg, IsCapCategoryCell ))
-        
-        return arg / ProductCategory( List( arg, CapCategory ) );
+        if (ForAll( arg, IsCapCategory ))
+            
+            return ProductCategory( arg );
+            
+        elseif (ForAll( arg, IsCapCategoryCell ))
+            
+            return arg / ProductCategory( List( arg, CapCategory ) );
+            
+        end;
         
     end;
     
