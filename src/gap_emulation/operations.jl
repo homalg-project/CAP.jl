@@ -26,10 +26,6 @@ end
 
 export @KeyDependentOperation
 
-function with_additional_dropped_first_argument(f)
-	(arg1, args...) -> f(args...)
-end
-
 macro InstallMethod(operation::Symbol, description::String, filter_list, func)
 	esc(:(@InstallMethod($operation, $filter_list, $func)))
 end
