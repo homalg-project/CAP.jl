@@ -334,26 +334,6 @@ end );
                     output_range_getter = output_range_getter_string,
                 ) );
                 
-            elseif (return_type == "object_or_fail")
-                
-                return_statement = """
-                    if (result == fail)
-                        return fail;
-                    else
-                        return ObjectConstructor( cat, result );
-                    end;
-                """;
-                
-            elseif (return_type == "morphism_or_fail")
-                
-                return_statement = """
-                    if (result == fail)
-                        return fail;
-                    else
-                        return MorphismConstructor( cat, ObjectConstructor( cat, Range( result ) ), result, ObjectConstructor( cat, Source( result ) ) );
-                    end;
-                """;
-                
             elseif (return_type == "list_of_morphisms")
                 
                 return_statement = "return List( result, mor -> MorphismConstructor( cat, ObjectConstructor( cat, Range( mor ) ), mor, ObjectConstructor( cat, Source( mor ) ) ) );";

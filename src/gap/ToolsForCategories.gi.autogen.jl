@@ -206,11 +206,6 @@ end );
             
         end;
         
-    elseif (string == "object_or_fail" || string == "morphism_or_fail" || string == "list_or_morphisms_or_fail")
-        
-        # cannot be express "or fail" yet
-        return fail;
-        
     elseif (string == "element_of_commutative_ring_of_linear_structure")
         
         if (category != false && @not HasCommutativeRingOfLinearCategory( category ))
