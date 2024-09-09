@@ -205,11 +205,13 @@ function InstallMethod(mod::Module, operation::Function, filter_list, func::Func
 		))
 	end
 	
-	if funcref isa Symbol
-		Base.eval(mod, :(export $funcref))
+	if is_precompiling()
+		if funcref isa Symbol
+			Base.eval(mod, :(export $funcref))
+		end
+		
+		Base.eval(mod, :(CAP_precompile($operation_to_precompile,($(types...),))))
 	end
-	
-	Base.eval(mod, :(CAP_precompile($operation_to_precompile,($(types...),))))
 end
 
 function InstallMethod(operation, description::String, filter_list, func)
