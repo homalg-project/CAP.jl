@@ -179,39 +179,6 @@ end );
   F -> AsCapCategory( Range( F ) )
 );
 
-@BindGlobal( "CAP_INTERNAL_SANITIZE_FUNC_LIST_FOR_FUNCTORS",
-  
-  function( list )
-    local sanitized_list, i;
-    
-    sanitized_list = [ ];
-    
-    for i in list
-        
-        if (IsFunction( i ))
-            
-            Add( sanitized_list, [ i, [ ] ] );
-            
-        elseif (IsList( i ) && Length( i ) == 1)
-            
-            Add( sanitized_list, [ i[ 1 ], [ ] ] );
-            
-        elseif (IsList( i ) && Length( i ) == 2)
-            
-            Add( sanitized_list, i );
-            
-        else
-            
-            Error( "wrong function input" );
-            
-        end;
-        
-    end;
-    
-    return sanitized_list;
-    
-end );
-
 @BindGlobal( "CAP_INTERNAL_FUNCTOR_CREATE_FILTER_LIST",
   
   function( functor, type )
@@ -239,21 +206,6 @@ end );
     end;
     
     return filter_list;
-    
-end );
-
-@BindGlobal( "CAP_INTERNAL_INSTALL_FUNCTOR_OPERATION",
-  
-  function( operation, func_list, filter_list, cache )
-    local current_filter_list, current_method;
-    
-    for current_method in func_list
-        
-        current_filter_list = CAP_INTERNAL_MERGE_FILTER_LISTS( filter_list, current_method[ 2 ] );
-        
-        InstallMethodWithCache( operation, current_filter_list, current_method[ 1 ]; Cache = cache );
-        
-    end;
     
 end );
 
@@ -287,49 +239,33 @@ end );
 
 ##
 @InstallMethod( AddObjectFunction,
-               [ IsCapFunctor, IsList ],
+               [ IsCapFunctor, IsFunction ],
                
-  function( functor, func_list )
-    local sanitized_list, filter_list, operation;
-    
-    sanitized_list = CAP_INTERNAL_SANITIZE_FUNC_LIST_FOR_FUNCTORS( func_list );
+  function( functor, func )
+    local filter_list, operation;
     
     filter_list = CAP_INTERNAL_FUNCTOR_CREATE_FILTER_LIST( functor, "object" );
     
     if (@not @IsBound( functor.object_function_list ))
         
-        functor.object_function_list = sanitized_list;
-        
-    else
-        
-        Append( functor.object_function_list, sanitized_list );
+        functor.object_function_list = [ ];
         
     end;
     
+    Add( functor.object_function_list, func );
+    
     operation = FunctorObjectOperation( functor );
     
-    CAP_INTERNAL_INSTALL_FUNCTOR_OPERATION( operation, sanitized_list, filter_list, ObjectCache( functor ) );
-    
-end );
-
-##
-@InstallMethod( AddObjectFunction,
-               [ IsCapFunctor, IsFunction ],
-               
-  function( functor, func )
-    
-    AddObjectFunction( functor, [ [ func, [ ] ] ] );
+    InstallMethodWithCache( operation, filter_list, func; Cache = ObjectCache( functor ) );
     
 end );
 
 ##
 @InstallMethod( AddMorphismFunction,
-               [ IsCapFunctor, IsList ],
+               [ IsCapFunctor, IsFunction ],
                
-  function( functor, func_list )
-    local sanitized_list, filter_list, operation, range_cat;
-    
-    sanitized_list = CAP_INTERNAL_SANITIZE_FUNC_LIST_FOR_FUNCTORS( func_list );
+  function( functor, func )
+    local filter_list, operation, range_cat;
     
     filter_list = CAP_INTERNAL_FUNCTOR_CREATE_FILTER_LIST( functor, "morphism" );
     
@@ -339,27 +275,15 @@ end );
     
     if (@not @IsBound( functor.morphism_function_list ))
         
-        functor.morphism_function_list = sanitized_list;
-        
-    else
-        
-        Append( functor.morphism_function_list, sanitized_list );
+        functor.morphism_function_list = [ ];
         
     end;
     
+    Add( functor.morphism_function_list, func );
+    
     operation = FunctorMorphismOperation( functor );
     
-    CAP_INTERNAL_INSTALL_FUNCTOR_OPERATION( operation, sanitized_list, filter_list, MorphismCache( functor ) );
-    
-end );
-
-##
-@InstallMethod( AddMorphismFunction,
-               [ IsCapFunctor, IsFunction ],
-               
-  function( functor, func )
-    
-    AddMorphismFunction( functor, [ [ func, [ ] ] ] );
+    InstallMethodWithCache( operation, filter_list, func; Cache = MorphismCache( functor ) );
     
 end );
 
@@ -400,7 +324,7 @@ end );
     if (Length( arguments ) == 1 && functor.number_arguments > 1)
         
         if (source_category.input_sanity_check_level > 0)
-            CAP_INTERNAL_ASSERT_IS_CELL_OF_CATEGORY( arguments[ 1 ], source_category, [ "the argument passed to the functor named \033[1m", Name(functor), "\033[0m" ] );
+            CAP_INTERNAL_ASSERT_IS_CELL_OF_CATEGORY( arguments[ 1 ], source_category, () -> @Concatenation( "the argument passed to the functor named \033[1m", Name(functor), "\033[0m" ) );
         end;
 
         arguments = ShallowCopy( Components( arguments[ 1 ] ) );
@@ -413,7 +337,7 @@ end );
         
     elseif (Length( arguments ) == 1 && input_signature[ 1 ][ 2 ] == true)
         if (source_category.input_sanity_check_level > 0)
-            CAP_INTERNAL_ASSERT_IS_CELL_OF_CATEGORY( arguments[ 1 ], false, [ "the argument passed to the functor named \033[1m", Name(functor), "\033[0m" ] );
+            CAP_INTERNAL_ASSERT_IS_CELL_OF_CATEGORY( arguments[ 1 ], false, () -> @Concatenation( "the argument passed to the functor named \033[1m", Name(functor), "\033[0m" ) );
         end;
 
         if (IsIdenticalObj( CapCategory( arguments[ 1 ] ), Opposite( input_signature[ 1 ][ 1 ] ) ))
@@ -421,7 +345,7 @@ end );
         end;
     elseif (Length( arguments ) == 1)
         if (source_category.input_sanity_check_level > 0)
-            CAP_INTERNAL_ASSERT_IS_CELL_OF_CATEGORY( arguments[ 1 ], source_category, [ "the argument passed to the functor named \033[1m", Name(functor), "\033[0m" ] );
+            CAP_INTERNAL_ASSERT_IS_CELL_OF_CATEGORY( arguments[ 1 ], source_category, () -> @Concatenation( "the argument passed to the functor named \033[1m", Name(functor), "\033[0m" ) );
         end;
     end;
     
@@ -434,14 +358,14 @@ end );
             end;
 
             for i in (1):(Length( input_signature ))
-                CAP_INTERNAL_ASSERT_IS_OBJECT_OF_CATEGORY( arguments[ i ], input_signature[ i ][ 1 ], [ "the ", StringGAP(i), "-th argument passed to the functor named \033[1m", Name(functor), "\033[0m" ] );
+                CAP_INTERNAL_ASSERT_IS_OBJECT_OF_CATEGORY( arguments[ i ], input_signature[ i ][ 1 ], () -> @Concatenation( "the ", StringGAP(i), "-th argument passed to the functor named \033[1m", Name(functor), "\033[0m" ) );
             end;
         end;
         
         computed_value = CallFuncList( FunctorObjectOperation( functor ), arguments );
 
         if (range_category.output_sanity_check_level > 0 && @not range_category.add_primitive_output)
-            CAP_INTERNAL_ASSERT_IS_OBJECT_OF_CATEGORY( computed_value, range_category, [ "the result of the object function of the functor named \033[1m", Name(functor), "\033[0m" ] );
+            CAP_INTERNAL_ASSERT_IS_OBJECT_OF_CATEGORY( computed_value, range_category, () -> @Concatenation( "the result of the object function of the functor named \033[1m", Name(functor), "\033[0m" ) );
         end;
         
         if (range_category.add_primitive_output)
@@ -458,7 +382,7 @@ end );
             end;
 
             for i in (1):(Length( input_signature ))
-                CAP_INTERNAL_ASSERT_IS_MORPHISM_OF_CATEGORY( arguments[ i ], input_signature[ i ][ 1 ], [ "the ", StringGAP(i), "-th argument passed to the functor named \033[1m", Name(functor), "\033[0m" ] );
+                CAP_INTERNAL_ASSERT_IS_MORPHISM_OF_CATEGORY( arguments[ i ], input_signature[ i ][ 1 ], () -> @Concatenation( "the ", StringGAP(i), "-th argument passed to the functor named \033[1m", Name(functor), "\033[0m" ) );
             end;
         end;
         
@@ -481,7 +405,7 @@ end );
         computed_value = CallFuncList( FunctorMorphismOperation( functor ), @Concatenation( [ source_value ], arguments, [ range_value ] ) );
 
         if (range_category.output_sanity_check_level > 0 && @not range_category.add_primitive_output)
-            CAP_INTERNAL_ASSERT_IS_MORPHISM_OF_CATEGORY( computed_value, range_category, [ "the result of the morphism function of the functor named \033[1m", Name(functor), "\033[0m" ] );
+            CAP_INTERNAL_ASSERT_IS_MORPHISM_OF_CATEGORY( computed_value, range_category, () -> @Concatenation( "the result of the morphism function of the functor named \033[1m", Name(functor), "\033[0m" ) );
         end;
         
         if (range_category.add_primitive_output)
@@ -570,11 +494,11 @@ AddUniversalMorphismIntoTerminalObjectWithGivenTerminalObject( category,
     
     AddObjectFunction( new_functor,
                        
-                       function( arg... ) return UniqueObject( AsCapCategory( terminal_cat ) ); end );
+                       function( arg... ) return TerminalCategoryWithSingleObjectUniqueObject( AsCapCategory( terminal_cat ) ); end );
     
     AddMorphismFunction( new_functor,
                          
-                         function( arg... ) return UniqueMorphism( AsCapCategory( terminal_cat ) ); end );
+                         function( arg... ) return TerminalCategoryWithSingleObjectUniqueMorphism( AsCapCategory( terminal_cat ) ); end );
     
     return new_functor;
     
@@ -1028,12 +952,10 @@ end );
 
 ##
 @InstallMethod( AddNaturalTransformationFunction,
-               [ IsCapNaturalTransformation, IsList ],
+               [ IsCapNaturalTransformation, IsFunction ],
                
-  function( trafo, func_list )
-    local sanitized_list, filter_list, operation, range_cat;
-    
-    sanitized_list = CAP_INTERNAL_SANITIZE_FUNC_LIST_FOR_FUNCTORS( func_list );
+  function( trafo, func )
+    local filter_list, operation, range_cat;
     
     filter_list = CAP_INTERNAL_FUNCTOR_CREATE_FILTER_LIST( Source( trafo ), "object" );
     
@@ -1041,27 +963,15 @@ end );
     
     if (@not @IsBound( trafo.function_list ))
         
-        trafo.function_list = sanitized_list;
-        
-    else
-        
-        Append( trafo.function_list, sanitized_list );
+        trafo.function_list = [ ];
         
     end;
     
+    Add( trafo.function_list, func );
+    
     operation = NaturalTransformationOperation( trafo );
     
-    CAP_INTERNAL_INSTALL_FUNCTOR_OPERATION( operation, sanitized_list, filter_list, NaturalTransformationCache( trafo ) );
-    
-end );
-
-##
-@InstallMethod( AddNaturalTransformationFunction,
-               [ IsCapNaturalTransformation, IsFunction ],
-               
-  function( trafo, func )
-    
-    AddNaturalTransformationFunction( trafo, [ [ func, [ ] ] ] );
+    InstallMethodWithCache( operation, filter_list, func; Cache = NaturalTransformationCache( trafo ) );
     
 end );
 

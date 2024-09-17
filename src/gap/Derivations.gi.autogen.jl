@@ -110,9 +110,7 @@ end );
     [ "IsFinalDerivation", false ],
   ],
   function( CAP_NAMED_ARGUMENTS, d, weight, C )
-    local method_name, func, add_method, add_name, general_filter_list,
-          installation_name, nr_arguments, cache_name, current_filters, current_implementation,
-          function_called_before_installation;
+    local method_name, func;
     
     @Info( DerivationInfo, 1, @Concatenation( "install(",
                                             StringGAP( weight ),
@@ -123,8 +121,6 @@ end );
     
     method_name = TargetOperation( d );
     func = DerivationFunction( d );
-    add_name = @Concatenation( "Add", method_name );
-    add_method = ValueGlobal( add_name );
     
     if (HasFunctionCalledBeforeInstallation( d ))
         
@@ -132,9 +128,7 @@ end );
         
     end;
     
-    # use the add method with signature IsCapCategory, IsList, IsInt to avoid
-    # the convenience for AddZeroObject etc.
-    add_method( C, [ PairGAP( func, [ ] ) ], weight; IsDerivation = !(IsFinalDerivation), IsFinalDerivation = IsFinalDerivation );
+    AddCapOperation( method_name, C, func, weight; IsDerivation = !(IsFinalDerivation), IsFinalDerivation = IsFinalDerivation );
     
 end ) );
 
@@ -843,7 +837,7 @@ end );
 @InstallGlobalFunction( DerivationsOfMethodByCategory,
   
   function( category, name )
-    local category_weight_list, current_weight, current_derivation, currently_installed_funcs, to_delete, weight_list, category_getter_string, possible_derivations, category_filter, weight, found, i, x, final_derivation;
+    local category_weight_list, current_weight, current_derivation, currently_installed_func, weight_list, category_getter_string, possible_derivations, category_filter, weight, found, x, final_derivation;
     
     if (IsFunction( name ))
         name = NameFunction( name );
@@ -881,22 +875,7 @@ end );
                 
             end;
             
-            currently_installed_funcs = category.added_functions[name];
-            
-            # delete overwritten funcs
-            to_delete = [ ];
-            
-            for i in (1):(Length( currently_installed_funcs ))
-                
-                if (ForAny( ((i+1)):(Length( currently_installed_funcs )), j -> currently_installed_funcs[i][2] == currently_installed_funcs[j][2] ))
-                    
-                    Add( to_delete, i );
-                    
-                end;
-                
-            end;
-            
-            currently_installed_funcs = currently_installed_funcs[Difference( (1):(Length( currently_installed_funcs )), to_delete )];
+            currently_installed_func = Last( category.added_functions[name] );
             
         else
             
@@ -922,32 +901,15 @@ end );
                 
             end;
             
-            currently_installed_funcs = [ PairGAP( DerivationFunction( current_derivation ), [ ] ) ];
+            currently_installed_func = DerivationFunction( current_derivation );
             
         end;
         
-        Print( "\nThe following function" );
-        
-        if (Length( currently_installed_funcs ) > 1)
-            Print( "s were" );
-        else
-            Print( " was" );
-        end;
-        
-        Print( " installed for this operation:\n\n" );
-        
-        for i in currently_installed_funcs
-            
-            Print( "Filters: " );
-            Print( StringGAP( i[ 2 ] ) );
-            Print( "\n\n" );
-            Display( i[ 1 ] );
-            Print( "\n" );
-            Print( "Source: ", FilenameFunc( i[ 1 ] ), ":", StartlineFunc( i[ 1 ] ), "\n" );
-            Print( "\n" );
-            
-        end;
-        
+        Print( "\nThe following function was installed for this operation:\n\n" );
+        Display( currently_installed_func );
+        Print( "\n" );
+        Print( "Source: ", FilenameFunc( currently_installed_func ), ":", StartlineFunc( currently_installed_func ), "\n" );
+        Print( "\n" );
         Print( "#######\n\n" );
         
     else

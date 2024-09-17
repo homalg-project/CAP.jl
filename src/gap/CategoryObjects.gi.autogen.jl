@@ -160,7 +160,7 @@ end );
     
     if (object_datum_type != fail)
         
-        CAP_INTERNAL_ASSERT_VALUE_IS_OF_TYPE_GETTER( object_datum_type, [ "the second argument of `AsCapCategoryObject`" ] )( object_datum );
+        CAP_INTERNAL_ASSERT_VALUE_IS_OF_TYPE_GETTER( object_datum_type, () -> "the second argument of `AsCapCategoryObject`" )( object_datum );
         
     end;
     

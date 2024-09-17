@@ -180,7 +180,7 @@ end );
     
     if (morphism_datum_type != fail)
         
-        CAP_INTERNAL_ASSERT_VALUE_IS_OF_TYPE_GETTER( morphism_datum_type, [ "the third argument of `AsCapCategoryMorphism`" ] )( morphism_datum );
+        CAP_INTERNAL_ASSERT_VALUE_IS_OF_TYPE_GETTER( morphism_datum_type, () -> "the third argument of `AsCapCategoryMorphism`" )( morphism_datum );
         
     end;
     

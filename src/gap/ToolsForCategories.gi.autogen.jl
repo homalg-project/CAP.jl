@@ -376,32 +376,12 @@ end );
     
 end );
 
-@InstallGlobalFunction( "CAP_INTERNAL_MERGE_FILTER_LISTS",
-  
-  function( filter_list, additional_filters )
-    local i;
-    
-    if (IsEmpty( additional_filters ))
-        return filter_list;
-    end;
-    
-    filter_list = ShallowCopy( filter_list );
-    
-    if (Length( filter_list ) != Length( additional_filters ))
-        Error( "wrong number of additional filters" );
-    end;
-    
-    for i in (1):(Length( additional_filters ))
-        filter_list[ i ] = filter_list[ i ] && additional_filters[ i ];
-    end;
-    
-    return filter_list;
-end );
-
 @InstallGlobalFunction( "CAP_INTERNAL_ASSERT_VALUE_IS_OF_TYPE_GETTER",
   
   function( data_type, human_readable_identifier_getter )
     local generic_help_string, filter, asserts_value_is_of_element_type, assert_value_is_of_element_type;
+    
+    @Assert( 0, IsFunction( human_readable_identifier_getter ) );
     
     generic_help_string = " You can access the value via the local variable 'value' in a break loop.";
     
@@ -1968,6 +1948,8 @@ end;
   function( cell, category, human_readable_identifier_getter )
     local generic_help_string;
     
+    @Assert( 0, IsFunction( human_readable_identifier_getter ) );
+    
     generic_help_string = " You can access the category cell and category via the local variables 'cell' and 'category' in a break loop.";
     
     if (@not IsCapCategoryCell( cell ))
@@ -1989,6 +1971,8 @@ end );
   
   function( object, category, human_readable_identifier_getter )
     local generic_help_string;
+    
+    @Assert( 0, IsFunction( human_readable_identifier_getter ) );
     
     generic_help_string = " You can access the object and category via the local variables 'object' and 'category' in a break loop.";
     
@@ -2015,6 +1999,8 @@ end );
   
   function( morphism, category, human_readable_identifier_getter )
     local generic_help_string;
+    
+    @Assert( 0, IsFunction( human_readable_identifier_getter ) );
     
     generic_help_string = " You can access the morphism and category via the local variables 'morphism' and 'category' in a break loop.";
     
@@ -2053,6 +2039,8 @@ end );
   
   function( two_cell, category, human_readable_identifier_getter )
     local generic_help_string;
+    
+    @Assert( 0, IsFunction( human_readable_identifier_getter ) );
     
     generic_help_string = " You can access the 2-cell and category via the local variables 'two_cell' and 'category' in a break loop.";
     

@@ -51,6 +51,8 @@ include( "gap/UniversalObjects.gi.autogen.jl" );
 
 include( "gap/MethodRecord.gi.autogen.jl" );
 
+include( "gap/MethodRecordInstallations.autogen.gi.autogen.jl" );
+
 include( "gap/PrepareFunctions.gi.autogen.jl" );
 
 include( "gap/DerivedMethods.gi.autogen.jl" );

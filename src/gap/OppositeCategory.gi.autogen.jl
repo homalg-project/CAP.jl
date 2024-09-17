@@ -89,7 +89,7 @@ end );
           current_recname, current_entry, dual_operation_name, filter_list, input_arguments_names, return_type, func_string,
           preprocessor_string, dual_arguments, tmp,
           postprocessor_string, output_source_getter_string, output_range_getter_string, return_statement,
-          func, weight, current_add, list_of_attributes, attr, tester, setter;
+          func, weight, list_of_attributes, attr, tester, setter;
     
     ## Take care of attributes
     ## TODO: if there are more instances, set markers in the MethodRecord
@@ -373,9 +373,7 @@ end );
         
         @Assert( 0, weight < infinity );
         
-        current_add = ValueGlobal( @Concatenation( "Add", current_recname ) );
-        
-        current_add( opposite_category, func, weight );
+        AddCapOperation( current_recname, opposite_category, func, weight );
         
     end;
     
@@ -453,7 +451,7 @@ end );
       local opposite_object;
         
         #% CAP_JIT_DROP_NEXT_STATEMENT
-        CAP_INTERNAL_ASSERT_IS_OBJECT_OF_CATEGORY( object, OppositeCategory( cat ), [ "the object datum given to the object constructor of <cat>" ] );
+        CAP_INTERNAL_ASSERT_IS_OBJECT_OF_CATEGORY( object, OppositeCategory( cat ), () -> "the object datum given to the object constructor of <cat>" );
         
         # A category might have multiple different instances of opposite categories.
         # Only the first instance is used for attributes (of the category and its objects and morphisms).
@@ -499,7 +497,7 @@ end );
       local opposite_morphism;
         
         #% CAP_JIT_DROP_NEXT_STATEMENT
-        CAP_INTERNAL_ASSERT_IS_MORPHISM_OF_CATEGORY( morphism, OppositeCategory( cat ), [ "the morphism datum given to the morphism constructor of <cat>" ] );
+        CAP_INTERNAL_ASSERT_IS_MORPHISM_OF_CATEGORY( morphism, OppositeCategory( cat ), () -> "the morphism datum given to the morphism constructor of <cat>" );
         
         if (@not IsEqualForObjects( OppositeCategory( cat ), Source( morphism ), Opposite( range ) ))
             

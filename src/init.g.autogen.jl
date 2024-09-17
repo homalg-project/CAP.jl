@@ -50,7 +50,7 @@ include( "gap/CategoryTwoCellsOperations.gd.autogen.jl" );
 
 include( "gap/UniversalObjects.gd.autogen.jl" );
 
-include( "gap/AddFunctions.autogen.gd.autogen.jl" );
+include( "gap/MethodRecordDeclarations.autogen.gd.autogen.jl" );
 
 ## pre-defined category constructors
 include( "gap/OppositeCategory.gd.autogen.jl" );

@@ -686,11 +686,11 @@ end );
         
         if (!(@IsBound( current_rec.dual_operation )) || current_rec.dual_operation == current_recname)
             
-            current_entry = current_rec.installation_name;
+            current_entry = NameFunction( current_rec.operation );
             
         else
             
-            current_entry = [ current_rec.installation_name, method_name_record[current_rec.dual_operation].installation_name ];
+            current_entry = [ NameFunction( current_rec.operation ), NameFunction( method_name_record[current_rec.dual_operation].operation ) ];
             current_entry = [ @Concatenation( current_entry[ 1 ], " vs ", current_entry[ 2 ] ), current_entry ];
             
         end;
@@ -748,7 +748,6 @@ end );
     with_given_name_function = ValueGlobal( with_given_name );
     
     # Check if `object_function` is declared as an attribute and can actually be used as one in our context.
-    # We do not print a warning if somethings is declared as an attribute but cannot be used as one in our context because this might actually happen, see for example `UniqueMorphism`.
     is_attribute = IsAttribute( object_function ) && Length( object_filter_list ) <= 2 && IsSpecializationOfFilter( IsAttributeStoringRep, CAP_INTERNAL_REPLACED_STRING_WITH_FILTER( Last( object_filter_list ) ) );
     
     if (@not is_attribute)
@@ -857,7 +856,6 @@ end );
     cache_key_length = Length( object_arguments_positions );
     
     # Check if `object_function` is declared as an attribute and can actually be used as one in our context.
-    # We do not print a warning if somethings is declared as an attribute but cannot be used as one in our context because this might actually happen, see for example `UniqueMorphism`.
     is_attribute = IsAttribute( object_function ) && Length( object_filter_list ) <= 2 && IsSpecializationOfFilter( IsAttributeStoringRep, CAP_INTERNAL_REPLACED_STRING_WITH_FILTER( Last( object_filter_list ) ) );
     
     if (@not is_attribute)
@@ -907,7 +905,7 @@ end );
 
 @InstallGlobalFunction( CAP_INTERNAL_ENHANCE_NAME_RECORD,
   function( record )
-    local recnames, current_recname, current_rec, diff, number_of_arguments,
+    local recnames, current_recname, current_rec, diff, number_of_arguments, func,
           without_given_name, with_given_prefix, with_given_names, with_given_name, without_given_rec, with_given_object_position, object_name,
           object_filter_list, with_given_object_filter, given_source_argument_name, given_range_argument_name, with_given_rec,
           collected_list, preconditions, can_always_compute_output_source_getter, can_always_compute_output_range_getter;
@@ -1152,13 +1150,15 @@ end );
             
         end;
         
-        if (IsOperation( ValueGlobal( current_recname ) ))
+        func = ValueGlobal( current_recname );
+        
+        if (IsOperation( func ))
             
-            current_rec.installation_name = current_recname;
+            current_rec.operation = func;
             
-        elseif (IsFunction( ValueGlobal( current_recname ) ))
+        elseif (IsFunction( func ))
             
-            current_rec.installation_name = @Concatenation( current_recname, "Op" );
+            current_rec.operation = ValueGlobal( @Concatenation( current_recname, "Op" ) );
             
         else
             
@@ -1671,6 +1671,16 @@ end );
             
         end;
         
+        if (current_rec.return_type == "object")
+            current_rec.add_value_to_category_function = AddObject;
+        elseif (current_rec.return_type == "morphism")
+            current_rec.add_value_to_category_function = AddMorphism;
+        elseif (current_rec.return_type == "twocell")
+            current_rec.add_value_to_category_function = AddTwoCell;
+        else
+            current_rec.add_value_to_category_function = ReturnTrue;
+        end;
+        
     end;
     
     CAP_INTERNAL_FIND_OPPOSITE_PROPERTY_PAIRS_IN_METHOD_NAME_RECORD( record );
@@ -1678,14 +1688,13 @@ end );
 end );
 
 ##
-@InstallGlobalFunction( CAP_INTERNAL_GENERATE_DOCUMENTATION_FROM_METHOD_NAME_RECORD,
-  function ( record, package_name, filename, chapter_name, section_name )
-    local recnames, output_string, package_info, current_string, current_recname, current_rec, output_path;
+@InstallGlobalFunction( CAP_INTERNAL_GENERATE_DECLARATIONS_AND_INSTALLATIONS_FROM_METHOD_NAME_RECORD,
+  function ( record, package_name, filename_prefix, chapter_name, section_name )
+    local recnames, package_info, gd_output_string, gi_output_string, current_string, current_recname, current_rec, without_given_name, with_given_name, without_given_rec, with_given_rec, without_given_arguments_names, with_given_arguments_names, with_given_object_position, with_given_arguments_strings, additional_preconditions, x, pos, preconditions_string, gd_filename, gi_filename, output_path;
     
     #= comment for Julia
-    recnames = SortedList( RecNames( record ) );
     
-    output_string = "";
+    recnames = SortedList( RecNames( record ) );
     
     package_info = First( PackageInfo( package_name ) );
     
@@ -1695,6 +1704,11 @@ end );
         
     end;
     
+    gd_output_string = "";
+    gi_output_string = "";
+    
+    ## declarations
+    
     # the space between # and ! prevents AutoDoc from parsing these strings and is removed below
     current_string = ReplacedStringViaRecord(
 """# SPDX-License-Identifier: GPL-2.0-or-later
@@ -1702,7 +1716,7 @@ end );
 #
 # Declarations
 #
-# THIS FILE IS AUTOMATICALLY GENERATED, SEE CAP_project/CAP/gap/MethodRecord.gi
+# THIS FILE IS AUTOMATICALLY GENERATED, SEE CAP_project/CAP/gap/MethodRecordTools.gi
 
 # ! @Chapter chapter_name
 
@@ -1719,33 +1733,53 @@ end );
     # see comment above
     current_string = ReplacedString( current_string, "# !", "#!" );
     
-    output_string = @Concatenation( output_string, current_string );
+    gd_output_string = @Concatenation( gd_output_string, current_string );
+    
+    ## implementations
+    
+    current_string = ReplacedStringViaRecord(
+"""# SPDX-License-Identifier: GPL-2.0-or-later
+# package_name: package_subtitle
+#
+# Implementations
+#
+# THIS FILE IS AUTOMATICALLY GENERATED, SEE CAP_project/CAP/gap/MethodRecordTools.gi
+""",
+        @rec(
+            package_name = package_name,
+            package_subtitle = package_info.Subtitle,
+        )
+    );
+    
+    gi_output_string = @Concatenation( gi_output_string, current_string );
     
     for current_recname in recnames
         
         current_rec = record[current_recname];
         
+        ## declarations
+        
         # the space between # and ! prevents AutoDoc from parsing these strings and is removed below
         current_string = ReplacedStringViaRecord(
 """
+# ! @BeginGroup
 # ! @Description
 # ! The arguments are a category $C$ and a function $F$.
 # ! This operation adds the given function $F$
 # ! to the category for the basic operation `function_name`.
+# ! Optionally, a weight (default: 100) can be specified which should roughly correspond
+# ! to the computational complexity of the function (lower weight == less complex == faster execution).
 # ! $F: ( input_arguments... ) \mapsto \mathtt[function_name](input_arguments...)$.
 # ! @Returns nothing
 # ! @Arguments C, F
 @DeclareOperation( "Addfunction_name",
                   [ IsCapCategory, IsFunction ] );
 
+# ! @Arguments C, F, weight
 @DeclareOperation( "Addfunction_name",
                   [ IsCapCategory, IsFunction, IsInt ] );
+# ! @EndGroup
 
-@DeclareOperation( "Addfunction_name",
-                  [ IsCapCategory, IsList, IsInt ] );
-
-@DeclareOperation( "Addfunction_name",
-                  [ IsCapCategory, IsList ] );
 """,
             @rec(
                 function_name = current_recname,
@@ -1756,18 +1790,223 @@ end );
         # see comment above
         current_string = ReplacedString( current_string, "# !", "#!" );
         
-        output_string = @Concatenation( output_string, current_string );
+        gd_output_string = @Concatenation( gd_output_string, current_string );
+        
+        ## implementations
+        
+        current_string = ReplacedStringViaRecord(
+"""
+## function_name
+@InstallMethod( Addfunction_name,
+               [ IsCapCategory, IsFunction ],
+               
+  function( category, func )
+    
+    AddCapOperation( "function_name", category, func, -1 );
+    
+end );
+
+@InstallMethod( Addfunction_name,
+               [ IsCapCategory, IsFunction, IsInt ],
+               
+    @FunctionWithNamedArguments(
+        [
+            [ "IsPrecompiledDerivation", false ],
+        ],
+        function( CAP_NAMED_ARGUMENTS, category, func, weight )
+            
+            AddCapOperation( "function_name", category, func, weight; IsPrecompiledDerivation = IsPrecompiledDerivation );
+            
+        end
+    )
+);
+""",
+            @rec(
+                function_name = current_recname,
+                input_arguments = current_rec.input_arguments_names[(2):(Length( current_rec.input_arguments_names ))],
+            )
+        );
+        
+        gi_output_string = @Concatenation( gi_output_string, current_string );
+        
+        ## WithGiven derivations
+        if (current_rec.is_with_given)
+            
+            without_given_name = current_rec.with_given_without_given_name_pair[1];
+            with_given_name = current_rec.with_given_without_given_name_pair[2];
+            
+            without_given_rec = record[without_given_name];
+            with_given_rec = record[with_given_name];
+            
+            without_given_arguments_names = without_given_rec.input_arguments_names;
+            with_given_arguments_names = with_given_rec.input_arguments_names;
+            
+            with_given_object_position = without_given_rec.with_given_object_position;
+            
+            current_string = ReplacedStringViaRecord(
+"""
+AddDerivationToCAP( with_given_name,
+                    "with_given_name by calling without_given_name with the WithGiven argument(s) dropped",
+                    [
+                        [ without_given_name, 1 ],
+                    ],
+  function( with_given_arguments... )
+    
+    return without_given_name( without_given_arguments... );
+        
+end; is_with_given_derivation = true );
+""",
+                @rec(
+                    with_given_name = with_given_name,
+                    without_given_name = without_given_name,
+                    with_given_arguments = with_given_arguments_names,
+                    without_given_arguments = without_given_arguments_names,
+                )
+            );
+            
+            gi_output_string = @Concatenation( gi_output_string, current_string );
+            
+            if (with_given_object_position == "Source")
+                
+                with_given_arguments_strings = @Concatenation( without_given_arguments_names, [ without_given_rec.output_source_getter_string ] );
+                
+                if (@not @IsBound( without_given_rec.output_source_getter_preconditions ))
+                    
+                    Print( "WARNING: Cannot install with given derivation pair for ", without_given_name, " because <without_given_rec.output_source_getter_preconditions> is not set.\n" );
+                    return;
+                    
+                end;
+                
+                additional_preconditions = without_given_rec.output_source_getter_preconditions;
+                
+            elseif (with_given_object_position == "Range")
+                
+                with_given_arguments_strings = @Concatenation( without_given_arguments_names, [ without_given_rec.output_range_getter_string ] );
+                
+                if (@not @IsBound( without_given_rec.output_range_getter_preconditions ))
+                    
+                    Print( "WARNING: Cannot install with given derivation pair for ", without_given_name, " because <without_given_rec.output_range_getter_preconditions> is not set.\n" );
+                    return;
+                    
+                end;
+                
+                additional_preconditions = without_given_rec.output_range_getter_preconditions;
+                
+            elseif (with_given_object_position == "both")
+                
+                with_given_arguments_strings = @Concatenation(
+                    [ without_given_arguments_names[1] ],
+                    [ without_given_rec.output_source_getter_string ],
+                    without_given_arguments_names[(2):(Length( without_given_arguments_names ))],
+                    [ without_given_rec.output_range_getter_string ]
+                );
+                
+                if (@not @IsBound( without_given_rec.output_source_getter_preconditions ))
+                    
+                    Print( "WARNING: Cannot install with given derivation pair for ", without_given_name, " because <without_given_rec.output_source_getter_preconditions> is not set.\n" );
+                    return;
+                    
+                end;
+                
+                if (@not @IsBound( without_given_rec.output_range_getter_preconditions ))
+                    
+                    Print( "WARNING: Cannot install with given derivation pair for ", without_given_name, " because <without_given_rec.output_range_getter_preconditions> is not set.\n" );
+                    return;
+                    
+                end;
+                
+                # merge output_source_getter_preconditions and output_range_getter_preconditions
+                additional_preconditions = without_given_rec.output_source_getter_preconditions;
+                
+                for x in without_given_rec.output_range_getter_preconditions
+                    
+                    pos = PositionProperty( additional_preconditions, y -> y[1] == x[1] );
+                    
+                    if (pos == fail)
+                        
+                        Add( additional_preconditions, x );
+                        
+                    else
+                        
+                        additional_preconditions[pos][2] = additional_preconditions[pos][2] + x[2];
+                        
+                    end;
+                    
+                end;
+                
+            else
+                
+                Error( "this should never happen" );
+                
+            end;
+            
+            preconditions_string = @Concatenation( "[ ", with_given_name, ", 1 ]" );
+            
+            for x in additional_preconditions
+                
+                Append( preconditions_string, @Concatenation( ",\n                        [ ", x[1], ", ", StringGAP( x[2] ), " ]" ) );
+                
+            end;
+            
+            current_string = ReplacedStringViaRecord(
+"""
+AddDerivationToCAP( without_given_name,
+                    "without_given_name by calling with_given_name with the WithGiven object(s)",
+                    [
+                        preconditions_string,
+                    ],
+  function( without_given_arguments... )
+    
+    return with_given_name( with_given_arguments... );
+    
+end; is_with_given_derivation = true );
+""",
+                @rec(
+                    without_given_name = without_given_name,
+                    with_given_name = with_given_name,
+                    preconditions_string = preconditions_string,
+                    without_given_arguments = without_given_arguments_names,
+                    with_given_arguments = with_given_arguments_strings,
+                )
+            );
+            
+            gi_output_string = @Concatenation( gi_output_string, current_string );
+            
+        end;
+        
         
     end;
     
-    if (!(IsExistingFileInPackageForHomalg( package_name, filename )) || output_string != ReadFileFromPackageForHomalg( package_name, filename ))
+    ## declarations
+    
+    gd_filename = @Concatenation( filename_prefix, "Declarations.autogen.gd" );
+    
+    if (!(IsExistingFileInPackageForHomalg( package_name, gd_filename )) || gd_output_string != ReadFileFromPackageForHomalg( package_name, gd_filename ))
         
-        output_path = Filename( DirectoryTemporary( ), filename );
+        output_path = Filename( DirectoryTemporary( ), gd_filename );
         
-        WriteFileForHomalg( output_path, output_string );
+        WriteFileForHomalg( output_path, gd_output_string );
         
         Display( @Concatenation(
-            "WARNING: The file ", filename, " in package ", package_name, " differs from the automatically generated one. ",
+            "WARNING: The file ", gd_filename, " in package ", package_name, " differs from the automatically generated one. ",
+            "You can view the automatically generated file at the following path: ",
+            output_path
+        ) );
+        
+    end;
+    
+    ## implementations
+    
+    gi_filename = @Concatenation( filename_prefix, "Installations.autogen.gi" );
+    
+    if (!(IsExistingFileInPackageForHomalg( package_name, gi_filename )) || gi_output_string != ReadFileFromPackageForHomalg( package_name, gi_filename ))
+        
+        output_path = Filename( DirectoryTemporary( ), gi_filename );
+        
+        WriteFileForHomalg( output_path, gi_output_string );
+        
+        Display( @Concatenation(
+            "WARNING: The file ", gi_filename, " in package ", package_name, " differs from the automatically generated one. ",
             "You can view the automatically generated file at the following path: ",
             output_path
         ) );

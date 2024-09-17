@@ -22,7 +22,7 @@
 #! @Arguments filter_string[, category]
 #! @Returns a record
 #! @Description
-#!  The function takes one of the strings listed under `filter_list` in <Ref Sect="Section_CapInternalInstallAdd" /> as input
+#!  The function takes one of the strings listed under `filter_list` in <Ref Sect="Section_method_name_record_entries" /> as input
 #!  and returns the corresponding data type (see <Ref BookName="CompilerForCAP" Func="CapJitInferredDataTypes" /> for details).
 #!  If no category is given, data types with generic filters (`IsCapCategoryObject`, `IsCapCategoryMorphism` etc.) are returned.
 #!  However, those cannot be used in the context of `CompilerForCAP` because the component `category` cannot be set in this case.
@@ -37,7 +37,7 @@
 #! @Arguments filter_string[, category]
 #! @Returns a filter
 #! @Description
-#!  The function takes one of the strings listed under `filter_list` in <Ref Sect="Section_CapInternalInstallAdd" /> as input.
+#!  The function takes one of the strings listed under `filter_list` in <Ref Sect="Section_method_name_record_entries" /> as input.
 #!  The corresponding filter of the category <A>category</A> is returned.
 #!  If no category is given, generic filters (`IsCapCategoryObject`, `IsCapCategoryMorphism` etc.) are used.
 @DeclareGlobalFunction( "CAP_INTERNAL_REPLACED_STRING_WITH_FILTER" );
@@ -49,14 +49,6 @@
 @DeclareGlobalFunction( "CAP_INTERNAL_REPLACED_STRINGS_WITH_FILTERS" );
 
 @DeclareGlobalFunction( "CAP_INTERNAL_REPLACED_STRINGS_WITH_FILTERS_FOR_JULIA" );
-
-#! @Arguments list, additional list
-#! @Returns merged lists
-#! @Description
-#!  The first argument should be a dense list with filters, the second a sparse list containing filters
-#!  not longer then the first one. The filters of the second list are then appended (via and) to the
-#!  filters in the first list at the corresponding position, and the resulting list is returned.
-@DeclareGlobalFunction( "CAP_INTERNAL_MERGE_FILTER_LISTS" );
 
 #! @Arguments string, value
 #! @Returns option value
@@ -148,7 +140,7 @@
 #! @Description
 #!   Checks if <A>filter2</A> is more special than <A>filter1</A>,
 #!   i.e. if <A>filter2</A> implies <A>filter1</A>.
-#!   <A>filter1</A> and/or <A>filter2</A> can also be one of the strings listed under `filter_list` in <Ref Sect="Section_CapInternalInstallAdd" /> and
+#!   <A>filter1</A> and/or <A>filter2</A> can also be one of the strings listed under `filter_list` in <Ref Sect="Section_method_name_record_entries" /> and
 #!   in this case are replaced by the corresponding filters (e.g. `IsCapCategory`, `IsCapCategoryObject`, `IsCapCategoryMorphism`, ...).
 #! @Arguments filter1, filter2
 @DeclareGlobalFunction( "IsSpecializationOfFilter" );
