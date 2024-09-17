@@ -4,8 +4,9 @@ gen:
 	gap_to_julia CAP
 
 clean-gen:
-	rm -f ./src/gap/**/*.autogen.jl
-	rm -f ./docs/src/**/*.autogen.md
+	rm -f ./src/gap/*.autogen.jl
+	rm -f ./src/gap/*/*.autogen.jl
+	rm -f ./docs/src/*.autogen.md
 	gap_to_julia CAP
 
 test:
