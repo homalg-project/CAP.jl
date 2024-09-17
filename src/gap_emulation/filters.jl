@@ -31,7 +31,7 @@ macro DeclareFilter(name::String, parent_filter::Union{Symbol,Expr} = :IsObject)
 		@assert $parent_filter.subtypable
 		abstract type $abstract_type_symbol <: $parent_filter.abstract_type end
 		struct $concrete_type_symbol{T} <: $abstract_type_symbol
-			dict::Dict
+			dict::Dict{Symbol, Any}
 		end
 		global const $filter_symbol = Filter($name, $abstract_type_symbol, $concrete_type_symbol, true, obj -> true)
 		nothing # suppress output when using the macro in tests

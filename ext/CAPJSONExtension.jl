@@ -7,7 +7,7 @@ using JSON3
 # JSON -> record
 
 function json_object_to_GAP_record(obj::JSON3.Object)
-	dict = Dict{Symbol,Any}()
+	dict = Dict{Symbol, Any}()
 	for key in keys(obj)
 		dict[key] = json_object_to_GAP_record(obj[key])
 	end
@@ -33,7 +33,7 @@ end
 # record -> JSON
 
 function GAP_record_to_dict(obj::CAPRecord)
-	dict = Dict{Symbol,Any}()
+	dict = Dict{Symbol, Any}()
 	for key in RecNames(obj)
 		dict[Symbol(key)] = GAP_record_to_dict(obj[key])
 	end

@@ -246,7 +246,7 @@ end
 abstract type CAPDict end
 
 struct CAPRecord <: CAPDict
-	dict::Dict
+	dict::Dict{Symbol, Any}
 end
 
 function getindex(obj::CAPDict, key::Union{String, Int64})
@@ -314,7 +314,7 @@ export @IsBound
 
 # records
 function rec(; named_arguments...)
-	CAPRecord(Dict{Symbol,Any}(named_arguments))
+	CAPRecord(Dict{Symbol, Any}(named_arguments))
 end
 
 macro rec(keyvalues...)
@@ -336,7 +336,7 @@ macro rec(keyvalues...)
 		end
 	end, keyvalues)
 	esc(quote
-		CAPRecord(Dict{Symbol,Any}($(pairs...)))
+		CAPRecord(Dict{Symbol, Any}($(pairs...)))
 	end)
 end
 
