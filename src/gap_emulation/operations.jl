@@ -163,20 +163,20 @@ function InstallMethod(operation, filter_list, func)
 end
 
 function InstallMethod(mod::Module, operation::Function, filter_list, func::Function)
-	if Symbol(operation) === :ViewObj
+	if operation === ViewObj
 		println("ignoring installation for ViewObj, use ViewString instead")
 		return
-	elseif Symbol(operation) === :Display
+	elseif operation === Display
 		println("ignoring installation for Display, use DisplayString instead")
 		return
-	elseif Symbol(operation) === :Iterator
+	elseif operation === Iterator
 		println("ignoring installation for Iterator, install iterate in Julia instead")
 		return
 	end
 	
 	nargs = length(filter_list)
 	vars = Vector{Any}(map(i -> Symbol("arg", i), 1:nargs))
-	types = map(filter -> filter.abstract_type, filter_list)
+	types = [filter.abstract_type for filter in filter_list]
 	vars_with_types = map(function(i)
 		arg_symbol = vars[i]
 		type = types[i]
@@ -185,14 +185,14 @@ function InstallMethod(mod::Module, operation::Function, filter_list, func::Func
 	if IsAttribute( operation )
 		if length(filter_list) === 1 && filter_list[1].abstract_type <: IsAttributeStoringRep.abstract_type
 			funcref = Symbol(operation.operation)
-			operation_to_precompile = funcref
+			operation_to_precompile = operation.operation
 		else
 			funcref = :(::typeof($(Symbol(operation.name))))
-			operation_to_precompile = Symbol(operation.name)
+			operation_to_precompile = operation
 		end
 	else
 		funcref = Symbol(operation)
-		operation_to_precompile = funcref
+		operation_to_precompile = operation
 	end
 	
 	if funcref isa Symbol && !isdefined(mod, funcref)
@@ -222,9 +222,7 @@ function InstallMethod(mod::Module, operation::Function, filter_list, func::Func
 		))
 	end
 	
-	if is_precompiling()
-		Base.eval(mod, :(CAP_precompile($operation_to_precompile,($(types...),))))
-	end
+	CAP_precompile(operation_to_precompile, (types...,))
 end
 
 function InstallMethod(operation, description::String, filter_list, func)

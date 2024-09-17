@@ -356,6 +356,8 @@ function copy(record::CAPRecord)
 	CAPRecord(copy(getfield(record, :dict)))
 end
 
+function Iterator end
+
 # filters
 include("gap_emulation/filters.jl")
 
