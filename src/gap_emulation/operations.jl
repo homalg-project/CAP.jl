@@ -129,8 +129,17 @@ export @InstallMethod
 ## runtime
 
 function DeclareOperation(name::String, filter_list = [])
-	NewOperation(last(ModulesForEvaluationStack), name, filter_list)
-	return;
+	DeclareOperation(last(ModulesForEvaluationStack), name, filter_list)
+	return nothing
+end
+
+function DeclareOperation(mod::Module, name::String, filter_list = [])
+	# operations can be redeclared with different filters
+	if isdefined(mod, Symbol(name))
+		return nothing
+	end
+	NewOperation(mod, name, filter_list)
+	return nothing
 end
 
 function NewOperation(name::String, filter_list = [])
@@ -139,6 +148,9 @@ end
 
 function NewOperation(mod::Module, name::String, filter_list)
 	operation = Symbol(name)
+	if isdefined(mod, operation)
+		error("operation with name ", name, " already exists")
+	end
 	Base.eval(mod, quote
 		function $operation end
 		export $operation
