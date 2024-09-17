@@ -138,7 +138,12 @@ function NewOperation(name::String, filter_list = [])
 end
 
 function NewOperation(mod::Module, name::String, filter_list)
-	Base.eval(mod, :(function $(Symbol(name)) end))
+	operation = Symbol(name)
+	Base.eval(mod, quote
+		function $operation end
+		export $operation
+		$operation # return value
+	end)
 end
 
 function InstallMethod(operation, filter_list, func)
@@ -206,10 +211,6 @@ function InstallMethod(mod::Module, operation::Function, filter_list, func::Func
 	end
 	
 	if is_precompiling()
-		if funcref isa Symbol
-			Base.eval(mod, :(export $funcref))
-		end
-		
 		Base.eval(mod, :(CAP_precompile($operation_to_precompile,($(types...),))))
 	end
 end
