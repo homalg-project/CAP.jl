@@ -417,3 +417,8 @@
 @DeclareGlobalFunction( "BigInt" );
 @InstallGlobalFunction( BigInt, IdFunc );
 # =#
+
+#! @Description
+#!   Shorthand for `ObjectifyWithAttributes( @rec( ), type, [attribute1, value1, ...] )`.
+#! @Arguments type, [attribute1, value1, ...]
+@DeclareGlobalFunction( "CreateGapObjectWithAttributes" );

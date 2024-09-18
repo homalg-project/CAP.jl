@@ -241,7 +241,7 @@ end );
     
     filter = NewFilter( @Concatenation( name, "InstanceCategoryFilter" ), category_filter );
     
-    obj = ObjectifyWithAttributes( @rec( ), NewType( TheFamilyOfCapCategories, filter ), Name, name );
+    obj = CreateGapObjectWithAttributes( NewType( TheFamilyOfCapCategories, filter ), Name, name );
     
     ## filters
     SetCategoryFilter( obj, filter );

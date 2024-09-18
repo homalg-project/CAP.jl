@@ -146,13 +146,13 @@ end );
         
     elseif (string == "object_in_range_category_of_homomorphism_structure")
         
-        if (category != false && @not HasRangeCategoryOfHomomorphismStructure( category ))
+        if (@not IsIdenticalObj( category, false ) && @not HasRangeCategoryOfHomomorphismStructure( category ))
             
             Display( @Concatenation( "WARNING: You are calling an Add function for a CAP operation for \"", Name( category ), "\" which is part of a homomorphism structure but the category has no RangeCategoryOfHomomorphismStructure (yet)" ) );
             
         end;
         
-        if (category == false || @not HasRangeCategoryOfHomomorphismStructure( category ))
+        if (IsIdenticalObj( category, false ) || @not HasRangeCategoryOfHomomorphismStructure( category ))
             
             return CAP_INTERNAL_GET_DATA_TYPE_FROM_STRING( "object" );
             
@@ -164,13 +164,13 @@ end );
         
     elseif (string == "morphism_in_range_category_of_homomorphism_structure")
         
-        if (category != false && @not HasRangeCategoryOfHomomorphismStructure( category ))
+        if (@not IsIdenticalObj( category, false ) && @not HasRangeCategoryOfHomomorphismStructure( category ))
             
             Display( @Concatenation( "WARNING: You are calling an Add function for a CAP operation for \"", Name( category ), "\" which is part of a homomorphism structure but the category has no RangeCategoryOfHomomorphismStructure (yet)" ) );
             
         end;
         
-        if (category == false || @not HasRangeCategoryOfHomomorphismStructure( category ))
+        if (IsIdenticalObj( category, false ) || @not HasRangeCategoryOfHomomorphismStructure( category ))
             
             return CAP_INTERNAL_GET_DATA_TYPE_FROM_STRING( "morphism" );
             
@@ -182,7 +182,7 @@ end );
         
     elseif (string == "object_datum")
         
-        if (category != false)
+        if (@not IsIdenticalObj( category, false ))
             
             # might be `fail`
             return ObjectDatumType( category );
@@ -195,7 +195,7 @@ end );
         
     elseif (string == "morphism_datum")
         
-        if (category != false)
+        if (@not IsIdenticalObj( category, false ))
             
             # might be `fail`
             return MorphismDatumType( category );
@@ -208,13 +208,13 @@ end );
         
     elseif (string == "element_of_commutative_ring_of_linear_structure")
         
-        if (category != false && @not HasCommutativeRingOfLinearCategory( category ))
+        if (@not IsIdenticalObj( category, false ) && @not HasCommutativeRingOfLinearCategory( category ))
             
             Print( "WARNING: You are calling an Add function for a CAP operation for \"", Name( category ), "\" which is part of the linear structure over a commutative ring but the category has no CommutativeRingOfLinearCategory (yet).\n" );
             
         end;
         
-        if (category == false || @not HasCommutativeRingOfLinearCategory( category ))
+        if (IsIdenticalObj( category, false ) || @not HasCommutativeRingOfLinearCategory( category ))
             
             return CapJitDataTypeOfElementOfRing( false );
             
@@ -1188,7 +1188,7 @@ end );
 @InstallGlobalFunction( CapJitDataTypeOfRing, function ( ring )
   local type;
     
-    if (ring == false)
+    if (IsIdenticalObj( ring, false ))
         
         type = @rec(
             filter = IsRing,
@@ -1211,7 +1211,7 @@ end );
 @InstallGlobalFunction( CapJitDataTypeOfElementOfRing, function ( ring )
   local type;
     
-    if (ring == false)
+    if (IsIdenticalObj( ring, false ))
         
         type = @rec(
             filter = IsRingElement,
@@ -1233,7 +1233,7 @@ end );
 @InstallGlobalFunction( CapJitDataTypeOfCategory, function ( cat )
   local type;
     
-    if (cat == false)
+    if (IsIdenticalObj( cat, false ))
         
         type = @rec(
             filter = IsCapCategory,
@@ -1256,7 +1256,7 @@ end );
 @InstallGlobalFunction( CapJitDataTypeOfObjectOfCategory, function ( cat )
   local type;
     
-    if (cat == false)
+    if (IsIdenticalObj( cat, false ))
         
         type = @rec(
             filter = IsCapCategoryObject,
@@ -1279,7 +1279,7 @@ end );
 @InstallGlobalFunction( CapJitDataTypeOfMorphismOfCategory, function ( cat )
   local type;
     
-    if (cat == false)
+    if (IsIdenticalObj( cat, false ))
         
         type = @rec(
             filter = IsCapCategoryMorphism,
@@ -1302,7 +1302,7 @@ end );
 @InstallGlobalFunction( CapJitDataTypeOfTwoCellOfCategory, function ( cat )
   local type;
     
-    if (cat == false)
+    if (IsIdenticalObj( cat, false ))
         
         type = @rec(
             filter = IsCapCategoryTwoCell,
@@ -1960,7 +1960,7 @@ end;
         Error( human_readable_identifier_getter( ), " has no CAP category.", generic_help_string );
     end;
     
-    if (category != false && @not IsIdenticalObj( CapCategory( cell ), category ))
+    if (@not IsIdenticalObj( category, false ) && @not IsIdenticalObj( CapCategory( cell ), category ))
         Error( "The CapCategory of ", human_readable_identifier_getter( ), " is not identical to the category named \033[1m", Name( category ), "\033[0m.", generic_help_string );
     end;
     
@@ -1984,11 +1984,11 @@ end );
         Error( human_readable_identifier_getter( ), " has no CAP category.", generic_help_string );
     end;
     
-    if (category != false && @not IsIdenticalObj( CapCategory( object ), category ))
+    if (@not IsIdenticalObj( category, false ) && @not IsIdenticalObj( CapCategory( object ), category ))
         Error( "The CapCategory of ", human_readable_identifier_getter( ), " is not identical to the category named \033[1m", Name( category ), "\033[0m.", generic_help_string );
     end;
     
-    if (category != false && @not ObjectFilter( category )( object ))
+    if (@not IsIdenticalObj( category, false ) && @not ObjectFilter( category )( object ))
         Error( human_readable_identifier_getter( ), " does not lie in the object filter of the category named \033[1m", Name( category ), "\033[0m.", generic_help_string );
     end;
     
@@ -2012,11 +2012,11 @@ end );
         Error( human_readable_identifier_getter( ), " has no CAP category.", generic_help_string );
     end;
     
-    if (category != false && @not IsIdenticalObj( CapCategory( morphism ), category ))
+    if (@not IsIdenticalObj( category, false ) && @not IsIdenticalObj( CapCategory( morphism ), category ))
         Error( "the CAP-category of ", human_readable_identifier_getter( ), " is not identical to the category named \033[1m", Name( category ), "\033[0m.", generic_help_string );
     end;
     
-    if (category != false && @not MorphismFilter( category )( morphism ))
+    if (@not IsIdenticalObj( category, false ) && @not MorphismFilter( category )( morphism ))
         Error( human_readable_identifier_getter( ), " does not lie in the morphism filter of the category named \033[1m", Name( category ), "\033[0m.", generic_help_string );
     end;
     
@@ -2052,11 +2052,11 @@ end );
         Error( human_readable_identifier_getter( ), " has no CAP category.", generic_help_string );
     end;
     
-    if (category != false && @not IsIdenticalObj( CapCategory( two_cell ), category ))
+    if (@not IsIdenticalObj( category, false ) && @not IsIdenticalObj( CapCategory( two_cell ), category ))
         Error( "the CapCategory of ", human_readable_identifier_getter( ), " is not identical to the category named \033[1m", Name( category ), "\033[0m.", generic_help_string );
     end;
     
-    if (category != false && @not TwoCellFilter( category )( two_cell ))
+    if (@not IsIdenticalObj( category, false ) && @not TwoCellFilter( category )( two_cell ))
         Error( human_readable_identifier_getter( ), " does not lie in the 2-cell filter of the category named \033[1m", Name( category ), "\033[0m.", generic_help_string );
     end;
     
@@ -2099,5 +2099,17 @@ end );
     end;
     
     return packages[1];
+    
+end );
+
+##
+@InstallGlobalFunction( CreateGapObjectWithAttributes, function( type, additional_arguments_list... )
+    local arg_list;
+    
+    arg_list = @Concatenation(
+        [ @rec( ), type ], additional_arguments_list
+    );
+    
+    return CallFuncList( ObjectifyWithAttributes, arg_list );
     
 end );

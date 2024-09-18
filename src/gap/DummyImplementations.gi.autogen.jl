@@ -20,8 +20,7 @@ CAP_INTERNAL_DUMMY_RING_COUNTER = 1;
     name = @Concatenation( "Dummy ring ", StringGAP( CAP_INTERNAL_DUMMY_RING_COUNTER ) );
     CAP_INTERNAL_DUMMY_RING_COUNTER = CAP_INTERNAL_DUMMY_RING_COUNTER + 1;
     
-    ring = ObjectifyWithAttributes( @rec( ),
-        NewType( TheFamilyOfDummyRings, IsAttributeStoringRep && ring_filter ),
+    ring = CreateGapObjectWithAttributes( NewType( TheFamilyOfDummyRings, IsAttributeStoringRep && ring_filter ),
         Name, name,
         StringGAP, name,
         RingFilter, ring_filter,
@@ -54,8 +53,7 @@ CAP_INTERNAL_DUMMY_COMMUTATIVE_RING_COUNTER = 1;
     name = @Concatenation( "Dummy commutative ring ", StringGAP( CAP_INTERNAL_DUMMY_COMMUTATIVE_RING_COUNTER ) );
     CAP_INTERNAL_DUMMY_COMMUTATIVE_RING_COUNTER = CAP_INTERNAL_DUMMY_COMMUTATIVE_RING_COUNTER + 1;
     
-    ring = ObjectifyWithAttributes( @rec( ),
-        NewType( TheFamilyOfDummyCommutativeRings, IsAttributeStoringRep && ring_filter ),
+    ring = CreateGapObjectWithAttributes( NewType( TheFamilyOfDummyCommutativeRings, IsAttributeStoringRep && ring_filter ),
         Name, name,
         StringGAP, name,
         RingFilter, ring_filter,
@@ -89,8 +87,7 @@ CAP_INTERNAL_DUMMY_FIELD_COUNTER = 1;
     name = @Concatenation( "Dummy field ", StringGAP( CAP_INTERNAL_DUMMY_FIELD_COUNTER ) );
     CAP_INTERNAL_DUMMY_FIELD_COUNTER = CAP_INTERNAL_DUMMY_FIELD_COUNTER + 1;
     
-    ring = ObjectifyWithAttributes( @rec( ),
-        NewType( TheFamilyOfDummyFields, IsAttributeStoringRep && ring_filter ),
+    ring = CreateGapObjectWithAttributes( NewType( TheFamilyOfDummyFields, IsAttributeStoringRep && ring_filter ),
         Name, name,
         StringGAP, name,
         RingFilter, ring_filter,

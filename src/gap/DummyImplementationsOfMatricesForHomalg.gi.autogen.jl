@@ -20,8 +20,7 @@ CAP_INTERNAL_DUMMY_HOMALG_RING_COUNTER = 1;
     name = @Concatenation( "Dummy homalg ring ", StringGAP( CAP_INTERNAL_DUMMY_HOMALG_RING_COUNTER ) );
     CAP_INTERNAL_DUMMY_HOMALG_RING_COUNTER = CAP_INTERNAL_DUMMY_HOMALG_RING_COUNTER + 1;
     
-    ring = ObjectifyWithAttributes( @rec( ),
-        NewType( TheFamilyOfDummyHomalgRings, IsAttributeStoringRep && ring_filter ),
+    ring = CreateGapObjectWithAttributes( NewType( TheFamilyOfDummyHomalgRings, IsAttributeStoringRep && ring_filter ),
         Name, name,
         StringGAP, name,
         RingFilter, ring_filter,
@@ -48,8 +47,7 @@ CAP_INTERNAL_DUMMY_COMMUTATIVE_HOMALG_RING_COUNTER = 1;
     name = @Concatenation( "Dummy commutative homalg ring ", StringGAP( CAP_INTERNAL_DUMMY_COMMUTATIVE_HOMALG_RING_COUNTER ) );
     CAP_INTERNAL_DUMMY_COMMUTATIVE_HOMALG_RING_COUNTER = CAP_INTERNAL_DUMMY_COMMUTATIVE_HOMALG_RING_COUNTER + 1;
     
-    ring = ObjectifyWithAttributes( @rec( ),
-        NewType( TheFamilyOfDummyCommutativeHomalgRings, IsAttributeStoringRep && ring_filter ),
+    ring = CreateGapObjectWithAttributes( NewType( TheFamilyOfDummyCommutativeHomalgRings, IsAttributeStoringRep && ring_filter ),
         Name, name,
         StringGAP, name,
         RingFilter, ring_filter,
@@ -77,8 +75,7 @@ CAP_INTERNAL_DUMMY_HOMALG_FIELD_COUNTER = 1;
     name = @Concatenation( "Dummy homalg field ", StringGAP( CAP_INTERNAL_DUMMY_HOMALG_FIELD_COUNTER ) );
     CAP_INTERNAL_DUMMY_HOMALG_FIELD_COUNTER = CAP_INTERNAL_DUMMY_HOMALG_FIELD_COUNTER + 1;
     
-    ring = ObjectifyWithAttributes( @rec( ),
-        NewType( TheFamilyOfDummyHomalgFields, IsAttributeStoringRep && ring_filter ),
+    ring = CreateGapObjectWithAttributes( NewType( TheFamilyOfDummyHomalgFields, IsAttributeStoringRep && ring_filter ),
         Name, name,
         StringGAP, name,
         RingFilter, ring_filter,

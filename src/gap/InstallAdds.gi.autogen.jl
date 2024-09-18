@@ -24,8 +24,8 @@ end );
   ],
   function( CAP_NAMED_ARGUMENTS, function_name, category, func_to_install, weight )
     local record, category_name, is_derivation, is_final_derivation, is_precompiled_derivation, replaced_filter_list,
-        input_human_readable_identifier_getter, input_sanity_check_functions, output_human_readable_identifier_getter, output_sanity_check_function,
-        output_data_type;
+        input_human_readable_identifier_getter, input_sanity_check_functions, filter_string, data_type,
+        output_human_readable_identifier_getter, output_data_type, output_sanity_check_function;
     
     record = CAP_INTERNAL_METHOD_NAME_RECORD[function_name];
     
@@ -107,12 +107,11 @@ end );
     end;
     
     # prepare input sanity check
-    input_human_readable_identifier_getter = ( i, function_name, category ) -> @Concatenation( "the ", StringGAP( i ), "-th argument of the function \033[1m", function_name, "\033[0m of the category named \033[1m", category_name, "\033[0m" );
+    input_human_readable_identifier_getter = ( i, function_name, category_name ) -> @Concatenation( "the ", StringGAP( i ), "-th argument of the function \033[1m", function_name, "\033[0m of the category named \033[1m", category_name, "\033[0m" );
     
-    input_sanity_check_functions = List( (1):(Length( record.filter_list )), function ( i )
-      local filter_string, data_type, assert_is_value_of_type;
-        
-        filter_string = record.filter_list[ i ];
+    input_sanity_check_functions = [ ];
+    
+    for filter_string in record.filter_list
         
         if (@not @IsBound( category.input_sanity_check_functions[filter_string] ))
             
@@ -130,13 +129,12 @@ end );
             
         end;
         
-        return category.input_sanity_check_functions[filter_string];
+        Add( input_sanity_check_functions, category.input_sanity_check_functions[filter_string] );
         
-    end );
+    end;
     
     # prepare output sanity check
-    output_human_readable_identifier_getter = () -> @Concatenation( "the result of the function \033[1m", function_name, "\033[0m of the category named \033[1m", category_name, "\033[0m" );
-    
+    output_human_readable_identifier_getter = ( function_name, category_name ) -> @Concatenation( "the result of the function \033[1m", function_name, "\033[0m of the category named \033[1m", category_name, "\033[0m" );
     output_data_type = CAP_INTERNAL_GET_DATA_TYPE_FROM_STRING( record.return_type, category );
     
     if (output_data_type != fail)
@@ -226,7 +224,7 @@ end );
             
             if (category.input_sanity_check_level > 0)
                 for i in (1):(Length( input_sanity_check_functions ))
-                    input_sanity_check_functions[ i ]( arg[ i ], i, function_name, category );
+                    input_sanity_check_functions[ i ]( arg[ i ], i, function_name, category_name );
                 end;
                 
                 if (@IsBound( record.pre_function ))
@@ -263,16 +261,16 @@ end );
                 
             end;
             
-            if (category.predicate_logic)
-                INSTALL_TODO_FOR_LOGICAL_THEOREMS( record.function_name, arg[(2):(Length( arg ))], result, category );
-            end;
-            
             if (@not is_derivation && @not is_final_derivation)
                 if (category.add_primitive_output)
                     record.add_value_to_category_function( category, result );
                 elseif (category.output_sanity_check_level > 0)
-                    output_sanity_check_function( result );
+                    output_sanity_check_function( result, function_name, category_name );
                 end;
+            end;
+            
+            if (category.predicate_logic)
+                INSTALL_TODO_FOR_LOGICAL_THEOREMS( record.function_name, arg[(2):(Length( arg ))], result, category );
             end;
             
             if (@IsBound( record.post_function ))
