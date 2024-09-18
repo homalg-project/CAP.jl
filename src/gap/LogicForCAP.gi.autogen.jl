@@ -401,7 +401,7 @@ end );
         
     else
         
-        cell_filter = TwoCellFilter( category );
+        Error( "unknown cell type" );
         
     end;
     

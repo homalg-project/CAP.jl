@@ -105,6 +105,24 @@ function ListImpliedFilters(prop)
 	sort(map(attr -> attr.name, flatten(prop)))
 end
 
+function IS_SUBSET_FLAGS(prop2::Attribute, prop1::Attribute) # prop2 => prop1?
+	@assert IsProperty( prop1 ) && IsProperty( prop2 )
+	
+	implied_properties = Vector{Attribute}([ prop2 ])
+	
+	while !isempty(implied_properties)
+		prop = pop!(implied_properties)
+		
+		if prop === prop1
+			return true
+		else
+			push!(implied_properties, prop.implied_properties...)
+		end
+	end
+	
+	return false
+end
+
 @DeclareAttribute( "StringGAP", IsObject );
 global const StringMutable = StringGAP
 

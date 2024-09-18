@@ -840,7 +840,7 @@ end );
 
 @InstallGlobalFunction( "READ_LOGIC_FILE",
                        
-  function( filename, type )
+  FunctionWithCache( function( filename, type )
     local parser, file, lines, theorem_list, substring, without_align;
     
     if (LowercaseString( type ) == "implication")
@@ -905,13 +905,13 @@ end );
     
     return theorem_list;
     
-end );
+end; Cache = "crisp" ) );
 
 @InstallGlobalFunction( READ_THEOREM_FILE,
                        
   function( theorem_file )
     
-    return READ_LOGIC_FILE( theorem_file, "theorem" );
+    return StructuralCopy( READ_LOGIC_FILE( theorem_file, "theorem" ) );
     
 end );
 
@@ -970,7 +970,7 @@ end );
                        
   function( predicate_file )
     
-    return READ_LOGIC_FILE( predicate_file, "implication" );
+    return StructuralCopy( READ_LOGIC_FILE( predicate_file, "implication" ) );
     
 end );
 
@@ -1356,7 +1356,7 @@ end );
                        
   function( eval_rule_file )
     
-    return READ_LOGIC_FILE( eval_rule_file, "eval_rule" );
+    return StructuralCopy( READ_LOGIC_FILE( eval_rule_file, "eval_rule" ) );
     
 end );
 

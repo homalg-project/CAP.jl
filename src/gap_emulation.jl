@@ -1155,7 +1155,7 @@ function WITH_IMPS_FLAGS(filter)
 	filter
 end
 
-function IS_SUBSET_FLAGS( filter1, filter2 )
+function IS_SUBSET_FLAGS( filter1::Filter, filter2::Filter )
 	filter1.abstract_type <: filter2.abstract_type
 end
 

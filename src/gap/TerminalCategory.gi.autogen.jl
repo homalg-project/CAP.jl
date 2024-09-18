@@ -79,9 +79,13 @@
     ## However, in the doctrine "IsCategoryWithZeroObject" or "IsAdditiveCategory"
     ## the terminal and initial categories are equivalent. Other constructors of the terminal category
     ## can still set IsInitialCategory == true manually, if the doctrine is clear from the context.
-    Add( excluded_properties, "IsInitialCategory" );
+    if (IsBoundGlobal( "IsInitialCategory" ))
+        
+        Add( excluded_properties, "IsInitialCategory" );
+        
+    end;
     
-    properties = Filtered( properties, p -> @not ForAny( excluded_properties, e -> e in ListImpliedFilters( ValueGlobal( p ) ) ) );
+    properties = Filtered( properties, p -> @not ForAny( excluded_properties, e -> IsSpecializationOfFilter( ValueGlobal( e ), ValueGlobal( p ) ) ) );
     
     Add( properties, "IsTerminalCategory" );
     

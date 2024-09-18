@@ -229,7 +229,7 @@ end );
     elseif (string == "list_of_integers_and_list_of_morphisms")
         
         return CapJitDataTypeOfNTupleOf( 2,
-                       CapJitDataTypeOfListOf( @rec( filter = IsInt ) ),
+                       CapJitDataTypeOfListOf( IsInt ),
                        CapJitDataTypeOfListOf( CapJitDataTypeOfMorphismOfCategory( category ) ) );
         
     elseif (string == "arbitrary_list")
