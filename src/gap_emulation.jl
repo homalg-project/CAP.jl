@@ -189,25 +189,6 @@ function FunctionWithCache(func::Function)
 	func
 end
 
-function SSortedList(list::Union{Vector, UnitRange, StepRange})
-	unique(sort(list))
-end
-
-global const SetGAP = SSortedList
-
-function UnionGAP(args...)
-	if length(args) == 1
-		args = args[1]
-	end
-	if length(args) == 0
-		[ ]
-	elseif length(args) == 1
-		args[1]
-	else
-		sort(union(args...))
-	end
-end
-
 function NumberGAP(list, func)
 	count(func, list)
 end
@@ -372,6 +353,9 @@ include("gap_emulation/files.jl")
 
 # rings
 include("gap_emulation/rings.jl")
+
+# sets
+include("gap_emulation/sets.jl")
 
 # GAP filters
 global const IsIO = Filter("IsIO", IO)
@@ -1101,22 +1085,6 @@ function Last(list)
 	else
 		last(list)
 	end
-end
-
-function IsSubset(list1::Vector, list2::Vector)
-	issubset(list2, list1)
-end
-
-function Difference(set::Vector, subset::Vector)
-	sort(setdiff(set, subset))
-end
-
-function Difference(set::UnitRange, subset::Vector)
-	sort(setdiff(set, subset))
-end
-
-function Intersection(set1::Vector, set2::Vector)
-	sort(intersect(set1, set2))
 end
 
 function SuspendMethodReordering()
