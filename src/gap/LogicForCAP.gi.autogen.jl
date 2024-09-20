@@ -32,7 +32,8 @@
       Predicates = @rec(
           #= comment for Julia
           IsCapCategory = [
-                       Filename( DirectoriesPackageLibrary( "CAP", "LogicForCategories" ), "PredicateImplicationsForGeneralCategories.tex" )
+                       # For performance reasons, these implications are hardcoded below.
+                       #Filename( DirectoriesPackageLibrary( "CAP", "LogicForCategories" ), "PredicateImplicationsForGeneralCategories.tex" )
                      ],
           IsEnrichedOverCommutativeRegularSemigroup = [
                                                          Filename( DirectoriesPackageLibrary( "CAP", "LogicForCategories" ), "PredicateImplicationsForCategoriesEnrichedOverCommutativeRegularSemigroups.tex" )
@@ -74,6 +75,25 @@
           # =#
         ),
      ) );
+
+#= comment for Julia
+InstallTrueMethod( IsTerminal, IsZeroForObjects && IsCapCategoryObject );
+InstallTrueMethod( IsInitial, IsZeroForObjects && IsCapCategoryObject );
+InstallTrueMethod( IsInjective, IsZeroForObjects && IsCapCategoryObject );
+InstallTrueMethod( IsProjective, IsZeroForObjects && IsCapCategoryObject );
+
+InstallTrueMethod( IsSplitMonomorphism, IsIsomorphism && IsCapCategoryMorphism );
+InstallTrueMethod( IsSplitEpimorphism, IsIsomorphism && IsCapCategoryMorphism );
+
+InstallTrueMethod( IsAutomorphism, IsOne && IsCapCategoryMorphism );
+
+InstallTrueMethod( IsIsomorphism, IsAutomorphism && IsCapCategoryMorphism );
+InstallTrueMethod( IsEndomorphism, IsAutomorphism && IsCapCategoryMorphism );
+InstallTrueMethod( IsAutomorphism, IsEndomorphism && IsIsomorphism && IsCapCategoryMorphism );
+
+InstallTrueMethod( IsMonomorphism, IsSplitMonomorphism && IsCapCategoryMorphism );
+InstallTrueMethod( IsEpimorphism, IsSplitEpimorphism && IsCapCategoryMorphism );
+# =#
 
 @InstallGlobalFunction( SetCapLogicInfo,
   
