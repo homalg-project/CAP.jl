@@ -127,5 +127,9 @@ end
 global const StringMutable = StringGAP
 
 function (::typeof(StringGAP))(attr::Attribute)
-	string("<Attribute \"", attr.name, "\">")
+	if attr.is_property
+		string("<Property \"", attr.name, "\">")
+	else
+		string("<Attribute \"", attr.name, "\">")
+	end
 end
