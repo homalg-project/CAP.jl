@@ -7,6 +7,8 @@ function ==(attr1::Attribute, attr2::Attribute)
 	isequal(attr1.name, attr2.name)
 end
 
+CAP_JL_INTERNAL_LIST_OF_PROPERTIES = []
+
 function declare_attribute_or_property(mod, name::String, is_property::Bool)
 	# attributes and properties might be installed for different parent filters
 	# since we do not take the parent filter into account here, we only have to install
@@ -56,6 +58,10 @@ function declare_attribute_or_property(mod, name::String, is_property::Bool)
 			end
 			dict = getfield(obj, :dict)
 			dict[Symbol($name)]
+		end
+		
+		if $symbol.is_property
+			push!(CAP_JL_INTERNAL_LIST_OF_PROPERTIES, $symbol)
 		end
 	end)
 end

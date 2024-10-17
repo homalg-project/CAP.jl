@@ -17,7 +17,8 @@ function SAVE_CAP_STATE()
 		CAP_INTERNAL_DERIVATION_GRAPH_operations = ShallowCopy( Operations( CAP_INTERNAL_DERIVATION_GRAPH ) ),
 		CAP_INTERNAL_DERIVATION_GRAPH_derivations_by_target = derivations_by_target,
 		CAP_INTERNAL_DERIVATION_GRAPH_derivations_by_used_ops = derivations_by_used_ops,
-		CAP_INTERNAL_FINAL_DERIVATION_LIST = ShallowCopy( CAP_INTERNAL_FINAL_DERIVATION_LIST )
+		CAP_INTERNAL_FINAL_DERIVATION_LIST = ShallowCopy( CAP_INTERNAL_FINAL_DERIVATION_LIST ),
+		implied_properties = List( CAP_JL_INTERNAL_LIST_OF_PROPERTIES, p -> (property = p, implied_properties = ShallowCopy( p.implied_properties ) ) ),
 	)
 end
 
@@ -132,5 +133,14 @@ function RESTORE_CAP_STATE(state)
 			
 		end
 		
+	end
+	
+	##
+	for x in state.implied_properties
+		for p in x.implied_properties
+			if !(p in x.property.implied_properties)
+				push!(x.property.implied_properties, p)
+			end
+		end
 	end
 end
