@@ -23,9 +23,9 @@ end );
     [ "IsPrecompiledDerivation", false ],
   ],
   function( CAP_NAMED_ARGUMENTS, function_name, category, func_to_install, weight )
-    local record, category_name, is_derivation, is_final_derivation, is_precompiled_derivation, replaced_filter_list,
-        input_human_readable_identifier_getter, input_sanity_check_functions, filter_string, data_type,
-        output_human_readable_identifier_getter, output_data_type, output_sanity_check_function;
+    local record, category_name, is_derivation, is_final_derivation, is_precompiled_derivation, type, replaced_filter_list,
+        input_human_readable_identifier_getter, input_sanity_check_functions, data_type, output_human_readable_identifier_getter,
+        output_data_type, output_sanity_check_function, filter_string;
     
     record = CAP_INTERNAL_METHOD_NAME_RECORD[function_name];
     
@@ -47,28 +47,71 @@ end );
         
     end;
     
-    # prepare for the checks in Finalize
-    if (@not @IsBound( category.initially_known_categorical_properties ))
-        
-        category.initially_known_categorical_properties = ShallowCopy( ListKnownCategoricalProperties( category ) );
-        
-        InstallDerivationsUsingOperation( category.derivations_weight_list, "none" );
-        
-    end;
-    
     if (weight == -1)
         weight = 100;
     end;
     
-    # If there already is a faster method: do nothing but display a warning because this should not happen usually.
-    if (weight > CurrentOperationWeight( category.derivations_weight_list, function_name ))
+    if (is_derivation)
         
-        # There are some derivations of weight 1 for thin categories which are triggered immediately and which CategoryConstructor tries to overwrite with weight 100.
-        if (CurrentOperationWeight( category.derivations_weight_list, function_name ) != 1)
+        type = "ordinary_derivation";
+        
+    elseif (is_final_derivation)
+        
+        type = "final_derivation";
+        
+    elseif (is_precompiled_derivation)
+        
+        type = "precompiled_derivation";
+        
+    else
+        
+        type = "primitive_installation";
+        
+    end;
+    
+    # Display a warning in various cases when overwriting existing functions
+    if (@IsBound( category.operations[function_name] ))
+        
+        # If there already is a faster method: do nothing but display a warning because this should not happen.
+        if (weight > category.operations[function_name].weight)
             
-            Print( "WARNING: Ignoring a function added for ", function_name, " with weight ", weight, " to \"", category_name, "\" because there already is a function installed with weight ", CurrentOperationWeight( category.derivations_weight_list, function_name ), "." );
+            Print( "WARNING: Ignoring a function added for ", function_name, " with weight ", weight, " to \"", category_name, "\" because there already is a function installed with weight ", category.operations[function_name].weight, "." );
             
-            if (is_precompiled_derivation)
+            if (type == "precompiled_derivation")
+                
+                Print( " Probably you have to rerun the precompilation to adjust the weights in the precompiled code." );
+                
+            end;
+            
+            Print( "\n" );
+            
+            return;
+            
+        end;
+        
+        if (category.operations[function_name].type == "primitive_installation")
+            
+            # Display a warning when overwriting primitive operations with derivations.
+            # There are some derivations of weight 1 for thin categories which overwrite methods installed by CategoryConstructor with weight 100.
+            if (type != "primitive_installation" && weight != 1)
+                
+                Print( "WARNING: Overwriting a function for ", function_name, " primitively added to \"", category_name, "\" with a derivation." );
+                
+                if (type == "precompiled_derivation")
+                    
+                    Print( " Probably you have to rerun the precompilation to adjust the weights in the precompiled code." );
+                    
+                end;
+                
+                Print( "\n" );
+                
+            end;
+            
+        else
+            
+            Print( "WARNING: A function for ", function_name, " of type ", category.operations[function_name].type, " is unexpectedly overwritten by a function of type ", type, "." );
+            
+            if (category.operations[function_name].type == "precompiled_derivation")
                 
                 Print( " Probably you have to rerun the precompilation to adjust the weights in the precompiled code." );
                 
@@ -78,24 +121,21 @@ end );
             
         end;
         
-        return;
+    end;
+    
+    category.operations[function_name] = @rec(
+        type = type,
+        weight = weight,
+        func = func_to_install,
+    );
+    
+    if (@not @IsBound( category.added_functions[function_name] ))
+        
+        category.added_functions[function_name] = [ ];
         
     end;
     
-    # Display a warning when overwriting primitive operations with derivations.
-    if ((is_derivation || is_final_derivation || is_precompiled_derivation) && @IsBound( category.primitive_operations[function_name] ) && category.primitive_operations[function_name])
-        
-        Print( "WARNING: Overriding a function for ", function_name, " primitively added to \"", category_name, "\" with a derivation." );
-        
-        if (is_precompiled_derivation)
-            
-            Print( " Probably you have to rerun the precompilation to adjust the weights in the precompiled code." );
-            
-        end;
-        
-        Print( "\n" );
-        
-    end;
+    Add( category.added_functions[function_name], func_to_install );
     
     replaced_filter_list = CAP_INTERNAL_REPLACED_STRINGS_WITH_FILTERS( record.filter_list, category );
     
@@ -147,14 +187,6 @@ end );
         
     end;
     
-    if (@not @IsBound( category.added_functions[function_name] ))
-        
-        category.added_functions[function_name] = [ ];
-        
-    end;
-    
-    Add( category.added_functions[function_name], func_to_install );
-    
     if (@not @IsBound( category.timing_statistics[function_name] ))
         
         category.timing_statistics[function_name] = [ ];
@@ -202,15 +234,6 @@ end );
                                 
           function( arg... )
             local redirect_return, pre_func_return, collect_timing_statistics, start_time, result, end_time, i;
-            
-            if (@not IsFinalized( category ) && @not category.primitive_operations[function_name])
-                
-                Print(
-                    "WARNING: You are calling an operation in an unfinalized category with name \"", category_name,
-                    "\". This is fine for debugging purposes, but for production use you should finalize the category by calling `Finalize` (with the option `FinalizeCategory = true` if needed).\n"
-                );
-                
-            end;
             
             if (@IsBound( record.redirect_function ))
                 redirect_return = CallFuncList( record.redirect_function, arg );
@@ -282,23 +305,6 @@ end );
             return result;
             
         end; InstallMethod = InstallOtherMethod, Cache = GET_METHOD_CACHE( category, function_name, Length( replaced_filter_list ) ) );
-        
-    end;
-    
-    if (@not is_derivation)
-        
-        # Final derivations are not handled by the original derivation mechanism and are thus just like primitive operations for it.
-        AddPrimitiveOperation( category.derivations_weight_list, function_name, weight );
-        
-    end;
-    
-    if (is_derivation || is_final_derivation || is_precompiled_derivation)
-        
-        category.primitive_operations[function_name] = false;
-        
-    else
-        
-        category.primitive_operations[function_name] = true;
         
     end;
     

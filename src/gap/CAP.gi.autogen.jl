@@ -288,21 +288,6 @@ end );
     
     obj.is_computable = is_computable;
     
-    #= comment for Julia
-    if (ValueOption( "disable_derivations" ) == true)
-        
-        # use an empty derivation graph
-        obj.derivations_weight_list = MakeOperationWeightList( obj, MakeDerivationGraph( Operations( CAP_INTERNAL_DERIVATION_GRAPH ) ) );
-        
-    else
-        # =#
-        
-        obj.derivations_weight_list = MakeOperationWeightList( obj, CAP_INTERNAL_DERIVATION_GRAPH );
-        
-        #= comment for Julia
-    end;
-    # =#
-    
     obj.caches = @rec( );
     
     for operation_name in CAP_INTERNAL.operation_names_with_cache_disabled_by_default
@@ -311,9 +296,9 @@ end );
         
     end;
     
-    obj.primitive_operations = @rec( );
-    
     obj.added_functions = @rec( );
+    
+    obj.operations = @rec( );
     
     obj.timing_statistics = @rec( );
     obj.timing_statistics_enabled = false;
@@ -612,9 +597,7 @@ end );
         
     end;
     
-    weight_list = category.derivations_weight_list;
-    
-    return CurrentOperationWeight( weight_list, string ) != infinity;
+    return @IsBound( category.operations[string] );
     
 end );
 
@@ -627,6 +610,70 @@ end );
     Display( "WARNING: calling `CanCompute` with a CAP operation as the second argument should only be done for debugging purposes." );
     
     return CanCompute( category, NameFunction( operation ) );
+    
+end );
+
+##
+@InstallMethod( OperationWeight,
+               [ IsCapCategory, IsString ],
+               
+  function( category, op_name )
+    
+    return category.operations[op_name].weight;
+    
+end );
+
+##
+@InstallGlobalFunction( ListInstalledOperationsOfCategory,
+  
+  function( arg... )
+    local cat, filter, names;
+    
+    if (Length( arg ) < 1)
+        Error( "first argument needs to be <category>" );
+    end;
+    
+    cat = arg[ 1 ];
+    
+    if (Length( arg ) > 1)
+        filter = arg[ 2 ];
+    else
+        filter = fail;
+    end;
+    
+    if (IsCapCategoryCell( cat ))
+        cat = CapCategory( cat );
+    end;
+    
+    if (@not IsCapCategory( cat ))
+        Error( "input is not a category (cell)" );
+    end;
+    
+    names = RecNames( cat.operations );
+    
+    if (filter != fail)
+        names = Filtered( names, i -> PositionSublist( i, filter ) != fail );
+    end;
+    
+    return AsSortedList( names );
+    
+end );
+
+##
+@InstallGlobalFunction( ListPrimitivelyInstalledOperationsOfCategory,
+  
+  function( arg... )
+    local cat, names;
+    
+    if (Length( arg ) < 1)
+        Error( "first argument needs to be <category>" );
+    end;
+    
+    cat = arg[ 1 ];
+    
+    names = CallFuncList( ListInstalledOperationsOfCategory, arg );
+    
+    return Filtered( names, x -> cat.operations[x].type == "primitive_installation" );
     
 end );
 

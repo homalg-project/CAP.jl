@@ -369,9 +369,7 @@ end );
         
         func = EvalString( func_string );
         
-        weight = CurrentOperationWeight( category.derivations_weight_list, dual_operation_name );
-        
-        @Assert( 0, weight < infinity );
+        weight = OperationWeight( category, dual_operation_name );
         
         AddCapOperation( current_recname, opposite_category, func, weight );
         

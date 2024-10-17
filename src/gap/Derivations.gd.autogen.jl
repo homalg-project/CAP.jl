@@ -36,11 +36,9 @@
 
 #! @Description
 #!  Creates a new derivation object.
-#!  The argument <A>name</A> is an arbitrary name used to
-#!  identify this derivation, and is useful only for debugging
-#!  purposes.
 #!  The argument <A>target_op_name</A> is the name of the operation which
 #!  the derived method implements.
+#!  The argument <A>description</A> should describe the derivation.
 #!  The argument <A>used_ops_with_multiples</A> contains
 #!  
 #!  * the name of each operation used by the derived method,
@@ -53,35 +51,31 @@
 #!  category for which this derivation will be installed,
 #!  and return a category for which the operation in the first
 #!  entry must be installed for the derivation to be considered applicable.
+#!  The argument <A>func</A> contains the actual implementation of the
+#!  derived method.
 #!  The argument <A>weight</A> is an additional number to add
 #!  when calculating the resulting weight of the target operation
 #!  using this derivation. Unless there is any particular reason
 #!  to regard the derivation as exceedingly expensive, this number
 #!  should be <C>1</C>.
-#!  The argument <A>func</A> contains the actual implementation of the
-#!  derived method.
 #!  The argument <A>category_filter</A> is a filter (or function) describing
 #!  which categories the derivation is valid for. If it is valid
 #!  for all categories, then this argument should have the value
 #!  <C>IsCapCategory</C>. The output of <A>category_filter</A> must not
 #!  change during the installation of operations. In particular, it must
 #!  not rely on `CanCompute` to check conditions.
-#! @Arguments name, target_op, used_ops_with_multiples, weight, func, category_filter
-@DeclareOperation( "MakeDerivation",
-                  [ IsString, IsString, IsDenseList,
-                    IsPosInt, IsFunction, IsFunction ] );
+#! @Arguments target_op_name, description, used_ops_with_multiples, func, weight, category_filter, loop_multiplier, category_getters
+@DeclareGlobalFunction( "CreateDerivation" );
 
 #! @Description
-#!  The name of the derivation.  This is a name identifying this
-#!  particular derivation, and normally not the same as the name
-#!  of the operation implemented by the derivation.
+#!  A description of the derivation.
 #! @Arguments d
-@DeclareAttribute( "DerivationName", IsDerivedMethod );
+@DeclareAttribute( "Description", IsDerivedMethod );
 
 #! @Description
-#!  Extra weight for the derivation.
+#!  Additional weight for the derivation.
 #! @Arguments d
-@DeclareAttribute( "DerivationWeight", IsDerivedMethod );
+@DeclareAttribute( "AdditionalWeight", IsDerivedMethod );
 
 #! @Description
 #!  The implementation of the derivation.
@@ -243,12 +237,12 @@ DeclareGlobalName( "CAP_INTERNAL_DERIVATION_GRAPH" );
 @DeclareOperation( "DerivationOfOperation", [ IsOperationWeightList, IsString ] );
 
 #! @Description
-#!  Performs a search from the operation <A>op_name</A>, and installs all derivations
+#!  Performs a search from the operation <A>op_name</A>, and triggers all derivations
 #!  that give improvements over the current state.
-#!  This is used internally by <C>AddPrimitiveOperation</C> and <C>Reevaluate</C>.
+#!  This is used internally by <C>InstallDerivations</C> and <C>Reevaluate</C>.
 #!  It should normally not be necessary to call this function directly.
 #! @Arguments owl, op_name
-@DeclareOperation( "InstallDerivationsUsingOperation",
+@DeclareOperation( "TriggerDerivationsUsingOperation",
                   [ IsOperationWeightList, IsString ] );
 
 #! @Description
@@ -269,9 +263,6 @@ DeclareGlobalName( "CAP_INTERNAL_DERIVATION_GRAPH" );
 #! @Description
 #!  Add the operation named <A>op_name</A> to the operation weight list <A>owl</A>
 #!  with weight <A>weight</A>.
-#!  This causes all operations that can be derived, directly or indirectly,
-#!  from the newly added operation to be installed as well
-#!  (unless they are already installed with the same or lower weight).
 #! @Arguments owl, op_name, weight
 @DeclareOperation( "AddPrimitiveOperation", [ IsOperationWeightList, IsString, IsInt ] );
 
@@ -288,75 +279,25 @@ DeclareGlobalName( "CAP_INTERNAL_DERIVATION_GRAPH" );
 @DeclareOperation( "PrintTreeRec",
                   [ IsObject, IsFunction, IsFunction, IsInt ] );
 
-####################################
+#################################
 ##
-#! @Section Min Heaps for Strings
+## Final derivations
 ##
-####################################
+#################################
 
-#! This section describes an implementation of min heaps for storing strings with
-#! associated integer keys, used internally by operation weight lists.
+DeclareGlobalVariable( "CAP_INTERNAL_FINAL_DERIVATION_LIST" );
 
-#! @Description
-#!  A string min heap is a min heap where every node contains a string label and an
-#!  integer key.
-@DeclareFilter( "IsStringMinHeap", IsAttributeStoringRep );
+@DeclareGlobalFunction( "AddFinalDerivation" );
 
-#! @Description
-#!  Create an empty string min heap.
-@DeclareGlobalFunction( "StringMinHeap" );
+@DeclareGlobalFunction( "AddFinalDerivationBundle" );
 
-#! @Description
-#!  Add a new node containing the label <A>string</A> and the key <A>key</A>
-#!  to the heap <A>H</A>.
-#! @Arguments H, string, key
-@DeclareOperation( "Add", [ IsStringMinHeap, IsString, IsInt ] );
+#################################
+##
+## Installing derivations
+##
+#################################
 
-#! @Description
-#!  Remove a node with minimal key value from the heap <A>H</A>, and return it.
-#!  The return value is a list <C>[ label, key ]</C>, where <C>label</C>
-#!  is the extracted node's label (a string) and <C>key</C> is the
-#!  node's key (an integer).
-#! @Arguments H
-@DeclareOperation( "ExtractMin", [ IsStringMinHeap ] );
-
-#! @Description
-#!  Decrease the key value for the node with label <A>string</A> in the
-#!  heap <A>H</A>.  The new key value is given by <A>key</A> and must be
-#!  smaller than the node's current value.
-#! @Arguments H, string, key
-@DeclareOperation( "DecreaseKey", [ IsStringMinHeap, IsString, IsInt ] );
-
-#! @Description
-#!  Returns <C>true</C> if the heap <A>H</A> is empty, <C>false</C> otherwise.
-#! @Arguments H
-@DeclareOperation( "IsEmptyHeap", [ IsStringMinHeap ] );
-
-#! @Description
-#!  Returns the number of nodes in the heap <A>H</A>.
-#! @Arguments H
-@DeclareOperation( "HeapSize", [ IsStringMinHeap ] );
-
-#! @Description
-#!  Returns <C>true</C> if the heap <A>H</A> contains a node with
-#!  label <A>string</A>, and <C>false</C> otherwise.
-#! @Arguments H, string
-@DeclareOperation( "Contains", [ IsStringMinHeap, IsString ] );
-
-#! @Description
-#!  Swaps two elements in the list used to implement the heap,
-#!  and updates the heap's internal mapping of labels to list indices.
-#!  This is an internal function which should only be called from the
-#!  functions that implement the heap functionality.
-#! @Arguments H, i, j
-@DeclareOperation( "Swap", [ IsStringMinHeap, IsPosInt, IsPosInt ] );
-
-#! @Description
-#!  Heapify the heap <A>H</A>, starting from index <A>i</A>.
-#!  This is an internal function.
-#! @Arguments H, i
-@DeclareOperation( "Heapify", [ IsStringMinHeap, IsPosInt ] );
-
+@DeclareGlobalFunction( "InstallDerivations" );
 
 #################################
 ##
@@ -366,6 +307,3 @@ DeclareGlobalName( "CAP_INTERNAL_DERIVATION_GRAPH" );
 
 @DeclareGlobalFunction( "InstalledMethodsOfCategory" );
 @DeclareGlobalFunction( "DerivationsOfMethodByCategory" );
-
-@DeclareGlobalFunction( "ListInstalledOperationsOfCategory" );
-@DeclareGlobalFunction( "ListPrimitivelyInstalledOperationsOfCategory" );

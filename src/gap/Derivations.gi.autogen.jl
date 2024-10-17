@@ -11,13 +11,10 @@
             NewFamily( "TheFamilyOfDerivationGraphs" ) );
 @BindGlobal( "TheFamilyOfOperationWeightLists",
             NewFamily( "TheFamilyOfOperationWeightLists" ) );
-@BindGlobal( "TheFamilyOfStringMinHeaps",
-            NewFamily( "TheFamilyOfStringMinHeaps" ) );
 
 @BindGlobal( "TheTypeOfDerivedMethods", NewType( TheFamilyOfDerivations, IsDerivedMethod ) );
 @BindGlobal( "TheTypeOfDerivationsGraphs", NewType( TheFamilyOfDerivationGraphs, IsDerivedMethodGraph ) );
 @BindGlobal( "TheTypeOfOperationWeightLists", NewType( TheFamilyOfOperationWeightLists, IsOperationWeightList ) );
-@BindGlobal( "TheTypeOfStringMinHeaps", NewType( TheFamilyOfStringMinHeaps, IsStringMinHeap ) );
 
 @InstallGlobalFunction( "ActivateDerivationInfo",
   function( )
@@ -29,16 +26,93 @@ end );
     SetInfoLevel( DerivationInfo, 0 );
 end );
 
-@InstallMethod( MakeDerivation,
-               [ IsString, IsString, IsDenseList, IsPosInt, IsFunction, IsFunction ],
-               
-function( name, target_op_name, used_op_names_with_multiples_and_category_getters, weight, func, category_filter )
-  local wrapped_category_filter, derivation;
+@InstallGlobalFunction( CreateDerivation, function( target_op_name, description, used_ops_with_multiples_and_category_getters, func, weight, category_filter, loop_multiplier, category_getters )
+  local number_of_proposed_arguments, current_function_argument_number, used_op_names_with_multiples_and_category_getters, collected_list, wrapped_category_filter, derivation, x;
+    
+    if (target_op_name != "internal dummy function of a final derivation")
+        
+        if (@not @IsBound( CAP_INTERNAL_METHOD_NAME_RECORD[target_op_name] ))
+            
+            Error( "trying to create a derviation for a method not in CAP_INTERNAL_METHOD_NAME_RECORD" );
+            
+        end;
+        
+        number_of_proposed_arguments = Length( CAP_INTERNAL_METHOD_NAME_RECORD[target_op_name].filter_list );
+        
+        current_function_argument_number = NumberArgumentsFunction( func );
+        
+        if (current_function_argument_number >= 0 && current_function_argument_number != number_of_proposed_arguments)
+            
+            Error( "while adding a derivation for ", target_op_name, ": given function has ", current_function_argument_number, " arguments but should have ", number_of_proposed_arguments );
+            
+        end;
+        
+    end;
     
     #= comment for Julia
     if (PositionSublist( StringGAP( category_filter ), "CanCompute" ) != fail)
         
         Print( "WARNING: The CategoryFilter of a derivation for ", target_op_name, " uses `CanCompute`. Please register all preconditions explicitly.\n" );
+        
+    end;
+    # =#
+    
+    # canonicalize used ops
+    used_op_names_with_multiples_and_category_getters = [ ];
+    
+    for x in used_ops_with_multiples_and_category_getters
+        
+        if (Length( x ) < 2 || !(IsFunction( x[1] )) || @not IsInt( x[2] ))
+            
+            Error( "preconditions must be of the form `[op, mult, getter]`, where `getter` is optional" );
+            
+        end;
+        
+        if ((Length( x ) == 2 || (Length( x ) == 3 && x[3] == fail)) && NameFunction( x[1] ) == target_op_name)
+            
+            Error( "A derivation for ", target_op_name, " has itself as a precondition. This is not supported because we cannot compute a well-defined weight.\n" );
+            
+        end;
+        
+        if (Length( x ) == 2)
+            
+            Add( used_op_names_with_multiples_and_category_getters, [ NameFunction( x[1] ), x[2], fail ] );
+            
+        elseif (Length( x ) == 3)
+            
+            if (x != fail && !(IsFunction( x[3] ) && NumberArgumentsFunction( x[3] ) == 1))
+                
+                Error( "the category getter must be a single-argument function" );
+                
+            end;
+            
+            Add( used_op_names_with_multiples_and_category_getters, [ NameFunction( x[1] ), x[2], x[3] ] );
+            
+        else
+            
+            Error( "The list of preconditions must be a list of pairs or triples." );
+            
+        end;
+        
+    end;
+    
+    #= comment for Julia
+    if (target_op_name != "internal dummy function of a final derivation")
+        
+        collected_list = CAP_INTERNAL_FIND_APPEARANCE_OF_SYMBOL_IN_FUNCTION( func, RecNames( CAP_INTERNAL_METHOD_NAME_RECORD ), loop_multiplier, CAP_INTERNAL_METHOD_RECORD_REPLACEMENTS, category_getters );
+        
+        if (Length( collected_list ) != Length( used_op_names_with_multiples_and_category_getters ) || @not ForAll( collected_list, c -> c in used_op_names_with_multiples_and_category_getters ))
+            
+            SortBy( used_op_names_with_multiples_and_category_getters, x -> x[1] );
+            SortBy( collected_list, x -> x[1] );
+            
+            Print(
+                "WARNING: You have installed a derivation for ", target_op_name, " with preconditions ", used_op_names_with_multiples_and_category_getters,
+                " but the automated detection has detected the following list of preconditions: ", collected_list, ".\n",
+                "If this is a bug in the automated detection, please report it.\n"
+            );
+            
+        end;
         
     end;
     # =#
@@ -71,8 +145,8 @@ function( name, target_op_name, used_op_names_with_multiples_and_category_getter
     end;
     
     derivation = CreateGapObjectWithAttributes( TheTypeOfDerivedMethods,
-        DerivationName, name,
-        DerivationWeight, weight,
+        Description, description,
+        AdditionalWeight, weight,
         DerivationFunction, func,
         CategoryFilter, wrapped_category_filter,
         TargetOperation, target_op_name,
@@ -86,7 +160,7 @@ end );
 @InstallMethod( StringGAP,
                [ IsDerivedMethod ],
 function( d )
-  return @Concatenation( "derivation ", DerivationName( d ),
+  return @Concatenation( "derivation ", Description( d ),
                         " of operation ", TargetOperation( d ) );
 end );
 
@@ -110,13 +184,6 @@ end );
   ],
   function( CAP_NAMED_ARGUMENTS, d, weight, C )
     local method_name, func;
-    
-    @Info( DerivationInfo, 1, @Concatenation( "install(",
-                                            StringGAP( weight ),
-                                            ") ",
-                                            TargetOperation( d ),
-                                            ": ",
-                                            DerivationName( d ), "\n" ) );
     
     method_name = TargetOperation( d );
     func = DerivationFunction( d );
@@ -184,74 +251,20 @@ end );
 @InstallGlobalFunction( AddDerivation,
   
   function( graph, target_op, description, used_ops_with_multiples_and_category_getters, func, weight, category_filter, loop_multiplier, category_getters, function_called_before_installation, is_with_given_derivation, is_autogenerated_by_CompilerForCAP )
-    local target_op_name, operations_in_graph, used_op_names_with_multiples_and_category_getters, collected_list, derivation, x;
+    local target_op_name, derivation, x;
     
     target_op_name = NameFunction( target_op );
     
-    ## get used ops
-    operations_in_graph = Operations( graph );
-    
-    used_op_names_with_multiples_and_category_getters = [ ];
-    
-    for x in used_ops_with_multiples_and_category_getters
-        
-        if (Length( x ) < 2 || !(IsFunction( x[1] )) || @not IsInt( x[2] ))
-            
-            Error( "preconditions must be of the form `[op, mult, getter]`, where `getter` is optional" );
-            
-        end;
-        
-        if ((Length( x ) == 2 || (Length( x ) == 3 && x[3] == fail)) && x[1] == target_op)
-            
-            Error( "A derivation for ", target_op_name, " has itself as a precondition. This is not supported because we cannot compute a well-defined weight.\n" );
-            
-        end;
-        
-        if (Length( x ) == 2)
-            
-            Add( used_op_names_with_multiples_and_category_getters, [ NameFunction( x[1] ), x[2], fail ] );
-            
-        elseif (Length( x ) == 3)
-            
-            if (x != fail && !(IsFunction( x[3] ) && NumberArgumentsFunction( x[3] ) == 1))
-                
-                Error( "the category getter must be a single-argument function" );
-                
-            end;
-            
-            Add( used_op_names_with_multiples_and_category_getters, [ NameFunction( x[1] ), x[2], x[3] ] );
-            
-        else
-            
-            Error( "The list of preconditions must be a list of pairs or triples." );
-            
-        end;
-        
-    end;
-    
-    #= comment for Julia
-    collected_list = CAP_INTERNAL_FIND_APPEARANCE_OF_SYMBOL_IN_FUNCTION( func, operations_in_graph, loop_multiplier, CAP_INTERNAL_METHOD_RECORD_REPLACEMENTS, category_getters );
-    
-    if (Length( collected_list ) != Length( used_op_names_with_multiples_and_category_getters ) || @not ForAll( collected_list, c -> c in used_op_names_with_multiples_and_category_getters ))
-        
-        SortBy( used_op_names_with_multiples_and_category_getters, x -> x[1] );
-        SortBy( collected_list, x -> x[1] );
-        
-        Print(
-            "WARNING: You have installed a derivation for ", target_op_name, " with preconditions ", used_op_names_with_multiples_and_category_getters,
-            " but the automated detection has detected the following list of preconditions: ", collected_list, ".\n",
-            "If this is a bug in the automated detection, please report it.\n"
-        );
-        
-    end;
-    # =#
-    
-    derivation = MakeDerivation( description,
-                                  target_op_name,
-                                  used_op_names_with_multiples_and_category_getters,
-                                  weight,
-                                  func,
-                                  category_filter );
+    derivation = CreateDerivation(
+        target_op_name,
+        description,
+        used_ops_with_multiples_and_category_getters,
+        func,
+        weight,
+        category_filter,
+        loop_multiplier,
+        category_getters
+    );
     
     if (function_called_before_installation != false)
         
@@ -269,14 +282,15 @@ end );
     end;
     
     Add( graph.derivations_by_target[target_op_name], derivation );
+    derivation.position_in_derivations_by_target = Length( graph.derivations_by_target[target_op_name] );
     
-    for x in used_op_names_with_multiples_and_category_getters
+    for x in UsedOperationsWithMultiplesAndCategoryGetters( derivation )
         # We add all operations, even those with category getters: In case the category getter
         # returns the category itself, this allows to recursively trigger derivations correctly.
         Add( graph.derivations_by_used_ops[x[1]], derivation );
     end;
     
-    if (IsEmpty( used_op_names_with_multiples_and_category_getters ))
+    if (IsEmpty( UsedOperationsWithMultiplesAndCategoryGetters( derivation ) ))
         
         Add( graph.derivations_by_used_ops.none, derivation );
         
@@ -299,26 +313,7 @@ end );
     [ "is_autogenerated_by_CompilerForCAP", false ],
   ],
   function( CAP_NAMED_ARGUMENTS, target_op, description, used_ops_with_multiples_and_category_getters, func )
-    local method_name, filter_list, number_of_proposed_arguments, current_function_argument_number, weight, category_filter, loop_multiplier, category_getters, function_called_before_installation, option_is_with_given_derivation, option_is_autogenerated_by_CompilerForCAP;
-    
-    method_name = NameFunction( target_op );
-    
-    if (@not @IsBound( CAP_INTERNAL_METHOD_NAME_RECORD[method_name] ))
-        
-        Error( "trying to add a derivation to CAP_INTERNAL_DERIVATION_GRAPH for a method not in CAP_INTERNAL_METHOD_NAME_RECORD" );
-        
-    end;
-    
-    filter_list = CAP_INTERNAL_METHOD_NAME_RECORD[method_name].filter_list;
-    
-    number_of_proposed_arguments = Length( filter_list );
-    
-    current_function_argument_number = NumberArgumentsFunction( func );
-    
-    if (current_function_argument_number >= 0 && current_function_argument_number != number_of_proposed_arguments)
-        Error( "While adding a derivation for ", method_name, ": given function has ", StringGAP( current_function_argument_number ),
-               " arguments but should have ", StringGAP( number_of_proposed_arguments ) );
-    end;
+    local weight, category_filter, loop_multiplier, category_getters, function_called_before_installation, option_is_with_given_derivation, option_is_autogenerated_by_CompilerForCAP;
     
     weight = Weight;
     category_filter = CategoryFilter;
@@ -383,21 +378,18 @@ end );
 @InstallMethod( CurrentOperationWeight,
                [ IsOperationWeightList, IsString ],
 function( owl, op_name )
-  if (@IsBound( owl.operation_weights[op_name] ))
-      return owl.operation_weights[op_name];
-  end;
-  return infinity;
+  return owl.operation_weights[op_name];
 end );
 
 @InstallMethod( OperationWeightUsingDerivation,
                [ IsOperationWeightList, IsDerivedMethod ],
 function( owl, d )
-  local category, category_operation_weights, weight, operation_weights, operation_name, operation_weight, x;
+  local category, category_operation_weights, weight, operation_weights, operation_weight, x;
     
     category = CategoryOfOperationWeightList( owl );
     category_operation_weights = owl.operation_weights;
     
-    weight = DerivationWeight( d );
+    weight = AdditionalWeight( d );
     
     for x in UsedOperationsWithMultiplesAndCategoryGetters( d )
         
@@ -409,17 +401,16 @@ function( owl, d )
             
             operation_weights = x[3](category).derivations_weight_list.operation_weights;
             
+            # the category `x[3](category)` might have been finalized before the operation `x[1]` was added to CAP
+            if (@not @IsBound( operation_weights[x[1]] ))
+                
+                return infinity;
+                
+            end;
+            
         end;
         
-        operation_name = x[1];
-        
-        if (@not @IsBound( operation_weights[operation_name] ))
-            
-            return infinity;
-            
-        end;
-        
-        operation_weight = operation_weights[operation_name];
+        operation_weight = operation_weights[x[1]];
         
         if (operation_weight == infinity)
             
@@ -441,8 +432,8 @@ function( owl, op_name )
   return owl.operation_derivations[op_name];
 end );
 
-@BindGlobal( "TryToInstallDerivation", function ( owl, d )
-  local new_weight, target, current_weight, current_derivation, derivations_of_target, new_pos, current_pos;
+@BindGlobal( "TryToTriggerDerivation", function ( owl, d )
+  local new_weight, target, current_weight, current_derivation;
     
     if (@not IsApplicableToCategory( d, CategoryOfOperationWeightList( owl ) ))
         return fail;
@@ -459,72 +450,37 @@ end );
     current_weight = CurrentOperationWeight( owl, target );
     current_derivation = DerivationOfOperation( owl, target );
     
-    if (current_derivation != fail)
+    if (new_weight < current_weight || (new_weight == current_weight && current_derivation != fail && d.position_in_derivations_by_target < current_derivation.position_in_derivations_by_target))
         
-        derivations_of_target = DerivationsOfOperation( DerivationGraph( owl ), target );
-        
-        new_pos = PositionProperty( derivations_of_target, x -> IsIdenticalObj( x, d ) );
-        current_pos = PositionProperty( derivations_of_target, x -> IsIdenticalObj( x, current_derivation ) );
-        
-        @Assert( 0, new_pos != fail );
-        @Assert( 0, current_pos != fail );
-        
-    end;
-
-    if (new_weight < current_weight || (new_weight == current_weight && current_derivation != fail && new_pos < current_pos))
-        
-        # Previously, `InstallDerivationForCategory` was called at this point.
-        # However, this could lead to methods being overwritten if cheaper derivations become available while adding primitive installations to a category.
-        # Hence, we now install the derivations in `Finalize`.
+        @Info( DerivationInfo, 1, @Concatenation( "derive(",
+                                                StringGAP( new_weight ),
+                                                ") ",
+                                                target,
+                                                ": ",
+                                                Description( d ), "\n" ) );
         
         owl.operation_weights[target] = new_weight;
         owl.operation_derivations[target] = d;
         
-        return new_weight;
-        
-    else
-        
-        return fail;
+        # if the weight has not changed, there is no need to re-trigger the chain of derivations
+        if (new_weight != current_weight)
+            
+            TriggerDerivationsUsingOperation( owl, target );
+            
+        end;
         
     end;
     
 end );
 
-@InstallMethod( InstallDerivationsUsingOperation,
+@InstallMethod( TriggerDerivationsUsingOperation,
                [ IsOperationWeightList, IsString ],
 function( owl, op_name )
-  local Q, derivations_to_install, node, new_weight, target, d;
+  local d;
     
-    Q = StringMinHeap();
-    Add( Q, op_name, 0 );
-    
-    while @not IsEmptyHeap( Q )
+    for d in DerivationsUsingOperation( DerivationGraph( owl ), op_name )
         
-        node = ExtractMin( Q );
-        
-        op_name = node[ 1 ];
-        
-        for d in DerivationsUsingOperation( DerivationGraph( owl ), op_name )
-            
-            new_weight = TryToInstallDerivation( owl, d );
-            
-            if (new_weight != fail)
-                
-                target = TargetOperation( d );
-                
-                if (Contains( Q, target ))
-                    
-                    DecreaseKey( Q, target, new_weight );
-                    
-                else
-                    
-                    Add( Q, target, new_weight );
-                    
-                end;
-                
-            end;
-            
-        end;
+        TryToTriggerDerivation( owl, d );
         
     end;
     
@@ -539,13 +495,7 @@ function( owl )
         
         for d in DerivationsOfOperation( DerivationGraph( owl ), op_name )
             
-            new_weight = TryToInstallDerivation( owl, d );
-            
-            if (new_weight != fail)
-                
-                InstallDerivationsUsingOperation( owl, TargetOperation( d ) );
-                
-            end;
+            TryToTriggerDerivation( owl, d );
             
         end;
         
@@ -570,18 +520,10 @@ end );
 
 @InstallMethod( AddPrimitiveOperation,
                [ IsOperationWeightList, IsString, IsInt ],
-function( owl, op_name, weight )
+function( owl, op_name, new_weight )
     
-    @Info( DerivationInfo, 1, @Concatenation( "install(",
-                                  StringGAP( weight ),
-                                  ") ",
-                                  op_name,
-                                  ": primitive installation\n" ) );
-    
-    owl.operation_weights[op_name] = weight;
-    owl.operation_derivations[op_name] = fail;
-    
-    InstallDerivationsUsingOperation( owl, op_name );
+    owl.operation_weights[op_name] = new_weight;
+    @Assert( 0, owl.operation_derivations[op_name] == fail );
     
 end );
 
@@ -613,7 +555,7 @@ function( owl, op_name )
       if (d == fail)
         Print( "[primitive]" );
       else
-        Print( "[derived:", DerivationName( d ), "]" );
+        Print( "[derived:", Description( d ), "]" );
       end;
     end;
   end;
@@ -627,7 +569,7 @@ function( owl, op_name )
     if (d == fail)
       return [];
     else
-      return @Concatenation( [ [ fail, DerivationWeight( d ) ] ],
+      return @Concatenation( [ [ fail, AdditionalWeight( d ) ] ],
                             UsedOperationsWithMultiplesAndCategoryGetters( d ) );
     end;
   end;
@@ -635,126 +577,6 @@ function( owl, op_name )
              print_node,
              get_children );
 end );
-
-
-@InstallGlobalFunction( StringMinHeap,
-function()
-  return Objectify( TheTypeOfStringMinHeaps,
-                    @rec( key = function(n) return n[2]; end,
-                         str = function(n) return n[1]; end,
-                         array = [],
-                         node_indices = @rec() ) );
-end );
-
-@InstallMethod( StringGAP,
-               [ IsStringMinHeap ],
-function( H )
-  return @Concatenation( "min heap for strings, with size ",
-                        StringGAP( HeapSize( H ) ) );
-end );
-
-@InstallMethod( ViewString,
-               [ IsStringMinHeap ],
-function( H )
-  return @Concatenation( "<", StringGAP( H ), ">" );
-end );
-
-@InstallMethod( HeapSize,
-               [ IsStringMinHeap ],
-function( H )
-  return Length( H.array );
-end );
-
-@InstallMethod( Add,
-               [ IsStringMinHeap, IsString, IsInt ],
-function( H, string, key )
-  local array;
-  array = H.array;
-  Add( array, [ string, key ] );
-  H.node_indices[string] = Length( array );
-  DecreaseKey( H, string, key );
-end );
-
-@InstallMethod( IsEmptyHeap,
-               [ IsStringMinHeap ],
-function( H )
-  return IsEmpty( H.array );
-end );
-
-@InstallMethod( ExtractMin,
-               [ IsStringMinHeap ],
-function( H )
-  local array, node, key;
-  array = H.array;
-  node = array[ 1 ];
-  Swap( H, 1, Length( array ) );
-  Remove( array );
-  key = H.str( node );
-  @Unbind( H.node_indices[key] );
-  if (@not IsEmpty( array ))
-    Heapify( H, 1 );
-  end;
-  return node;
-end );
-
-@InstallMethod( DecreaseKey,
-               [ IsStringMinHeap, IsString, IsInt ],
-function( H, string, key )
-  local array, i, parent;
-  array = H.array;
-  i = H.node_indices[string];
-  array[ i ][ 2 ] = key;
-  parent = IntGAP( i / 2 );
-  while parent > 0 && H.key( array[ i ] ) < H.key( array[ parent ] )
-    Swap( H, i, parent );
-    i = parent;
-    parent = IntGAP( i / 2 );
-  end;
-end );
-
-@InstallMethod( Swap,
-               [ IsStringMinHeap, IsPosInt, IsPosInt ],
-function( H, i, j )
-  local array, node_indices, str, tmp, key;
-  array = H.array;
-  node_indices = H.node_indices;
-  str = H.str;
-  tmp = array[ i ];
-  array[ i ] = array[ j ];
-  array[ j ] = tmp;
-  key = str( array[ i ] );
-  node_indices[key] = i;
-  key = str( array[ j ] );
-  node_indices[key] = j;
-end );
-
-@InstallMethod( Contains,
-               [ IsStringMinHeap, IsString ],
-function( H, string )
-  return @IsBound( H.node_indices[string] );
-end );
-
-@InstallMethod( Heapify,
-               [ IsStringMinHeap, IsPosInt ],
-function( H, i )
-  local key, array, left, right, smallest;
-  key = H.key;
-  array = H.array;
-  left = 2 * i;
-  right = 2 * i + 1;
-  smallest = i;
-  if (left <= HeapSize( H ) && key( array[ left ] ) < key( array[ smallest ] ))
-    smallest = left;
-  end;
-  if (right <= HeapSize( H ) && key( array[ right ] ) < key( array[ smallest ] ))
-    smallest = right;
-  end;
-  if (smallest != i)
-    Swap( H, i, smallest );
-    Heapify( H, smallest );
-  end;
-end );
-
 
 @InstallMethod( PrintTree,
                [ IsObject, IsFunction, IsFunction ],
@@ -774,6 +596,331 @@ function( node, print_node, get_children, level )
   for child in get_children( node )
     PrintTreeRec( child, print_node, get_children, level + 1 );
   end;
+end );
+
+#################################
+##
+## Final derivations
+##
+#################################
+
+@InstallValueConst( CAP_INTERNAL_FINAL_DERIVATION_LIST, [ ] );
+
+@InstallGlobalFunction( AddFinalDerivation, @FunctionWithNamedArguments(
+  [
+    # When compiling categories, a derivation does not cause overhead anymore, so we would like to simply set `Weight` to 0.
+    # However, the weight 1 is currently needed to prevent the installation of cyclic derivations.
+    [ "Weight", 1 ],
+    [ "CategoryFilter", IsCapCategory ],
+    [ "WeightLoopMultiple", 2 ],
+    [ "CategoryGetters", Immutable( @rec( ) ) ],
+    [ "FunctionCalledBeforeInstallation", false ],
+  ],
+  function( CAP_NAMED_ARGUMENTS, target_op, description, can_compute, cannot_compute, func )
+    
+    AddFinalDerivationBundle(
+        description, can_compute, cannot_compute, [ target_op, can_compute, func ],
+        Weight = Weight,
+        CategoryFilter = CategoryFilter,
+        WeightLoopMultiple = WeightLoopMultiple,
+        CategoryGetters = CategoryGetters,
+        FunctionCalledBeforeInstallation = FunctionCalledBeforeInstallation
+    );
+    
+end ) );
+
+@InstallGlobalFunction( AddFinalDerivationBundle, @FunctionWithNamedArguments(
+  [
+    # When compiling categories, a derivation does not cause overhead anymore, so we would like to simply set `Weight` to 0.
+    # However, the weight 1 is currently needed to prevent the installation of cyclic derivations.
+    [ "Weight", 1 ],
+    [ "CategoryFilter", IsCapCategory ],
+    [ "WeightLoopMultiple", 2 ],
+    [ "CategoryGetters", Immutable( @rec( ) ) ],
+    [ "FunctionCalledBeforeInstallation", false ],
+  ],
+  function( CAP_NAMED_ARGUMENTS, description, can_compute, cannot_compute, additional_functions... )
+    local weight, category_filter, loop_multiplier, category_getters, function_called_before_installation, operations_to_install, union_of_collected_lists, derivations, derivation, used_op_names_with_multiples_and_category_getters, dummy_derivation, final_derivation, i, x, current_additional_func;
+    
+    weight = Weight;
+    category_filter = CategoryFilter;
+    loop_multiplier = WeightLoopMultiple;
+    category_getters = CategoryGetters;
+    function_called_before_installation = FunctionCalledBeforeInstallation;
+    
+    if (IsEmpty( additional_functions ))
+        
+        Error( "trying to add a final derivation without any functions to install" );
+        
+    end;
+    
+    for i in (1):(Length( additional_functions ))
+        
+        if (!(IsList( additional_functions[i] ) && Length( additional_functions[i] ) == 3))
+            
+            Error( "additional functions must be given as triples [ <operation>, <preconditions>, <function> ]" );
+            
+        end;
+        
+        if (IsList( Last( additional_functions[i] ) ))
+            
+            Error( "passing lists of functions to `AddFinalDerivation` is not supported anymore" );
+            
+        end;
+        
+        if (@not additional_functions[i][1] in cannot_compute)
+            
+            Print( "WARNING: A final derivation installs ", NameFunction( additional_functions[i][1] ), " but does not list it in its exclude list.\n" );
+            
+        end;
+        
+    end;
+    
+    for x in can_compute
+        
+        if (Length( x ) < 2 || !(IsFunction( x[1] )) || @not IsInt( x[2] ))
+            
+            Error( "preconditions must be of the form `[op, mult, getter]`, where `getter` is optional" );
+            
+        end;
+        
+        # check that preconditions do not appear in cannot_compute (which in particular includes all operations installed by this final derivation, as checked above)
+        if ((Length( x ) == 2 || (Length( x ) == 3 && x[3] == fail)) && x[1] in cannot_compute)
+            
+            Error( "A final derivation for ", NameFunction( additional_functions[1][1] ), " has precondition ", NameFunction( x[1] ), " which is also in its exclude list.\n" );
+            
+        end;
+        
+    end;
+    
+    if (Length( additional_functions ) == 1 && StartsWith( NameFunction( additional_functions[1][1] ), "IsomorphismFrom" ))
+        
+        Print( "WARNING: You are installing a final derivation for ", NameFunction( additional_functions[1][1] ), " which does not include its inverse. You should probably use a bundled final derivation to also install its inverse.\n" );
+        
+    end;
+    
+    ## Find symbols in functions
+    operations_to_install = [ ];
+    
+    union_of_collected_lists = [ ];
+    
+    derivations = [ ];
+    
+    for current_additional_func in additional_functions
+        
+        derivation = CreateDerivation(
+            NameFunction( current_additional_func[1] ),
+            @Concatenation( description, " (final derivation)" ),
+            current_additional_func[2],
+            current_additional_func[3],
+            weight,
+            category_filter,
+            loop_multiplier,
+            category_getters
+        );
+        
+        Add( derivations, derivation );
+        
+        used_op_names_with_multiples_and_category_getters = UsedOperationsWithMultiplesAndCategoryGetters( derivation );
+        
+        # Operations may use operations from the same final derivation as long as the latter are installed before the former.
+        # In this case, the used operations are no preconditions and thus should not go into union_of_collected_lists.
+        used_op_names_with_multiples_and_category_getters = Filtered( used_op_names_with_multiples_and_category_getters, x -> @not x[1] in operations_to_install );
+        
+        Add( operations_to_install, NameFunction( current_additional_func[1] ) );
+        
+        union_of_collected_lists = CAP_INTERNAL_MERGE_PRECONDITIONS_LIST( union_of_collected_lists, used_op_names_with_multiples_and_category_getters );
+        
+    end;
+    
+    # only used to check if we can install all the derivations in `derivations`
+    dummy_derivation = CreateDerivation(
+        "internal dummy function of a final derivation",
+        "dummy derivation",
+        can_compute,
+        ReturnTrue,
+        1,
+        category_filter,
+        loop_multiplier,
+        category_getters
+    );
+    
+    used_op_names_with_multiples_and_category_getters = UsedOperationsWithMultiplesAndCategoryGetters( dummy_derivation );
+    
+    if (Length( union_of_collected_lists ) != Length( used_op_names_with_multiples_and_category_getters ) || @not ForAll( union_of_collected_lists, c -> c in used_op_names_with_multiples_and_category_getters ))
+        
+        used_op_names_with_multiples_and_category_getters = ShallowCopy( used_op_names_with_multiples_and_category_getters );
+        
+        SortBy( used_op_names_with_multiples_and_category_getters, x -> x[1] );
+        SortBy( union_of_collected_lists, x -> x[1] );
+        
+        Print(
+            "WARNING: You have installed a final derivation for ", TargetOperation( derivations[1] ), " with preconditions ", used_op_names_with_multiples_and_category_getters,
+            " but the following list of preconditions was expected: ", union_of_collected_lists, ".\n",
+            "If this is a bug in the automated detection, please report it.\n"
+        );
+        
+    end;
+    
+    final_derivation = @rec(
+        dummy_derivation = dummy_derivation,
+        cannot_compute = List( cannot_compute, x -> NameFunction( x ) ),
+        derivations = derivations,
+        function_called_before_installation = function_called_before_installation,
+    );
+    
+    Add( CAP_INTERNAL_FINAL_DERIVATION_LIST, final_derivation );
+    
+end ) );
+
+#################################
+##
+## Installing derivations
+##
+#################################
+
+@InstallGlobalFunction( InstallDerivations, function( category )
+  local weight_list, derivation_list, current_install, current_final_derivation, op_name, new_weight, current_weight, i, derivation, operation;
+    
+    weight_list = MakeOperationWeightList( category, CAP_INTERNAL_DERIVATION_GRAPH );
+    
+    category.derivations_weight_list = weight_list;
+    
+    for op_name in RecNames( category.operations )
+        
+        @Assert( 0, category.operations[op_name].type in [ "primitive_installation", "precompiled_derivation" ] );
+        
+        AddPrimitiveOperation( weight_list, op_name, category.operations[op_name].weight );
+        
+    end;
+    
+    # Trigger ordinary derivations, but do not install them yet:
+    # While triggering derivations, cheaper derivations can become available, but we do not want to overwrite methods.
+    
+    TriggerDerivationsUsingOperation( weight_list, "none" );
+    
+    for op_name in SortedList( RecNames( weight_list.operation_weights ) )
+        
+        if (weight_list.operation_weights[op_name] != infinity && weight_list.operation_derivations[op_name] == fail)
+            
+            @Info( DerivationInfo, 1, @Concatenation( "add(",
+                                                    StringGAP( weight_list.operation_weights[op_name] ),
+                                                    ") ",
+                                                    op_name,
+                                                    ": primitive installation\n" ) );
+            
+            TriggerDerivationsUsingOperation( weight_list, op_name );
+            
+        end;
+        
+    end;
+    
+    # Trigger and install final derivations
+    
+    derivation_list = ShallowCopy( CAP_INTERNAL_FINAL_DERIVATION_LIST );
+    
+    while true
+        
+        current_install = fail;
+        
+        for i in (1):(Length( derivation_list ))
+            
+            current_final_derivation = derivation_list[ i ];
+            
+            # check if all conditions for installing the final derivation are met
+            
+            if (@not IsApplicableToCategory( current_final_derivation.dummy_derivation, category ))
+                
+                continue;
+                
+            end;
+            
+            if (ForAny( current_final_derivation.cannot_compute, operation_name -> CurrentOperationWeight( weight_list, operation_name ) < infinity ))
+                
+                continue;
+                
+            end;
+            
+            if (OperationWeightUsingDerivation( weight_list, current_final_derivation.dummy_derivation ) == infinity)
+                
+                continue;
+                
+            end;
+            
+            # if we get here, everything matched
+            current_install = i;
+            break;
+            
+        end;
+        
+        if (current_install == fail)
+            
+            break;
+            
+        else
+            
+            current_final_derivation = Remove( derivation_list, current_install );
+            
+            ## call function before adding the method
+            
+            if (current_final_derivation.function_called_before_installation != false)
+                
+                current_final_derivation.function_called_before_installation( category );
+                
+            end;
+            
+            for derivation in current_final_derivation.derivations
+                
+                op_name = TargetOperation( derivation );
+                new_weight = OperationWeightUsingDerivation( weight_list, derivation );
+                current_weight = CurrentOperationWeight( weight_list, op_name );
+                
+                @Assert( 0, new_weight != infinity );
+                
+                # When installing a final derivation bundle, the installation of the first operations in the bundle
+                # might trigger (normal) derivations of later operations it the bundle, which might be cheaper)
+                # the derivations provided in the bundle.
+                if (new_weight <= current_weight)
+                    
+                    @Info( DerivationInfo, 1, @Concatenation( "derive(",
+                                                            StringGAP( new_weight ),
+                                                            ") ",
+                                                            op_name,
+                                                            ": ",
+                                                            Description( derivation ), "\n" ) );
+                    
+                    weight_list.operation_weights[op_name] = new_weight;
+                    weight_list.operation_derivations[op_name] = fail;
+                    
+                    InstallDerivationForCategory( derivation, new_weight, category; IsFinalDerivation = true );
+                    
+                    # if the weight has not changed, there is no need to re-trigger the chain of derivations
+                    if (new_weight != current_weight)
+                        
+                        TriggerDerivationsUsingOperation( weight_list, op_name );
+                        
+                    end;
+                    
+                end;
+                
+            end;
+            
+        end;
+        
+    end;
+    
+    # Actually install ordinary derivations
+    
+    for operation in Operations( DerivationGraph( weight_list ) )
+        
+        if (DerivationOfOperation( weight_list, operation ) != fail)
+            
+            InstallDerivationForCategory( DerivationOfOperation( weight_list, operation ), CurrentOperationWeight( weight_list, operation ), category );
+            
+        end;
+        
+    end;
+    
 end );
 
 #################################
@@ -836,7 +983,7 @@ end );
 @InstallGlobalFunction( DerivationsOfMethodByCategory,
   
   function( category, name )
-    local category_weight_list, current_weight, current_derivation, currently_installed_func, weight_list, category_getter_string, possible_derivations, category_filter, weight, found, x, final_derivation;
+    local current_derivation, currently_installed_func, weight_list, category_getter_string, possible_derivations, category_filter, weight, found, x, final_derivation;
     
     if (IsFunction( name ))
         name = NameFunction( name );
@@ -852,39 +999,33 @@ end );
         return;
     end;
     
-    category_weight_list = category.derivations_weight_list;
+    if (CanCompute( category, name ))
     
-    current_weight = CurrentOperationWeight( category_weight_list, name );
-    
-    if (current_weight < infinity)
-    
-        current_derivation = DerivationOfOperation( category_weight_list, name );
+        Print( Name( category ), " can already compute ", TextAttr.b4, name, TextAttr.reset, " with weight " , OperationWeight( category, name ), ".\n" );
         
-        Print( Name( category ), " can already compute ", TextAttr.b4, name, TextAttr.reset, " with weight " , current_weight, ".\n" );
-        
-        if (current_derivation == fail)
+        if (category.operations[name].type == "primitive_installation")
             
-            if (@IsBound( category.primitive_operations[name] ) && category.primitive_operations[name] == true)
-                
-                Print( "It was given as a primitive operation.\n" );
-                
-            else
-                
-                Print( "It was installed as a final or precompiled derivation.\n" );
-                
-            end;
+            Print( "It was installed primitively.\n" );
             
-            currently_installed_func = Last( category.added_functions[name] );
+        elseif (category.operations[name].type == "final_derivation")
             
-        else
+            Print( "It was installed as a final derivation.\n" );
             
-            Print( "It was derived by ", TextAttr.b3, DerivationName( current_derivation ), TextAttr.reset, " using \n" );
+        elseif (category.operations[name].type == "precompiled_derivation")
+            
+            Print( "It was installed as a precompiled derivation.\n" );
+            
+        elseif (category.operations[name].type == "ordinary_derivation")
+            
+            current_derivation = DerivationOfOperation( category.derivations_weight_list, name );
+            
+            Print( "It was derived by ", TextAttr.b3, Description( current_derivation ), TextAttr.reset, " using \n" );
             
             for x in UsedOperationsWithMultiplesAndCategoryGetters( current_derivation )
                 
                 if (x[3] == fail)
                     
-                    weight_list = category_weight_list;
+                    weight_list = category.derivations_weight_list;
                     category_getter_string = "";
                     
                 else
@@ -900,9 +1041,15 @@ end );
                 
             end;
             
-            currently_installed_func = DerivationFunction( current_derivation );
+            @Assert( 0, IsIdenticalObj( category.operations[name].func, DerivationFunction( current_derivation ) ) );
+            
+        else
+            
+            Error( "this should never happen" );
             
         end;
+        
+        currently_installed_func = category.operations[name].func;
         
         Print( "\nThe following function was installed for this operation:\n\n" );
         Display( currently_installed_func );
@@ -961,32 +1108,31 @@ end );
             
             if (x[3] == fail)
                 
-                weight_list = category_weight_list;
+                if (CanCompute( category, x[1] ))
+                    
+                    weight = OperationWeight( category, x[1] );
+                    
+                else
+                    
+                    weight = infinity;
+                    
+                end;
+                
                 category_getter_string = "";
                 
             else
                 
-                if (category_filter( category ))
+                if (category_filter( category ) && CanCompute( x[3](category), x[1] ))
                     
-                    weight_list = x[3](category).derivations_weight_list;
+                    weight = OperationWeight( x[3](category), x[1] );
                     
                 else
                     
-                    weight_list = fail;
+                    weight = infinity;
                     
                 end;
                 
                 category_getter_string = @Concatenation( " in the category obtained by applying ", StringGAP( x[3] ) );
-                
-            end;
-            
-            if (weight_list == fail)
-                
-                weight = infinity;
-                
-            else
-                
-                weight = CurrentOperationWeight( weight_list, x[1] );
                 
             end;
             
@@ -1000,7 +1146,7 @@ end );
             
         end;
         
-        Print( "with additional weight ", DerivationWeight( current_derivation.derivation ) );
+        Print( "with additional weight ", AdditionalWeight( current_derivation.derivation ) );
         
         @Assert( 0, @IsBound( current_derivation.can_compute ) == @IsBound( current_derivation.cannot_compute ) );
         
@@ -1014,32 +1160,31 @@ end );
                 
                 if (x[3] == fail)
                     
-                    weight_list = category_weight_list;
+                    if (CanCompute( category, x[1] ))
+                        
+                        weight = OperationWeight( category, x[1] );
+                        
+                    else
+                        
+                        weight = infinity;
+                        
+                    end;
+                    
                     category_getter_string = "";
                     
                 else
                     
-                    if (category_filter( category ))
+                    if (category_filter( category ) && CanCompute( x[3](category), x[1] ))
                         
-                        weight_list = x[3](category).derivations_weight_list;
+                        weight = OperationWeight( x[3](category), x[1] );
                         
                     else
                         
-                        weight_list = fail;
+                        weight = infinity;
                         
                     end;
                 
                     category_getter_string = @Concatenation( " in the category obtained by applying ", StringGAP( x[3] ) );
-                    
-                end;
-                
-                if (weight_list == fail)
-                    
-                    weight = infinity;
-                    
-                else
-                    
-                    weight = CurrentOperationWeight( weight_list, x[1] );
                     
                 end;
                 
@@ -1064,9 +1209,7 @@ end );
             
             for x in current_derivation.cannot_compute
                 
-                weight = CurrentOperationWeight( category_weight_list, x );
-                
-                if (weight < infinity)
+                if (CanCompute( category, x ))
                     
                     Print( "* ", x, "\n" );
                     found = true;
@@ -1090,82 +1233,5 @@ end );
         Print( "\n" );
         
     end;
-    
-end );
-
-@InstallGlobalFunction( ListPrimitivelyInstalledOperationsOfCategory,
-  
-  function( arg... )
-    local cat, filter, names;
-    
-    if (Length( arg ) < 1)
-        Error( "first argument needs to be <category>" );
-    end;
-    
-    cat = arg[ 1 ];
-    
-    if (Length( arg ) > 1)
-        filter = arg[ 2 ];
-    else
-        filter = fail;
-    end;
-    
-    if (IsCapCategoryCell( cat ))
-        cat = CapCategory( cat );
-    end;
-    
-    if (@not IsCapCategory( cat ))
-        Error( "input must be category or cell" );
-    end;
-    
-    names = Filtered( RecNames( cat.primitive_operations ), x -> cat.primitive_operations[x] );
-    
-    if (filter != fail)
-        names = Filtered( names, i -> PositionSublist( i, filter ) != fail );
-    end;
-    
-    return AsSortedList( names );
-    
-end );
-
-@InstallGlobalFunction( ListInstalledOperationsOfCategory,
-  
-  function( arg... )
-    local category, filter, weight_list, list_of_methods, list_of_installed_methods;
-    
-    if (Length( arg ) < 1)
-        Error( "first argument needs to be <category>" );
-    end;
-    
-    category = arg[ 1 ];
-    
-    if (Length( arg ) > 1)
-        filter = arg[ 2 ];
-    else
-        filter = fail;
-    end;
-    
-    if (IsCapCategoryCell( category ))
-        category = CapCategory( category );
-    end;
-    
-    if (@not IsCapCategory( category ))
-        Error( "input is not a category (cell)" );
-        return;
-    end;
-    
-    weight_list = category.derivations_weight_list;
-    
-    list_of_methods = Operations( CAP_INTERNAL_DERIVATION_GRAPH );
-    
-    list_of_methods = AsSortedList( list_of_methods );
-    
-    list_of_methods = Filtered( list_of_methods, i -> CurrentOperationWeight( weight_list, i ) < infinity );
-    
-    if (filter != fail)
-        list_of_methods = Filtered( list_of_methods, i -> PositionSublist( i, filter ) != fail );
-    end;
-    
-    return list_of_methods;
     
 end );

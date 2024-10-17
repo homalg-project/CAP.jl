@@ -720,7 +720,7 @@ end );
   function( list1, list2 )
     local pos, current_precondition;
     
-    list2 = StructuralCopy( list2 );
+    list2 = List( list2, x -> ShallowCopy( x ) );
     
     for current_precondition in list1
         
