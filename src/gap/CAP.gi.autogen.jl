@@ -329,6 +329,8 @@ end );
     
     obj.input_sanity_check_functions = @rec( );
     
+    obj.cached_precompiled_functions = @rec( );
+    
     # convenience for Julia lists
     if (IsPackageMarkedForLoading( "JuliaInterface", ">= 0.2" ))
         
