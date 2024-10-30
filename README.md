@@ -9,9 +9,9 @@
 
 <!-- END HEADER -->
 
-This is the Julia version of the central package of the CAP project.
+This is the Julia version of the central package of the [CAP project][CAP_project].
 
-###
+[CAP_project]: https://homalg-project.github.io/docs/CAP_project-based/
 
 <!-- BEGIN FOOTER -->
 [html-img]: https://img.shields.io/badge/🔗%20HTML-stable-blue.svg
