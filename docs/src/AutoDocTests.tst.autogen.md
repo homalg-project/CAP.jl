@@ -76,27 +76,6 @@ true
 julia> T = TerminalCategoryWithMultipleObjects( )
 TerminalCategoryWithMultipleObjects( )
 
-julia> Display( T )
-A CAP category with name TerminalCategoryWithMultipleObjects( ):
-
-86 primitive operations were used to derive 388 operations for this category which algorithmically
-* IsCategoryWithDecidableColifts
-* IsCategoryWithDecidableLifts
-* IsEquippedWithHomomorphismStructure
-* IsLinearCategoryOverCommutativeRing
-* IsLeftClosedMonoidalCategory
-* IsLeftCoclosedMonoidalCategory
-* IsRigidSymmetricClosedMonoidalCategory
-* IsRigidSymmetricCoclosedMonoidalCategory
-* IsAbelianCategoryWithEnoughInjectives
-* IsAbelianCategoryWithEnoughProjectives
-and not yet algorithmically
-* IsLinearCategoryOverCommutativeRingWithFinitelyGeneratedFreeExternalHoms
-and furthermore mathematically
-* IsLocallyOfFiniteInjectiveDimension
-* IsLocallyOfFiniteProjectiveDimension
-* IsTerminalCategory
-
 julia> i = InitialObject( T )
 <An object in TerminalCategoryWithMultipleObjects( )>
 
@@ -202,18 +181,6 @@ true
 
 julia> HomStructure( mor_ab )
 <A morphism in TerminalCategoryWithSingleObject( )>
-
-julia> t = TensorProduct( a, b )
-<An object in TerminalCategoryWithMultipleObjects( )>
-
-julia> Display( t )
-TensorProductOnObjects
-
-julia> a == t
-false
-
-julia> TensorProduct( a, a ) == t
-true
 
 julia> m = MorphismConstructor( a, "m", b )
 <A morphism in TerminalCategoryWithMultipleObjects( )>
@@ -327,29 +294,6 @@ true
 
 julia> T = TerminalCategoryWithSingleObject( )
 TerminalCategoryWithSingleObject( )
-
-julia> Display( T )
-A CAP category with name TerminalCategoryWithSingleObject( ):
-
-80 primitive operations were used to derive 388 operations for this category which algorithmically
-* IsCategoryWithDecidableColifts
-* IsCategoryWithDecidableLifts
-* IsEquippedWithHomomorphismStructure
-* IsLinearCategoryOverCommutativeRing
-* IsLeftClosedMonoidalCategory
-* IsLeftCoclosedMonoidalCategory
-* IsRigidSymmetricClosedMonoidalCategory
-* IsRigidSymmetricCoclosedMonoidalCategory
-* IsAbelianCategoryWithEnoughInjectives
-* IsAbelianCategoryWithEnoughProjectives
-and not yet algorithmically
-* IsLinearCategoryOverCommutativeRingWithFinitelyGeneratedFreeExternalHoms
-and furthermore mathematically
-* IsLocallyOfFiniteInjectiveDimension
-* IsLocallyOfFiniteProjectiveDimension
-* IsSkeletalCategory
-* IsStrictMonoidalCategory
-* IsTerminalCategory
 
 julia> i = InitialObject( T )
 <An object in TerminalCategoryWithSingleObject( )>
