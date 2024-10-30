@@ -1,6 +1,6 @@
 
 ```jldoctest AutoDocTests
-julia> using MonoidalCategories; using CAP
+julia> using CAP
 
 julia> true
 true
@@ -30,7 +30,7 @@ true
 ```
 
 ```jldoctest AutoDocTests
-julia> using MonoidalCategories; using CAP
+julia> using CAP
 
 julia> true
 true
@@ -68,7 +68,7 @@ Adding precompiled operations for Constructor2
 ```
 
 ```jldoctest AutoDocTests
-julia> using MonoidalCategories; using CAP
+julia> using CAP
 
 julia> true
 true
@@ -287,7 +287,7 @@ julia> Coequalizer( T, z, [ ] )
 ```
 
 ```jldoctest AutoDocTests
-julia> using MonoidalCategories; using CAP
+julia> using CAP
 
 julia> true
 true
