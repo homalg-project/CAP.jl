@@ -9,7 +9,7 @@
                [ IsRecord ],
                
   function( options )
-    local known_options_with_filters, name, object_datum_type, morphism_datum_type, is_computable, filter, CC, default_func_strings, info, unknown_filters, create_func_name, create_func, func_string, underlying_arguments, add, func, option_name, prop;
+    local known_options_with_filters, name, object_datum_type, morphism_datum_type, is_computable, filter, CC, underlying_category, default_func_strings, info, unknown_filters, create_func_name, create_func, func_string, weight, func_string_and_weight, underlying_arguments, add, func, option_name, prop;
     
     ## check given options
     known_options_with_filters = @rec(
@@ -27,10 +27,10 @@
         morphism_constructor = IsFunction,
         morphism_datum = IsFunction,
         list_of_operations_to_install = IsList,
-        operation_weights = IsRecord,
         is_computable = IsBool,
         supports_empty_limits = IsBool,
         underlying_category_getter_string = IsString,
+        underlying_category = IsCapCategory,
         underlying_object_getter_string = IsString,
         underlying_morphism_getter_string = IsString,
         top_object_getter_string = IsString,
@@ -290,11 +290,32 @@
         
         if (create_func == "default")
             
+            if (@not @IsBound( options.underlying_category ))
+                
+                Error( "when using \"default\" for some `create_func_*`, the option `underlying_category` must be set" );
+                
+            end;
+            
             func_string = default_func_strings[info.return_type];
+            
+            # the default strings simply apply the operation in the underlying category
+            weight = OperationWeight( options.underlying_category, info.function_name );
             
         elseif (IsFunction( create_func ))
             
-            func_string = create_func( name, CC );
+            func_string_and_weight = create_func( name, CC );
+            
+            if (IsList( func_string_and_weight ) && Length( func_string_and_weight ) == 2 && IsInt( func_string_and_weight[2] ))
+                
+                func_string = func_string_and_weight[1];
+                weight = func_string_and_weight[2];
+                
+            else
+                
+                func_string = func_string_and_weight;
+                weight = -1;
+                
+            end;
             
         else
             
@@ -464,9 +485,9 @@
         
         func = EvalString( func_string );
         
-        if (@IsBound( options.operation_weights ) && @IsBound( options.operation_weights[name] ))
+        if (weight != -1)
             
-            add( CC, func, options.operation_weights[name] );
+            add( CC, func, weight );
             
         else
             
