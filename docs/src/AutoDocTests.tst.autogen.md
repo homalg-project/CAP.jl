@@ -86,13 +86,13 @@ julia> z = ZeroObject( T )
 <An object in TerminalCategoryWithMultipleObjects( )>
 
 julia> Display( i )
-InitialObject
+InitialObject(  )
 
 julia> Display( t )
-TerminalObject
+TerminalObject(  )
 
 julia> Display( z )
-ZeroObject
+ZeroObject(  )
 
 julia> IsIdenticalObj( i, z )
 false
@@ -223,7 +223,7 @@ julia> id = IdentityMorphism( a )
 julia> Display( id )
 a
 |
-| IdentityMorphism
+| IdentityMorphism( a )
 v
 a
 
@@ -239,7 +239,7 @@ julia> zero = ZeroMorphism( a, a )
 julia> Display( zero )
 a
 |
-| ZeroMorphism
+| ZeroMorphism( a, a )
 v
 a
 
@@ -255,7 +255,7 @@ julia> lift = Lift( m, n )
 julia> Display( lift )
 a
 |
-| Lift
+| Lift( m, n )
 v
 a
 
@@ -268,7 +268,7 @@ julia> colift = Colift( m, n )
 julia> Display( colift )
 b
 |
-| Colift
+| Colift( m, n )
 v
 b
 
