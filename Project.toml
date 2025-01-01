@@ -6,7 +6,7 @@ authors = [
 	"Øystein Skartsæterhagen <oysteini@math.ntnu.no>",
 	"Fabian Zickgraf <fabian.zickgraf@uni-siegen.de>",
 ]
-version = "0.2.0"
+version = "0.2.1"
 
 [deps]
 AbstractAlgebra = "c3fe647b-3220-5bb0-a1ea-a7954cac585d"
