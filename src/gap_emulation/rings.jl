@@ -1,29 +1,33 @@
 import AbstractAlgebra
 
-global const IsRing = Filter("IsRing", AbstractAlgebra.Ring)
-global const IsRingElement = Filter("IsRingElement", AbstractAlgebra.NCRingElement)
+import Nemo
+import Nemo.ZZ
+import Nemo.QQ
 
-# all rings in AbstractAlgebra seem to have a unit
-global const IsRingWithOne = Filter("IsRingWithOne", AbstractAlgebra.Ring)
-global const IsRingElementWithOne = Filter("IsRingElementWithOne", AbstractAlgebra.NCRingElement)
+global const IsRing = Filter("IsRing", Nemo.Ring)
+global const IsRingElement = Filter("IsRingElement", Nemo.NCRingElement)
 
-# AbstractAlgebra.NCRingElement is a union which we cannot subtype -> create a filter using
-# AbstractAlgebra.NCRingElem (note: "Elem" instead of "Element") which we can use for subtyping
-global const IsAbstractRingElementWithOne = Filter("IsAbstractRingElementWithOne", AbstractAlgebra.NCRingElem)
+# all rings in Nemo seem to have a unit
+global const IsRingWithOne = Filter("IsRingWithOne", Nemo.Ring)
+global const IsRingElementWithOne = Filter("IsRingElementWithOne", Nemo.NCRingElement)
 
-function HasIsCommutative(R::AbstractAlgebra.NCRing)
-	R isa AbstractAlgebra.Ring
+# Nemo.NCRingElement is a union which we cannot subtype -> create a filter using
+# Nemo.NCRingElem (note: "Elem" instead of "Element") which we can use for subtyping
+global const IsAbstractRingElementWithOne = Filter("IsAbstractRingElementWithOne", Nemo.NCRingElem)
+
+function HasIsCommutative(R::Nemo.NCRing)
+	R isa Nemo.Ring
 end
 
-function IsCommutative(R::AbstractAlgebra.NCRing)
-	R isa AbstractAlgebra.Ring
+function IsCommutative(R::Nemo.NCRing)
+	R isa Nemo.Ring
 end
 
-global const Integers = AbstractAlgebra.ZZ
-global const Rationals = AbstractAlgebra.QQ
+global const Integers = Nemo.ZZ
+global const Rationals = Nemo.QQ
 
-global const IsIntegers = Filter("IsIntegers", AbstractAlgebra.Integers{BigInt})
-global const IsRationals = Filter("IsRationals", AbstractAlgebra.Rationals{BigInt})
+global const IsIntegers = Filter("IsIntegers", typeof(Integers))
+global const IsRationals = Filter("IsRationals", typeof(Rationals))
 
 function HasRingFilter(::Union{typeof(Integers), typeof(Rationals)})
 	true
@@ -41,30 +45,47 @@ function HasRingElementFilter(::Union{typeof(Integers), typeof(Rationals)})
 	true
 end
 
+global const IsZZRingElem = Filter("IsZZRingElem", Nemo.ZZRingElem)
+global const IsQQFieldElem = Filter("IsQQFieldElem", Nemo.QQFieldElem)
+
 function RingElementFilter(::typeof(Integers))
-	IsBigInt
+	IsZZRingElem
 end
 
 function RingElementFilter(::typeof(Rationals))
-	IsRat
+	IsQQFieldElem
 end
+
+@InstallMethod( StringGAP, [ IsZZRingElem ], n -> string(n) );
+
+@InstallMethod( StringGAP, [ IsQQFieldElem ], function( n )
+	
+	str = string( n );
+	
+	if EndsWith( str, "//1" )
+		str[1:length(str) - 3]
+	else
+		ReplacedString( str, "//", "/" );
+	end
+	
+end );
 
 function Zero(R::Union{typeof(Integers), typeof(Rationals)})
 	zero(R)
 end
 
 function /(elem::AbstractAlgebra.NCRingElement, ::typeof(Integers))
-	BigInt(elem)
+	Nemo.ZZ(BigInt(elem))
 end
 
 function /(elem::AbstractAlgebra.NCRingElement, ::typeof(Rationals))
-	Rational{BigInt}(elem)
+	Nemo.QQ(Rational{BigInt}(elem))
 end
 
 function in(elem::AbstractAlgebra.NCRingElement, ::typeof(Integers))
-	elem isa BigInt
+	elem isa Nemo.ZZRingElem
 end
 
 function in(elem::AbstractAlgebra.NCRingElement, ::typeof(Rationals))
-	elem isa Rational{BigInt}
+	elem isa Nemo.QQFieldElem
 end
