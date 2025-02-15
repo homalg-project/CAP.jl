@@ -4,9 +4,9 @@ authors = [
 	"Sebastian Gutsche <sebastian.gutsche@gmail.com>",
 	"Sebastian Posur <sebastian.posur@uni-muenster.de>",
 	"Øystein Skartsæterhagen <oysteini@math.ntnu.no>",
-	"Fabian Zickgraf <fabian.zickgraf@mailbox.org>",
+	"Fabian Zickgraf <f.zickgraf@dashdos.com>",
 ]
-version = "0.3.0"
+version = "0.3.1"
 
 [deps]
 AbstractAlgebra = "c3fe647b-3220-5bb0-a1ea-a7954cac585d"
