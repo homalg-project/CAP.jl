@@ -1,4 +1,5 @@
 global const ModulesForEvaluationStack = [ ]
+global const ExcludedNames = [ ]
 
 macro IMPORT_THE_WORLD()
 	imports = []
@@ -6,7 +7,9 @@ macro IMPORT_THE_WORLD()
 	for mod in vcat( [ Base ], ModulesForEvaluationStack)
 		if isdefined(__module__, Symbol(mod))
 			for name in names(mod)
-				push!(imports, :(import $(Symbol(mod)).$(Symbol(name))))
+				if !(name in ExcludedNames)
+					push!(imports, :(import $(Symbol(mod)).$(Symbol(name))))
+				end
 			end
 		end
 	end
