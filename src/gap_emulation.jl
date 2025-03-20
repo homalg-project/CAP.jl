@@ -50,7 +50,7 @@ end
 function ValueGlobal(name)
 	for m in ModulesForEvaluationStack
 		if isdefined(m, Symbol(name))
-			return getglobal(m, Symbol(name))
+			return Base.invokelatest(getglobal, m, Symbol(name))
 		end
 	end
 	error(name, " is not bound in any module of the stack")
