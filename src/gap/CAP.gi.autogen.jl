@@ -41,6 +41,10 @@ InstallTrueMethod( IsAbCategory, IsAdditiveCategory );
 
 InstallTrueMethod( IsAdditiveCategory, IsPreAbelianCategory );
 
+InstallTrueMethod( IsCategoryWithEqualizers, IsPreAbelianCategory );
+
+InstallTrueMethod( IsCategoryWithCoequalizers, IsPreAbelianCategory );
+
 InstallTrueMethod( IsPreAbelianCategory, IsAbelianCategory );
 
 InstallTrueMethod( IsAbelianCategory, IsAbelianCategoryWithEnoughProjectives );
@@ -384,6 +388,14 @@ end ) );
     
 end );
 
+##
+@InstallGlobalFunction( ListOfDefiningOperations,
+  function( categorical_property )
+    
+    return DuplicateFreeList( CAP_INTERNAL_CONSTRUCTIVE_CATEGORIES_RECORD[categorical_property] );
+    
+end );
+
 #######################################
 ##
 ## Caching
@@ -681,24 +693,24 @@ end );
 
 ##
 @InstallMethod( MissingOperationsForConstructivenessOfCategory,
-               [ IsCapCategory, IsString ],
+               [ IsCapCategory, IsStringRep ],
                
-  function( category, string )
-    local category_property, result_list;
+  function( category, categorical_property )
+    local defining_operation, result_list;
     
-    if (@not @IsBound( CAP_INTERNAL_CONSTRUCTIVE_CATEGORIES_RECORD[string] ))
+    if (@not @IsBound( CAP_INTERNAL_CONSTRUCTIVE_CATEGORIES_RECORD[categorical_property] ))
       
-      Error( "the given string is not a property of a category" );
+      Error( "there is no valid categorical property with the name \"", categorical_property, "\", maybe it is defined in an unloaded package\n" );
     
     end;
     
     result_list = [];
     
-    for category_property in CAP_INTERNAL_CONSTRUCTIVE_CATEGORIES_RECORD[string]
+    for defining_operation in ListOfDefiningOperations( categorical_property )
       
-      if (@not CanCompute( category, category_property ))
+      if (@not CanCompute( category, defining_operation ))
         
-        Add( result_list, category_property );
+        Add( result_list, defining_operation );
         
       end;
       

@@ -29,7 +29,7 @@
     completed_record = ShallowCopy( input_record );
     
     list_of_operations_to_install =
-      UnionGAP( List( RecNames( CAP_INTERNAL_CONSTRUCTIVE_CATEGORIES_RECORD ), p -> CAP_INTERNAL_CONSTRUCTIVE_CATEGORIES_RECORD[p] ) );
+      UnionGAP( List( RecNames( CAP_INTERNAL_CONSTRUCTIVE_CATEGORIES_RECORD ), ListOfDefiningOperations ) );
     
     skip = [ ];
     

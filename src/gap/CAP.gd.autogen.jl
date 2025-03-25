@@ -204,6 +204,20 @@ AddCategoricalProperty( [ "IsCategoryWithTerminalObject", "IsCategoryWithInitial
 AddCategoricalProperty( [ "IsCategoryWithZeroObject", "IsCategoryWithZeroObject" ] );
 
 #! @Description
+#!  The property of the category <A>C</A> having all equalizers.
+#! @Arguments C
+@DeclareProperty( "IsCategoryWithEqualizers", IsCapCategory );
+
+AddCategoricalProperty( [ "IsCategoryWithEqualizers", "IsCategoryWithCoequalizers" ] );
+
+#! @Description
+#!  The property of the category <A>C</A> having all coequalizers.
+#! @Arguments C
+@DeclareProperty( "IsCategoryWithCoequalizers", IsCapCategory );
+
+AddCategoricalProperty( [ "IsCategoryWithCoequalizers", "IsCategoryWithEqualizers" ] );
+
+#! @Description
 #!  The property of the category <A>C</A> being enriched over a commutative regular semigroup.
 #! @Arguments C
 @DeclareProperty( "IsEnrichedOverCommutativeRegularSemigroup", IsCapCategory );
@@ -290,6 +304,13 @@ AddCategoricalProperty( [ "IsLocallyOfFiniteInjectiveDimension", "IsLocallyOfFin
 
 @DeclareAttribute( "TheoremRecord",
                   IsCapCategory, "mutable" );
+
+#! @Description
+#! The input <A>categorical_property</A> is the name of a valid categorical property.
+#! The output is the list of names of the CAP operations needed to make this categorical property constructive.
+#! @Returns a list
+#! @Arguments categorical_property
+@DeclareGlobalFunction( "ListOfDefiningOperations" );
 
 ###################################
 ##
@@ -604,7 +625,7 @@ end );
 #! @Returns a list
 #! @Arguments C,s
 @DeclareOperation( "MissingOperationsForConstructivenessOfCategory",
-                  [ IsCapCategory, IsString ] );
+                  [ IsCapCategory, IsStringRep ] );
 
 #############################################
 ##
