@@ -39,7 +39,23 @@ InstallTrueMethod( IsLinearCategoryOverCommutativeRing, IsLinearCategoryOverComm
 
 InstallTrueMethod( IsAbCategory, IsAdditiveCategory );
 
+#= comment for Julia
+InstallTrueMethod( IsCategoryWithEqualizers, IsAdditiveCategory && IsCategoryWithKernels );
+
+InstallTrueMethod( IsCategoryWithKernels, IsAdditiveCategory && IsCategoryWithEqualizers );
+
+InstallTrueMethod( IsCategoryWithCoequalizers, IsAdditiveCategory && IsCategoryWithCokernels );
+
+InstallTrueMethod( IsCategoryWithCokernels, IsAdditiveCategory && IsCategoryWithCoequalizers );
+
+InstallTrueMethod( IsPreAbelianCategory, IsAdditiveCategory && IsCategoryWithKernels && IsCategoryWithCokernels );
+# =#
+
 InstallTrueMethod( IsAdditiveCategory, IsPreAbelianCategory );
+
+InstallTrueMethod( IsCategoryWithKernels, IsPreAbelianCategory );
+
+InstallTrueMethod( IsCategoryWithCokernels, IsPreAbelianCategory );
 
 InstallTrueMethod( IsCategoryWithEqualizers, IsPreAbelianCategory );
 

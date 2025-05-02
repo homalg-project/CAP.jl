@@ -2112,7 +2112,7 @@ end );
             
             if (@not IsSubset( ListInstalledOperationsOfCategory( category ), previous_operations ))
                 
-                Error( "the operations of the ", i - 1, "-th category are not a subset of the operations of the ", i, "-th category" );
+                Error( "the operations of the ", i - 1, ". category are not a subset of the operations of the ", i, ". category" );
                 
             end;
             
