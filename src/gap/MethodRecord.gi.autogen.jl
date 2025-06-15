@@ -27,6 +27,18 @@ MorphismDatum = @rec(
   compatible_with_congruence_of_morphisms = false,
 ),
 
+SetOfObjectsOfCategory = @rec(
+  filter_list = [ "category" ],
+  return_type = "list_of_objects",
+  dual_operation = "SetOfObjectsOfCategory",
+),
+
+SetOfMorphismsOfFiniteCategory = @rec(
+  filter_list = [ "category" ],
+  return_type = "list_of_morphisms",
+  dual_operation = "SetOfMorphismsOfFiniteCategory",
+),
+
 LiftAlongMonomorphism = @rec(
   filter_list = [ "category", "morphism", "morphism" ],
   input_arguments_names = [ "cat", "iota", "tau" ],
@@ -3550,6 +3562,67 @@ MereExistenceOfSolutionOfLinearSystemInAbCategory = @rec(
   return_type = "bool",
   pre_function = "SolveLinearSystemInAbCategory",
   pre_function_full = "SolveLinearSystemInAbCategory"
+),
+
+MereExistenceOfUniqueSolutionOfLinearSystemInAbCategory = @rec(
+  filter_list = [ "category", "list_of_lists_of_morphisms", "list_of_lists_of_morphisms", "list_of_morphisms" ],
+  return_type = "bool",
+  pre_function = "SolveLinearSystemInAbCategory",
+  pre_function_full = "SolveLinearSystemInAbCategory"
+),
+
+MereExistenceOfUniqueSolutionOfHomogeneousLinearSystemInAbCategory = @rec(
+  filter_list = [ "category", "list_of_lists_of_morphisms", "list_of_lists_of_morphisms" ],
+  return_type = "bool",
+  pre_function = "BasisOfSolutionsOfHomogeneousLinearSystemInLinearCategory",
+  pre_function_full = "BasisOfSolutionsOfHomogeneousLinearSystemInLinearCategory"
+),
+
+BasisOfSolutionsOfHomogeneousLinearSystemInLinearCategory = @rec(
+  filter_list = [ "category", "list_of_lists_of_morphisms", "list_of_lists_of_morphisms" ],
+  return_type = "list_of_lists_of_morphisms",
+  pre_function = function( cat, left_coeffs, right_coeffs )
+
+    if (@not Length( left_coeffs ) > 0)
+        return [ false, "the list of left coefficients is empty" ];
+    end;
+
+    if (@not Length( left_coeffs ) == Length( right_coeffs ))
+        return [ false, "the list of left coefficients and the list of right coefficients do not have the same length" ];
+    end;
+
+    if (@not ForAll( @Concatenation( left_coeffs, right_coeffs ), x -> IsList( x ) && Length( x ) == Length( left_coeffs[1] ) ))
+        return [ false, "the left coefficients and the right coefficients must be given by lists of lists of morphisms of the same length" ];
+    end;
+
+    return [ true ];
+
+  end,
+  pre_function_full = function( cat, left_coeffs, right_coeffs )
+    local nr_columns_left, nr_columns_right;
+
+    nr_columns_left = Length( left_coeffs[1] );
+
+    if (@not ForAll( (1):(nr_columns_left),
+            j -> ForAll( left_coeffs, x -> IsEqualForObjects( cat, Target( x[j] ), Target( left_coeffs[1][j] ) ) != false ) ))
+        return [ false, "all targets in any column of the left coefficients must be equal" ];
+    end;
+
+    nr_columns_right = Length( right_coeffs[1] );
+
+    if (@not ForAll( (1):(nr_columns_right),
+            j -> ForAll( right_coeffs, x -> IsEqualForObjects( cat, Source( x[j] ), Source( right_coeffs[1][j] ) ) != false ) ))
+        return [ false, "all sources in any column of the right coefficients must be equal" ];
+    end;
+
+    return [ true ];
+
+  end,
+),
+
+BasisOfSolutionsOfHomogeneousDoubleLinearSystemInLinearCategory = @rec(
+  filter_list = [ "category", "list_of_lists_of_morphisms", "list_of_lists_of_morphisms", "list_of_lists_of_morphisms", "list_of_lists_of_morphisms" ],
+  return_type = "list_of_lists_of_morphisms",
 ),
 
 MorphismsOfExternalHom = @rec(

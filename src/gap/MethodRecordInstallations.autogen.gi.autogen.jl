@@ -178,6 +178,56 @@ end );
     )
 );
 
+## BasisOfSolutionsOfHomogeneousDoubleLinearSystemInLinearCategory
+@InstallMethod( AddBasisOfSolutionsOfHomogeneousDoubleLinearSystemInLinearCategory,
+               [ IsCapCategory, IsFunction ],
+               
+  function( category, func )
+    
+    AddCapOperation( "BasisOfSolutionsOfHomogeneousDoubleLinearSystemInLinearCategory", category, func, -1 );
+    
+end );
+
+@InstallMethod( AddBasisOfSolutionsOfHomogeneousDoubleLinearSystemInLinearCategory,
+               [ IsCapCategory, IsFunction, IsInt ],
+               
+    @FunctionWithNamedArguments(
+        [
+            [ "IsPrecompiledDerivation", false ],
+        ],
+        function( CAP_NAMED_ARGUMENTS, category, func, weight )
+            
+            AddCapOperation( "BasisOfSolutionsOfHomogeneousDoubleLinearSystemInLinearCategory", category, func, weight; IsPrecompiledDerivation = IsPrecompiledDerivation );
+            
+        end
+    )
+);
+
+## BasisOfSolutionsOfHomogeneousLinearSystemInLinearCategory
+@InstallMethod( AddBasisOfSolutionsOfHomogeneousLinearSystemInLinearCategory,
+               [ IsCapCategory, IsFunction ],
+               
+  function( category, func )
+    
+    AddCapOperation( "BasisOfSolutionsOfHomogeneousLinearSystemInLinearCategory", category, func, -1 );
+    
+end );
+
+@InstallMethod( AddBasisOfSolutionsOfHomogeneousLinearSystemInLinearCategory,
+               [ IsCapCategory, IsFunction, IsInt ],
+               
+    @FunctionWithNamedArguments(
+        [
+            [ "IsPrecompiledDerivation", false ],
+        ],
+        function( CAP_NAMED_ARGUMENTS, category, func, weight )
+            
+            AddCapOperation( "BasisOfSolutionsOfHomogeneousLinearSystemInLinearCategory", category, func, weight; IsPrecompiledDerivation = IsPrecompiledDerivation );
+            
+        end
+    )
+);
+
 ## CoastrictionToImage
 @InstallMethod( AddCoastrictionToImage,
                [ IsCapCategory, IsFunction ],
@@ -4626,6 +4676,56 @@ end );
     )
 );
 
+## MereExistenceOfUniqueSolutionOfHomogeneousLinearSystemInAbCategory
+@InstallMethod( AddMereExistenceOfUniqueSolutionOfHomogeneousLinearSystemInAbCategory,
+               [ IsCapCategory, IsFunction ],
+               
+  function( category, func )
+    
+    AddCapOperation( "MereExistenceOfUniqueSolutionOfHomogeneousLinearSystemInAbCategory", category, func, -1 );
+    
+end );
+
+@InstallMethod( AddMereExistenceOfUniqueSolutionOfHomogeneousLinearSystemInAbCategory,
+               [ IsCapCategory, IsFunction, IsInt ],
+               
+    @FunctionWithNamedArguments(
+        [
+            [ "IsPrecompiledDerivation", false ],
+        ],
+        function( CAP_NAMED_ARGUMENTS, category, func, weight )
+            
+            AddCapOperation( "MereExistenceOfUniqueSolutionOfHomogeneousLinearSystemInAbCategory", category, func, weight; IsPrecompiledDerivation = IsPrecompiledDerivation );
+            
+        end
+    )
+);
+
+## MereExistenceOfUniqueSolutionOfLinearSystemInAbCategory
+@InstallMethod( AddMereExistenceOfUniqueSolutionOfLinearSystemInAbCategory,
+               [ IsCapCategory, IsFunction ],
+               
+  function( category, func )
+    
+    AddCapOperation( "MereExistenceOfUniqueSolutionOfLinearSystemInAbCategory", category, func, -1 );
+    
+end );
+
+@InstallMethod( AddMereExistenceOfUniqueSolutionOfLinearSystemInAbCategory,
+               [ IsCapCategory, IsFunction, IsInt ],
+               
+    @FunctionWithNamedArguments(
+        [
+            [ "IsPrecompiledDerivation", false ],
+        ],
+        function( CAP_NAMED_ARGUMENTS, category, func, weight )
+            
+            AddCapOperation( "MereExistenceOfUniqueSolutionOfLinearSystemInAbCategory", category, func, weight; IsPrecompiledDerivation = IsPrecompiledDerivation );
+            
+        end
+    )
+);
+
 ## MonomorphismIntoInjectiveEnvelopeObject
 @InstallMethod( AddMonomorphismIntoInjectiveEnvelopeObject,
                [ IsCapCategory, IsFunction ],
@@ -6367,6 +6467,56 @@ end );
         function( CAP_NAMED_ARGUMENTS, category, func, weight )
             
             AddCapOperation( "RandomObjectByList", category, func, weight; IsPrecompiledDerivation = IsPrecompiledDerivation );
+            
+        end
+    )
+);
+
+## SetOfMorphismsOfFiniteCategory
+@InstallMethod( AddSetOfMorphismsOfFiniteCategory,
+               [ IsCapCategory, IsFunction ],
+               
+  function( category, func )
+    
+    AddCapOperation( "SetOfMorphismsOfFiniteCategory", category, func, -1 );
+    
+end );
+
+@InstallMethod( AddSetOfMorphismsOfFiniteCategory,
+               [ IsCapCategory, IsFunction, IsInt ],
+               
+    @FunctionWithNamedArguments(
+        [
+            [ "IsPrecompiledDerivation", false ],
+        ],
+        function( CAP_NAMED_ARGUMENTS, category, func, weight )
+            
+            AddCapOperation( "SetOfMorphismsOfFiniteCategory", category, func, weight; IsPrecompiledDerivation = IsPrecompiledDerivation );
+            
+        end
+    )
+);
+
+## SetOfObjectsOfCategory
+@InstallMethod( AddSetOfObjectsOfCategory,
+               [ IsCapCategory, IsFunction ],
+               
+  function( category, func )
+    
+    AddCapOperation( "SetOfObjectsOfCategory", category, func, -1 );
+    
+end );
+
+@InstallMethod( AddSetOfObjectsOfCategory,
+               [ IsCapCategory, IsFunction, IsInt ],
+               
+    @FunctionWithNamedArguments(
+        [
+            [ "IsPrecompiledDerivation", false ],
+        ],
+        function( CAP_NAMED_ARGUMENTS, category, func, weight )
+            
+            AddCapOperation( "SetOfObjectsOfCategory", category, func, weight; IsPrecompiledDerivation = IsPrecompiledDerivation );
             
         end
     )

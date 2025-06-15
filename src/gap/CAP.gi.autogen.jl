@@ -25,6 +25,12 @@
 ##
 ######################################
 
+InstallTrueMethod( IsFinite, IsFiniteCategory );
+
+InstallTrueMethod( IsObjectFiniteCategory, IsFiniteCategory );
+
+InstallTrueMethod( IsEquivalentToFiniteCategory, IsFiniteCategory );
+
 InstallTrueMethod( IsCategoryWithInitialObject, IsCategoryWithZeroObject );
 
 InstallTrueMethod( IsCategoryWithTerminalObject, IsCategoryWithZeroObject );

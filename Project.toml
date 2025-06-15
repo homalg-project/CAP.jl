@@ -7,7 +7,7 @@ authors = [
 	"Fabian Zickgraf <f.zickgraf@dashdos.com>",
 ]
 
-version = "0.5.4"
+version = "0.6.0"
 
 [deps]
 AbstractAlgebra = "c3fe647b-3220-5bb0-a1ea-a7954cac585d"

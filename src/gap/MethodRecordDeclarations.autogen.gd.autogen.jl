@@ -127,6 +127,44 @@
 #! @Description
 #! The arguments are a category $C$ and a function $F$.
 #! This operation adds the given function $F$
+#! to the category for the basic operation `BasisOfSolutionsOfHomogeneousDoubleLinearSystemInLinearCategory`.
+#! Optionally, a weight (default: 100) can be specified which should roughly correspond
+#! to the computational complexity of the function (lower weight == less complex == faster execution).
+#! $F: ( arg2, arg3, arg4, arg5 ) \mapsto \mathtt[BasisOfSolutionsOfHomogeneousDoubleLinearSystemInLinearCategory](arg2, arg3, arg4, arg5)$.
+#! @Returns nothing
+#! @Arguments C, F
+@DeclareOperation( "AddBasisOfSolutionsOfHomogeneousDoubleLinearSystemInLinearCategory",
+                  [ IsCapCategory, IsFunction ] );
+
+#! @Arguments C, F, weight
+@DeclareOperation( "AddBasisOfSolutionsOfHomogeneousDoubleLinearSystemInLinearCategory",
+                  [ IsCapCategory, IsFunction, IsInt ] );
+#! @EndGroup
+
+
+#! @BeginGroup
+#! @Description
+#! The arguments are a category $C$ and a function $F$.
+#! This operation adds the given function $F$
+#! to the category for the basic operation `BasisOfSolutionsOfHomogeneousLinearSystemInLinearCategory`.
+#! Optionally, a weight (default: 100) can be specified which should roughly correspond
+#! to the computational complexity of the function (lower weight == less complex == faster execution).
+#! $F: ( arg2, arg3 ) \mapsto \mathtt[BasisOfSolutionsOfHomogeneousLinearSystemInLinearCategory](arg2, arg3)$.
+#! @Returns nothing
+#! @Arguments C, F
+@DeclareOperation( "AddBasisOfSolutionsOfHomogeneousLinearSystemInLinearCategory",
+                  [ IsCapCategory, IsFunction ] );
+
+#! @Arguments C, F, weight
+@DeclareOperation( "AddBasisOfSolutionsOfHomogeneousLinearSystemInLinearCategory",
+                  [ IsCapCategory, IsFunction, IsInt ] );
+#! @EndGroup
+
+
+#! @BeginGroup
+#! @Description
+#! The arguments are a category $C$ and a function $F$.
+#! This operation adds the given function $F$
 #! to the category for the basic operation `CoastrictionToImage`.
 #! Optionally, a weight (default: 100) can be specified which should roughly correspond
 #! to the computational complexity of the function (lower weight == less complex == faster execution).
@@ -3034,6 +3072,44 @@
 #! @Description
 #! The arguments are a category $C$ and a function $F$.
 #! This operation adds the given function $F$
+#! to the category for the basic operation `MereExistenceOfUniqueSolutionOfHomogeneousLinearSystemInAbCategory`.
+#! Optionally, a weight (default: 100) can be specified which should roughly correspond
+#! to the computational complexity of the function (lower weight == less complex == faster execution).
+#! $F: ( arg2, arg3 ) \mapsto \mathtt[MereExistenceOfUniqueSolutionOfHomogeneousLinearSystemInAbCategory](arg2, arg3)$.
+#! @Returns nothing
+#! @Arguments C, F
+@DeclareOperation( "AddMereExistenceOfUniqueSolutionOfHomogeneousLinearSystemInAbCategory",
+                  [ IsCapCategory, IsFunction ] );
+
+#! @Arguments C, F, weight
+@DeclareOperation( "AddMereExistenceOfUniqueSolutionOfHomogeneousLinearSystemInAbCategory",
+                  [ IsCapCategory, IsFunction, IsInt ] );
+#! @EndGroup
+
+
+#! @BeginGroup
+#! @Description
+#! The arguments are a category $C$ and a function $F$.
+#! This operation adds the given function $F$
+#! to the category for the basic operation `MereExistenceOfUniqueSolutionOfLinearSystemInAbCategory`.
+#! Optionally, a weight (default: 100) can be specified which should roughly correspond
+#! to the computational complexity of the function (lower weight == less complex == faster execution).
+#! $F: ( arg2, arg3, arg4 ) \mapsto \mathtt[MereExistenceOfUniqueSolutionOfLinearSystemInAbCategory](arg2, arg3, arg4)$.
+#! @Returns nothing
+#! @Arguments C, F
+@DeclareOperation( "AddMereExistenceOfUniqueSolutionOfLinearSystemInAbCategory",
+                  [ IsCapCategory, IsFunction ] );
+
+#! @Arguments C, F, weight
+@DeclareOperation( "AddMereExistenceOfUniqueSolutionOfLinearSystemInAbCategory",
+                  [ IsCapCategory, IsFunction, IsInt ] );
+#! @EndGroup
+
+
+#! @BeginGroup
+#! @Description
+#! The arguments are a category $C$ and a function $F$.
+#! This operation adds the given function $F$
 #! to the category for the basic operation `MonomorphismIntoInjectiveEnvelopeObject`.
 #! Optionally, a weight (default: 100) can be specified which should roughly correspond
 #! to the computational complexity of the function (lower weight == less complex == faster execution).
@@ -4090,6 +4166,44 @@
 
 #! @Arguments C, F, weight
 @DeclareOperation( "AddRandomObjectByList",
+                  [ IsCapCategory, IsFunction, IsInt ] );
+#! @EndGroup
+
+
+#! @BeginGroup
+#! @Description
+#! The arguments are a category $C$ and a function $F$.
+#! This operation adds the given function $F$
+#! to the category for the basic operation `SetOfMorphismsOfFiniteCategory`.
+#! Optionally, a weight (default: 100) can be specified which should roughly correspond
+#! to the computational complexity of the function (lower weight == less complex == faster execution).
+#! $F: (  ) \mapsto \mathtt[SetOfMorphismsOfFiniteCategory]()$.
+#! @Returns nothing
+#! @Arguments C, F
+@DeclareOperation( "AddSetOfMorphismsOfFiniteCategory",
+                  [ IsCapCategory, IsFunction ] );
+
+#! @Arguments C, F, weight
+@DeclareOperation( "AddSetOfMorphismsOfFiniteCategory",
+                  [ IsCapCategory, IsFunction, IsInt ] );
+#! @EndGroup
+
+
+#! @BeginGroup
+#! @Description
+#! The arguments are a category $C$ and a function $F$.
+#! This operation adds the given function $F$
+#! to the category for the basic operation `SetOfObjectsOfCategory`.
+#! Optionally, a weight (default: 100) can be specified which should roughly correspond
+#! to the computational complexity of the function (lower weight == less complex == faster execution).
+#! $F: (  ) \mapsto \mathtt[SetOfObjectsOfCategory]()$.
+#! @Returns nothing
+#! @Arguments C, F
+@DeclareOperation( "AddSetOfObjectsOfCategory",
+                  [ IsCapCategory, IsFunction ] );
+
+#! @Arguments C, F, weight
+@DeclareOperation( "AddSetOfObjectsOfCategory",
                   [ IsCapCategory, IsFunction, IsInt ] );
 #! @EndGroup
 

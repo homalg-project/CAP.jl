@@ -322,6 +322,9 @@ false
 julia> IsWellDefined( z )
 true
 
+julia> Length( SetOfObjectsOfCategory( T ) )
+1
+
 julia> id_z = IdentityMorphism( z )
 <A morphism in TerminalCategoryWithSingleObject( )>
 
@@ -336,6 +339,9 @@ true
 
 julia> IsCongruentForMorphisms( id_z, fn_z )
 true
+
+julia> Length( SetOfMorphismsOfFiniteCategory( T ) )
+1
 
 julia> IsLiftable( id_z, fn_z )
 true
