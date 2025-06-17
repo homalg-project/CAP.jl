@@ -318,6 +318,11 @@ end );
         return false;
         
     end;
+    if (IsEqualForMorphisms( morphism_1, morphism_2 ))
+        
+        return true;
+        
+    end;
     
     return IsCongruentForMorphisms( morphism_1, morphism_2 );
     
