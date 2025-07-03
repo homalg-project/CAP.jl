@@ -130,8 +130,21 @@ end );
                [ IsString, IsCapCategory, IsCapCategory ],
                
   function( name, source, range )
+    local source_list, objectified_functor;
     
-    return CapFunctor( name, [ source ], range );
+    source_list = CAP_INTERNAL_NICE_FUNCTOR_INPUT_LIST( [ source ] );
+    
+    objectified_functor = CreateCapCategoryMorphismWithAttributes( CapCat,
+                                                                    AsCatObject( source ),
+                                                                    AsCatObject( range ),
+                                                                    Name, name,
+                                                                    InputSignature, source_list );
+    
+    objectified_functor.input_source_list = source_list;
+    
+    objectified_functor.number_arguments = Length( source_list );
+    
+    return objectified_functor;
     
 end );
 
@@ -170,6 +183,7 @@ end );
           [ IsCapFunctor ],
   
   F -> AsCapCategory( Source( F ) )
+  
 );
 
 ##
@@ -177,6 +191,7 @@ end );
           [ IsCapFunctor ],
   
   F -> AsCapCategory( Range( F ) )
+  
 );
 
 @BindGlobal( "CAP_INTERNAL_FUNCTOR_CREATE_FILTER_LIST",
@@ -229,7 +244,7 @@ end );
     
     filter_list = CAP_INTERNAL_FUNCTOR_CREATE_FILTER_LIST( functor, "morphism" );
     
-    range_cat = AsCapCategory( Range( functor ) );
+    range_cat = RangeOfFunctor( functor );
     
     filter_list = @Concatenation( [ ObjectFilter( range_cat ) ], filter_list, [ ObjectFilter( range_cat ) ] );
     
@@ -269,7 +284,7 @@ end );
     
     filter_list = CAP_INTERNAL_FUNCTOR_CREATE_FILTER_LIST( functor, "morphism" );
     
-    range_cat = AsCapCategory( Range( functor ) );
+    range_cat = RangeOfFunctor( functor );
     
     filter_list = @Concatenation( [ ObjectFilter( range_cat ) ], filter_list, [ ObjectFilter( range_cat ) ] );
     
@@ -316,8 +331,8 @@ end );
     
     arguments = List( arguments ); # in Julia, `arguments` is a tuple which we can@not assign to below
     
-    source_category = AsCapCategory( Source( functor ) );
-    range_category = AsCapCategory( Range( functor ) );
+    source_category = SourceOfFunctor( functor );
+    range_category = RangeOfFunctor( functor );
     input_signature = InputSignature( functor );
 
     # n-ary functor and unary argument (possibly in product category)
@@ -433,8 +448,8 @@ AddPreCompose( category,
     local new_functor;
     
     new_functor = CapFunctor( @Concatenation( "Precomposition of ", Name( left_functor ), " and ", Name( right_functor ) ),
-                               AsCapCategory( Source( left_functor ) ),
-                               AsCapCategory( Range( right_functor ) ) );
+                               SourceOfFunctor( left_functor ),
+                               RangeOfFunctor( right_functor ) );
     
     AddObjectFunction( new_functor,
       
@@ -553,7 +568,7 @@ AddUniversalMorphismIntoDirectProductWithGivenDirectProduct( category,
     
     name_string = @Concatenation( 
       "Product functor from ", 
-      Name( AsCapCategory( Source( sink[1] ) ) ), 
+      Name( SourceOfFunctor( sink[1] ) ),
       " to ", 
       Name( AsCapCategory( direct_product ) ) 
     );
@@ -701,8 +716,8 @@ end );
     object_filters = CAP_INTERNAL_FUNCTOR_CREATE_FILTER_LIST( functor, "object" );
     morphism_filters = CAP_INTERNAL_FUNCTOR_CREATE_FILTER_LIST( functor, "morphism" );
     
-    object_product_filters = [ ObjectFilter( AsCapCategory( Source( functor ) ) ) ];
-    morphism_product_filters = [ MorphismFilter( AsCapCategory( Source( functor ) ) ) ];
+    object_product_filters = [ ObjectFilter( SourceOfFunctor( functor ) ) ];
+    morphism_product_filters = [ MorphismFilter( SourceOfFunctor( functor ) ) ];
     
     install_list = [
         [ install_name, object_filters ],
@@ -944,7 +959,7 @@ end );
     
     filter_list = CAP_INTERNAL_FUNCTOR_CREATE_FILTER_LIST( Source( trafo ), "object" );
     
-    filter_list = @Concatenation( [ ObjectFilter( AsCapCategory( Range( Source( trafo ) ) ) ) ], filter_list, [ ObjectFilter( AsCapCategory( Range( Source( trafo ) ) ) ) ] );
+    filter_list = @Concatenation( [ ObjectFilter( RangeOfFunctor( Source( trafo ) ) ) ], filter_list, [ ObjectFilter( RangeOfFunctor( Source( trafo ) ) ) ] );
     
     return NewOperation( @Concatenation( "CAP_NATURAL_TRANSFORMATION_", Name( trafo ), "_OPERATION" ), filter_list );
     
@@ -959,7 +974,7 @@ end );
     
     filter_list = CAP_INTERNAL_FUNCTOR_CREATE_FILTER_LIST( Source( trafo ), "object" );
     
-    filter_list = @Concatenation( [ ObjectFilter( AsCapCategory( Range( Source( trafo ) ) ) ) ], filter_list, [ ObjectFilter( AsCapCategory( Range( Source( trafo ) ) ) ) ] );
+    filter_list = @Concatenation( [ ObjectFilter( RangeOfFunctor( Source( trafo ) ) ) ], filter_list, [ ObjectFilter( RangeOfFunctor( Source( trafo ) ) ) ] );
     
     if (@not @IsBound( trafo.function_list ))
         
@@ -984,7 +999,7 @@ end );
     
     source_functor = Source( trafo );
     
-    range_category = AsCapCategory( Range( source_functor ) );
+    range_category = RangeOfFunctor( source_functor );
     
     arguments = arg[(2):(Length( arg ))];
     
@@ -1044,7 +1059,7 @@ end );
     
     object_filters = CAP_INTERNAL_FUNCTOR_CREATE_FILTER_LIST( Source( trafo ), "object" );
     
-    object_product_filters = [ ObjectFilter( AsCapCategory( Source( Source( trafo ) ) ) ) ];
+    object_product_filters = [ ObjectFilter( SourceOfFunctor( Source( trafo ) ) ) ];
     
     for current_filters in [
         [ install_name, object_filters ],
