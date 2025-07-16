@@ -63,6 +63,8 @@ include( "gap/CategoryConstructor.gd.autogen.jl" );
 
 include( "gap/TerminalCategory.gd.autogen.jl" );
 
+include( "gap/FiniteSkeletalDiscreteCategory.gd.autogen.jl" );
+
 include( "gap/ReinterpretationOfCategory.gd.autogen.jl" );
 
 include( "gap/WrapperCategory.gd.autogen.jl" );
