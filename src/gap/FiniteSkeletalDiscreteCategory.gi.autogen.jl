@@ -164,6 +164,47 @@ end ) );
 
 #################################
 #
+# Operators
+#
+#################################
+
+##
+@InstallMethod( /,
+               "for a string and a finite skeletal discrete category",
+               [ IsStringRep, IsFiniteSkeletalDiscreteCategory ],
+               
+  function ( string, D )
+    local index, objects;
+    
+    index = IntGAP( string );
+    
+    objects = SetOfObjectsOfCategory( D );
+    
+    if (index <= 0 || index > Length( objects ))
+        
+        # COVERAGE_IGNORE_NEXT_LINE
+        Error( "out of bounds access\n" );
+        
+    end;
+    
+    return objects[index];
+    
+end );
+
+#= comment for Julia
+@InstallMethod( \.,
+               "for a finite skeletal discrete category and a positive integer",
+               [ IsFiniteSkeletalDiscreteCategory, IsInt ],
+               
+  function ( D, index_as_string )
+    
+    return NameRNam( index_as_string )  / D;
+    
+end );
+# =#
+
+#################################
+#
 # View & Display
 #
 #################################
