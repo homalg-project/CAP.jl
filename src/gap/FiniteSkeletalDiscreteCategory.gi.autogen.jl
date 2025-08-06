@@ -169,15 +169,13 @@ end ) );
 #################################
 
 ##
-@InstallMethod( /,
-               "for a string and a finite skeletal discrete category",
-               [ IsStringRep, IsFiniteSkeletalDiscreteCategory ],
+@InstallMethod( getindex,
+               "for a finite skeletal discrete category and a positive integer",
+               [ IsFiniteSkeletalDiscreteCategory, IsInt ],
                
-  function ( string, D )
-    local index, objects;
-    
-    index = IntGAP( string );
-    
+  function ( D, index )
+    local objects;
+
     objects = SetOfObjectsOfCategory( D );
     
     if (index <= 0 || index > Length( objects ))
@@ -190,18 +188,6 @@ end ) );
     return objects[index];
     
 end );
-
-#= comment for Julia
-@InstallMethod( \.,
-               "for a finite skeletal discrete category and a positive integer",
-               [ IsFiniteSkeletalDiscreteCategory, IsInt ],
-               
-  function ( D, index_as_string )
-    
-    return NameRNam( index_as_string )  / D;
-    
-end );
-# =#
 
 #################################
 #

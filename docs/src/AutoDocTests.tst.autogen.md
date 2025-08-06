@@ -50,7 +50,7 @@ true
 julia> Display( one )
 1
 
-julia> IsEqualForObjects( one, one )
+julia> IsEqualForObjects( one, D[1] )
 true
 
 julia> id_one = IdentityMorphism( D, one )

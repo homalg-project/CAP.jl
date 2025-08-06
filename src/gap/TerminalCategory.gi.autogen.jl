@@ -43,9 +43,9 @@
         if (info.return_type == "morphism" && IsList( info.with_given_without_given_name_pair ) && operation_name == info.with_given_without_given_name_pair[1])
             if (@not info.with_given_without_given_name_pair[2] in list_of_operations_to_install)
                 Add( list_of_operations_to_install, info.with_given_without_given_name_pair[2] );
+                Add( skip, operation_name );
             end;
             if (@IsBound( CAP_INTERNAL_METHOD_NAME_RECORD[info.with_given_without_given_name_pair[2]].with_given_object_name ))
-                Add( skip, operation_name );
                 Add( list_of_operations_to_install, CAP_INTERNAL_METHOD_NAME_RECORD[info.with_given_without_given_name_pair[2]].with_given_object_name );
             end;
         end;
