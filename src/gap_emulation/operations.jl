@@ -1,5 +1,11 @@
 ## macros
 
+const GLOBAL_COUNTER = Ref(0)
+
+function next_id()
+    GLOBAL_COUNTER[] += 1
+end
+
 macro DeclareOperation(name::String, filter_list = [])
 	# prevent attributes from being redefined as operations
 	if isdefined(__module__, Symbol(name))
@@ -56,7 +62,7 @@ macro InstallMethod(operation::Symbol, filter_list, func)
 		return
 	end
 	
-	@assert filter_list === :nothing || (filter_list isa Expr && filter_list.head === :vect && all(f -> f isa Symbol, filter_list.args))
+	@assert (filter_list === :nothing || (filter_list isa Expr && filter_list.head === :vect && all(f -> f isa Symbol, filter_list.args))) "Assertion failed while installing $(operation) with the filter_list: $(filter_list)"
 	
 	if !(func isa Expr)
 		if filter_list === :nothing
@@ -149,7 +155,12 @@ end
 function NewOperation(mod::Module, name::String, filter_list)
 	operation = Symbol(name)
 	if isdefined(mod, operation)
-		error("operation with name ", name, " already exists")
+		while true
+			operation = Symbol(name * "#ID:" * string(next_id()))
+			if !isdefined(mod, operation)
+				break;
+			end
+		end
 	end
 	Base.eval(mod, quote
 		function $operation end

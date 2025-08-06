@@ -239,7 +239,17 @@ end
 
 function getproperty(obj::CAPDict, key::Symbol)
 	dict = getfield(obj, :dict)
-	dict[key]
+	if key in keys(dict)
+		dict[key]
+	else
+		getproperty(obj, string(key))
+	end
+end
+
+function getproperty(obj::CAPDict, key::String)
+	if hasmethod(/, Tuple{String, typeof(obj)})
+		key / obj
+	end
 end
 
 function setindex!(obj::CAPDict, value, key::Union{String, Int64})
@@ -434,7 +444,11 @@ function ViewObj(obj)
 end
 
 function ViewString(obj)
-	DEFAULTVIEWSTRING
+	if (obj isa CAPDict) && (obj.Name != nothing)
+		obj.Name
+	else
+		DEFAULTVIEWSTRING
+	end
 end
 
 function PrintObj(obj)
@@ -789,13 +803,34 @@ end
 
 @DeclareAttribute( "Length", IsAttributeStoringRep )
 
-@InstallMethod( Length, [ IsList ], length );
 @InstallMethod( Length, [ IsString ], length );
+
+@InstallMethod( Length, [ IsList ],
+	function ( list )
+		if list isa Vector{BigInt}
+			return BigInt(length(list))
+		else
+			return length(list)
+		end
+end );
 
 @DeclareAttribute("IntGAP", IsAttributeStoringRep)
 
 function (::typeof(IntGAP))(string::String)
-	parse(Int, string)
+	i = tryparse(Int, string)
+	if i == nothing
+		return fail
+	else
+		return i
+	end
+end
+
+function (::typeof(IntGAP))(n::Union{Int, BigInt})
+	if n isa Int
+		return n
+	else
+		return IntGAP(string(n))
+	end
 end
 
 function (::typeof(IntGAP))(float::Float64)
@@ -898,6 +933,31 @@ function Filtered(list::Any, func)
 	FilteredOp(list, func)
 end
 
+global const LazyHList = ListOp
+
+function UnorderedTuples(v::Vector{T}, k::Union{Int,BigInt}) where T
+	result = Vector{Vector{T}}()
+	
+	function helper(start::Union{Int,BigInt}, current::Vector{T})
+		if length(current) == k
+			push!(result, copy(current))
+				return
+		end
+		for i in start:length(v)
+			push!(current, v[i])
+			helper(i, current)  # allow repetition of current element
+			pop!(current)
+		end
+	end
+	
+	helper(1, T[])  # start from first element
+	return result
+end
+
+function UnorderedTuples(v::UnitRange{Int64}, k::Union{Int,BigInt})
+	return UnorderedTuples(collect(v), k)
+end
+
 INTERNAL_AssertionLevel = 0
 
 function SetAssertionLevel(new_level::Int)
@@ -945,6 +1005,20 @@ function NumberArgumentsFunction(func::Function)
 	end
 end
 
+function CollectEntries(list::Vector)
+	if length( list ) == 0
+		list
+	else
+		o = list[1]
+		p = findfirst( !isequal(o), list )
+		if p == nothing
+			[[o, length(list)]]
+		else
+			append!([[o, p-1]], CollectEntries(list[p:end]))
+		end
+	end
+end
+
 function DuplicateFreeList(list::Vector)
 	unique(list)
 end
@@ -974,15 +1048,6 @@ function Position(list::UnitRange, element::Any)
 	end
 end
 
-function PositionSublist(string::String, substring::String)
-	range = findfirst(substring, string)
-	if isnothing(range)
-		fail
-	else
-		range[1]
-	end
-end
-
 function Error(args...)
 	error(string(args...))
 end
@@ -1001,8 +1066,56 @@ function EndsWith(string::String, substring::String)
 	endswith(string, substring)
 end
 
-global const SortedList = sort
+function IsMatchingList(string::String, substring::String, start::Union{Int,BigInt})
+	startswith(string[start:end], substring)
+end
+
+function IsMatchingList(list::Vector, sublist::Vector, start::Union{Int,BigInt})
+	StartsWith(list[start:end], sublist)
+end
+
+function PositionSublist(string::String, substring::String)
+	range = findfirst(substring, string)
+	isnothing(range) ? fail : range[1]
+end
+
+function PositionSublist(string::String, substring::String, start::Union{Int, BigInt})
+	@assert start >= 0 "The integer passed to 'PositionSublist' must be non-negative"
+	index = PositionSublist(string[start+1:end], substring)
+	(index != fail) ? (start + index) : fail
+end
+
+function PositionSublist(list::Vector, sublist::Vector)
+	index = findfirst(i -> StartsWith(list[i:end], sublist), 1:length(list))
+	isnothing(index) ? fail : index
+end
+
+function PositionSublist(list::Vector, sublist::Vector, start::Union{Int, BigInt})
+	@assert start >= 0 "The integer passed to 'PositionSublist' must be non-negative"
+	index = PositionSublist(list[start+1:end], sublist)
+	(index != fail) ? (start + index) : fail
+end
+
 global const AsSortedList = sort
+
+function SortedList(v::AbstractVector)
+	sort(v)
+end
+
+function SortedList(v::AbstractVector, f::Function)
+	sort(v; lt=f)
+end
+
+function SortParallel(v1::AbstractVector, v2::AbstractVector, sort_function::Function)
+	perm = sortperm(v1, lt = sort_function)
+	v1 .= v1[perm]
+	v2 .= v2[perm]
+	nothing
+end
+
+function Random(v::AbstractVector)
+	rand(v)
+end
 
 function IsPackageMarkedForLoading( name, version )
 	if name == "JuliaInterface"
@@ -1040,6 +1153,10 @@ global const Append = append!
 
 function CallFuncList( func::Function, list )
 	func(list...)
+end
+
+function CallFuncListAtRuntime( func::Function, list )
+	Base.invokelatest(func, list...)
 end
 
 global const IsEmpty = isempty
@@ -1139,6 +1256,14 @@ end
 
 function Maximum(int1::Union{Int, BigInt}, int2::Union{Int, BigInt})
 	max(int1, int2)
+end
+
+function Maximum(list::Union{Vector{Int}, Vector{BigInt}})
+	max(list...)
+end
+
+function Minimum(list::Union{Vector{Int}, Vector{BigInt}})
+	min(list...)
 end
 
 function Minimum(int1::Union{Int, BigInt, Float64}, int2::Union{Int, BigInt, Float64})
@@ -1250,24 +1375,26 @@ function Binomial( n, k )
 	binomial(n, k)
 end
 
+# Recursively generate all tuples obtained by replacing the next k positions
+# of tup (starting at index i) with all possible elements from set
 function TuplesK( set, k, tup, i )
-    if k == 0
-        tup = ShallowCopy( tup );
-        tups = [ tup ];
-    else
-        tups = [ ];
-        for l in set
-            if Length( tup ) < i - 1
+	if k == 0
+		tup = ShallowCopy( tup );
+		tups = [ tup ];
+	else
+		tups = [ ];
+		for l in set
+			if Length( tup ) < i - 1
 				Error( "this should never happen" );
 			elseif Length( tup ) == i - 1
 				Add( tup, l );
 			else
 				tup[i] = l;
 			end
-            Append( tups, TuplesK( set, k-1, tup, i+1 ) );
-        end;
-    end;
-    return tups;
+			Append( tups, TuplesK( set, k-1, tup, i+1 ) );
+		end;
+	end;
+	return tups;
 end;
 
 function Iterated( list, f )

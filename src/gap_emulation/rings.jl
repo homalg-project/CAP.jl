@@ -29,6 +29,30 @@ global const Rationals = Nemo.QQ
 global const IsIntegers = Filter("IsIntegers", typeof(Integers))
 global const IsRationals = Filter("IsRationals", typeof(Rationals))
 
+function HasIsBezoutRing(R::Nemo.NCRing)
+	if IsRationals(R) | IsIntegers(R)
+		true
+	else
+		false
+	end
+end
+
+function IsBezoutRing(::Union{typeof(Integers), typeof(Rationals)})
+	true
+end
+
+function HasIsIntegralDomain(R::Nemo.Ring)
+	if IsRationals(R) | IsIntegers(R)
+		true
+	else
+		false
+	end
+end
+
+function IsIntegralDomain(::Union{typeof(Integers), typeof(Rationals)})
+	true
+end
+
 function HasRingFilter(::Union{typeof(Integers), typeof(Rationals)})
 	true
 end
