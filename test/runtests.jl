@@ -1,2 +1,4 @@
 using Test, Documenter, CAP
-doctest(CAP)
+
+# test upto whitespaces
+doctest(CAP; doctestfilters=[r"\s+" => ""])

@@ -1,13 +1,14 @@
 name = "CAP"
 uuid = "d64df2ee-d2bb-46f4-8cbc-f03bb858f8cb"
 authors = [
-	"Sebastian Gutsche <sebastian.gutsche@gmail.com>",
-	"Sebastian Posur <sebastian.posur@uni-muenster.de>",
+	"Sebastian Gutsche <gutsche@mathematik.uni-siegen.de>",
+	"Sebastian Posur <sebastian.posur@uni-siegen.de>",
 	"Øystein Skartsæterhagen <oysteini@math.ntnu.no>",
-	"Fabian Zickgraf <f.zickgraf@dashdos.com>",
+	"Fabian Zickgraf <fabian.zickgraf@uni-siegen.de>"
 ]
 
-version = "0.6.6"
+# Transpiled from GAP's CAP v2025.08-02
+version = "0.6.7"
 
 [deps]
 AbstractAlgebra = "c3fe647b-3220-5bb0-a1ea-a7954cac585d"
@@ -18,7 +19,7 @@ Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
 
 [extensions]
-CAPJSONExtension = "JSON3"
+CAPJSONExtension = ["JSON3"]
 
 [compat]
 julia = "1.11"
@@ -28,8 +29,8 @@ Base64 = "1.11"
 JSON3 = "1.14"
 
 [extras]
-Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 
 [targets]
 test = ["Test", "Documenter"]

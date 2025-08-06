@@ -1,16 +1,37 @@
 .PHONY: test
 
-gen:
-	gap_to_julia CAP
+install:
+	julia -e 'using Pkg; Pkg.develop(path=".");'
 
-clean-gen:
-	rm -f ./src/gap/*.autogen.jl
-	rm -f ./src/gap/*/*.autogen.jl
-	rm -f ./docs/src/*.autogen.md
-	gap_to_julia CAP
+uninstall:
+	julia -e 'using Pkg; Pkg.rm("CAP");'
 
 test:
 	julia -e 'using Pkg; Pkg.test("CAP");'
+
+gen:
+	rm -f ./src/gap/*.autogen.jl
+	rm -f ./src/gap/*/*.autogen.jl
+	rm -f ./docs/src/*.autogen.md
+	./.generate.sh -e gen_full=0
+
+gen-full:
+	rm -f ./src/gap/*.autogen.jl
+	rm -f ./src/gap/*/*.autogen.jl
+	rm -f ./docs/src/*.autogen.md
+	./.generate.sh -e gen_full=1
+
+git-commit:
+	@if [ -n "$$(git diff .)" ]; then \
+	echo "Committing changes ..."; \
+	git add .; \
+	git commit \
+		-m "Update to GAP's $$(grep "# Transpiled from GAP's" "Project.toml" | cut -d ' ' -f 5-)" \
+		-m "Bump Version to v$$(grep "version = " "Project.toml" | cut -d '"' -f 2)" \
+		; \
+	else \
+		echo "No changes to commit."; \
+	fi
 
 codecov:
 	julia --project=. -e 'using Coverage; using Pkg; Pkg.test(coverage=true); LCOV.writefile("coverage.lcov", process_folder(pwd()));'
