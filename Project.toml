@@ -1,13 +1,13 @@
 name = "CAP"
 uuid = "d64df2ee-d2bb-46f4-8cbc-f03bb858f8cb"
 authors = [
-	"Sebastian Gutsche <gutsche@mathematik.uni-siegen.de>",
-	"Sebastian Posur <sebastian.posur@uni-siegen.de>",
+	"Sebastian Gutsche <sebastian.gutsche@gmail.com>",
+	"Sebastian Posur <sebastian.posur@uni-muenster.de>",
 	"Øystein Skartsæterhagen <oysteini@math.ntnu.no>",
-	"Fabian Zickgraf <fabian.zickgraf@uni-siegen.de>"
+	"Fabian Zickgraf <f.zickgraf@dashdos.com>"
 ]
 
-# Transpiled from GAP's CAP v2025.08-02
+# Transpiled from GAP's CAP v2025.08-03
 version = "0.6.7"
 
 [deps]
