@@ -437,6 +437,17 @@
                     top_source = options.generic_output_source_getter_string,
                 ) );
                 
+            elseif (@IsBound( info.output_source_getter_string ) &&
+              ## the last resort used by SyntacticCategory,
+              ## ensure that the operation to compute the source is at least marked for installation:
+              @IsBound( info.output_source_getter_preconditions ) &&
+              ForAll( info.output_source_getter_preconditions, pair -> IsList( pair ) && Length( pair ) == 2 ) &&
+              ForAll( info.output_source_getter_preconditions, pair -> pair[1] in options.list_of_operations_to_install ))
+                
+                func_string = ReplacedStringViaRecord( func_string, @rec(
+                    top_source = info.output_source_getter_string,
+                ) );
+                
             end;
             
             if (@IsBound( info.output_range_getter_string ) && @IsBound( info.can_always_compute_output_range_getter ) && info.can_always_compute_output_range_getter)
@@ -451,12 +462,23 @@
                     top_range = options.generic_output_range_getter_string,
                 ) );
                 
+            elseif (@IsBound( info.output_range_getter_string ) &&
+              ## the last resort used by SyntacticCategory,
+              ## ensure that the operation to compute the target is at least marked for installation:
+              @IsBound( info.output_range_getter_preconditions ) &&
+              ForAll( info.output_range_getter_preconditions, pair -> IsList( pair ) && Length( pair ) == 2 ) &&
+              ForAll( info.output_range_getter_preconditions, pair -> pair[1] in options.list_of_operations_to_install ))
+                
+                func_string = ReplacedStringViaRecord( func_string, @rec(
+                    top_range = info.output_range_getter_string,
+                ) );
+                
             end;
             
             # if source and range cannot be computed we cannot do anything
             if (PositionSublist( func_string, "top_source" ) != fail || PositionSublist( func_string, "top_range" ) != fail)
                 
-                @Info( InfoCategoryConstructor, 3, "cannot compute source and range of ", name );
+                @Info( InfoCategoryConstructor, 3, "cannot compute source and/or range of ", name );
                 continue;
                 
             end;

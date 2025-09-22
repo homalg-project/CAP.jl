@@ -57,7 +57,7 @@ Add( PROPAGATION_LIST_FOR_EQUAL_OBJECTS, "IsZeroForObjects" );
             
         else
             
-            Error( "Cannot decide whether the object \"", StringGAP( object_1 ), "\" and the object \"", StringGAP( object_2 ), "\" are equal. You can fix this error by installing `IsEqualForObjects` in <cat> or possibly avoid it by enabling strict caching." );
+            Error( "Cannot decide whether the object \"", StringGAP( object_1 ), "\" and the object \"", StringGAP( object_2 ), "\" are equal. You can fix this error by installing `IsEqualForObjects` in <cat> or possibly avoid it by enabling strict caching\n" );
             
         end;
         

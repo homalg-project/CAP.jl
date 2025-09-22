@@ -352,19 +352,19 @@ end ) );
             
             if (filter_list[2] in [ "object", "morphism", "twocell" ])
                 
-                get_convenience_function = oper -> ( arg... ) -> CallFuncList( oper, @Concatenation( [ CapCategory( arg[1] ) ], arg ) );
+                get_convenience_function = oper -> ( arg... ) -> CallFuncListAtRuntime( oper, @Concatenation( [ CapCategory( arg[1] ) ], arg ) );
                 
             elseif (filter_list[2] == "list_of_objects" || filter_list[2] == "list_of_morphisms")
                 
-                get_convenience_function = oper -> ( arg... ) -> CallFuncList( oper, @Concatenation( [ CapCategory( arg[1][1] ) ], arg ) );
+                get_convenience_function = oper -> ( arg... ) -> CallFuncListAtRuntime( oper, @Concatenation( [ CapCategory( arg[1][1] ) ], arg ) );
                 
             elseif (filter_list[3] in [ "object", "morphism", "twocell" ])
                 
-                get_convenience_function = oper -> ( arg... ) -> CallFuncList( oper, @Concatenation( [ CapCategory( arg[2] ) ], arg ) );
+                get_convenience_function = oper -> ( arg... ) -> CallFuncListAtRuntime( oper, @Concatenation( [ CapCategory( arg[2] ) ], arg ) );
                 
             elseif (filter_list[4] == "list_of_objects" || filter_list[4] == "list_of_morphisms")
                 
-                get_convenience_function = oper -> ( arg... ) -> CallFuncList( oper, @Concatenation( [ CapCategory( arg[3][1] ) ], arg ) );
+                get_convenience_function = oper -> ( arg... ) -> CallFuncListAtRuntime( oper, @Concatenation( [ CapCategory( arg[3][1] ) ], arg ) );
                 
             else
                 
