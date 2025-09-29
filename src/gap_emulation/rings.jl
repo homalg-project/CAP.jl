@@ -94,8 +94,16 @@ end
 	
 end );
 
-function Zero(R::Union{typeof(Integers), typeof(Rationals)})
-	zero(R)
+function Zero(R::Nemo.Ring)
+	Nemo.zero(R)
+end
+
+function One(R::Nemo.Ring)
+	Nemo.one(R)
+end
+
+function MinusOne(R::Nemo.Ring)
+	-Nemo.one(R)
 end
 
 function /(elem::AbstractAlgebra.NCRingElement, ::typeof(Integers))
