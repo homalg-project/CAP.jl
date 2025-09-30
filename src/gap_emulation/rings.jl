@@ -106,6 +106,10 @@ function MinusOne(R::Nemo.Ring)
 	-Nemo.one(R)
 end
 
+function Inverse(elem::AbstractAlgebra.NCRingElement)
+	AbstractAlgebra.inv(elem)
+end
+
 function /(elem::AbstractAlgebra.NCRingElement, ::typeof(Integers))
 	Nemo.ZZ(BigInt(elem))
 end
