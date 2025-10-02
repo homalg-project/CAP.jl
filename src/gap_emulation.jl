@@ -342,6 +342,11 @@ function RecNames(obj::CAPDict)
 	sort([string(key) for key in keys(dict)])
 end
 
+function InfoOfObject(obj::CAPDict)
+  dict = getfield(obj, :dict)
+  first(dict, length(dict))
+end
+
 function ==(rec1::CAPRecord, rec2::CAPRecord)
 	RecNames( rec1 ) == RecNames( rec2 ) && ForAll(RecNames(rec1), name -> rec1[name] == rec2[name])
 end
@@ -793,6 +798,12 @@ function REM_INT(a::Union{Int, BigInt}, b::Union{Int, BigInt})
 	a % b
 end
 
+function Log2Int(a::Union{Int, BigInt})
+	trunc(Int, log2(a))
+end
+
+global const AbsInt = abs
+
 function Cartesian(args...)
 	if length(args) == 1
 		args = args[1]
@@ -910,6 +921,12 @@ function ListN(args...)
 	lists = args[1:end-1]
 	@assert ForAll( lists, l -> length(l) == length(lists[1]) )
 	map(x -> f(x...), zip(lists...))
+end
+
+function ListX(args...)
+	f = args[end]
+	lists = args[1:end-1]
+	map(x -> f(x...), Cartesian(lists...))
 end
 
 ForAll(list, func) = all(func, list)
@@ -1031,8 +1048,8 @@ function SplitString(str::String, sep::String)
 	map(x -> string(x), split(str, sep))
 end
 
-function Position(list::Vector, element::Any)
-	pos = findfirst(x -> x == element, list)
+function Position(list::Union{Vector, String}, element::Any)
+  pos = findfirst(isequal(element), list)
 	if isnothing(pos)
 		fail
 	else
@@ -1047,6 +1064,8 @@ function Position(list::UnitRange, element::Any)
 		fail
 	end
 end
+
+global const PositionSorted = searchsortedfirst
 
 function Error(args...)
 	error(string(args...))
@@ -1115,6 +1134,19 @@ end
 
 function Random(v::AbstractVector)
 	rand(v)
+end
+
+function Random(m::Union{Int64, BigInt}, n::Union{Int64, BigInt})
+	rand(m:n)
+end
+
+function Shuffle(v::AbstractVector)
+	n = length(v)
+	for i in n:-1:2
+		j = rand(1:i)
+		v[i], v[j] = v[j], v[i]
+	end
+	return v
 end
 
 function IsPackageMarkedForLoading( name, version )
