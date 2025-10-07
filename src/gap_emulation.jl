@@ -375,6 +375,9 @@ include("gap_emulation/rings.jl")
 # sets
 include("gap_emulation/sets.jl")
 
+# lazy h-vectors
+include("gap_emulation/lazy_h_vectors.jl")
+
 # CAP state
 include("gap_emulation/CAP_state.jl")
 
@@ -384,6 +387,7 @@ global const IsObject = Filter("IsObject", Any)
 global const IsString = Filter("IsString", AbstractString)
 global const IsStringRep = IsString
 global const IsList = Filter("IsList", Union{Vector, UnitRange, StepRange, Tuple})
+global const IsLazyHList = Filter( "IsLazyHList", LazyHVector )
 global const IsDenseList = IsList
 global const IsFunction = Filter("IsFunction", Function)
 global const IsOperation = IsFunction
@@ -816,6 +820,8 @@ end
 
 @InstallMethod( Length, [ IsString ], length );
 
+@InstallMethod( Length, [ IsLazyHList ], length );
+
 @InstallMethod( Length, [ IsList ],
 	function ( list )
 		if list isa Vector{BigInt}
@@ -910,6 +916,10 @@ function ListOp(list::Union{Vector, UnitRange, StepRange, Tuple}, func)
 	map(func, list)
 end
 
+function ListOp(list::LazyHVector, func)
+	LazyHVector(list, func)
+end
+
 function ListOp end
 
 function List(obj, func)
@@ -950,7 +960,10 @@ function Filtered(list::Any, func)
 	FilteredOp(list, func)
 end
 
-global const LazyHList = ListOp
+import Base: +
++(a::Union{Int64, BigInt}, b::Vector) = map(x -> a+x, b)
+
+global const LazyHList = LazyHVector
 
 function UnorderedTuples(v::Vector{T}, k::Union{Int,BigInt}) where T
 	result = Vector{Vector{T}}()
@@ -1085,11 +1098,11 @@ function EndsWith(string::String, substring::String)
 	endswith(string, substring)
 end
 
-function IsMatchingList(string::String, substring::String, start::Union{Int,BigInt})
+function IsMatchingSublist(string::String, substring::String, start::Union{Int,BigInt})
 	startswith(string[start:end], substring)
 end
 
-function IsMatchingList(list::Vector, sublist::Vector, start::Union{Int,BigInt})
+function IsMatchingSublist(list::Vector, sublist::Vector, start::Union{Int,BigInt})
 	StartsWith(list[start:end], sublist)
 end
 
@@ -1331,6 +1344,20 @@ function TransposedMat(M)
 	else
 		[[M[j][i] for j=1:length(M)] for i=1:length(M[1])];
 	end
+end
+
+function KroneckerProduct(mat1::Vector{Vector{T}}, mat2::Vector{Vector{T}}) where T
+	kroneckerproduct = Vector{Vector{T}}()
+	for row1 in mat1
+		for row2 in mat2
+			row = Vector{T}()
+			for i  in row1
+				append!( row, i * row2 )
+			end
+		push!( kroneckerproduct, row )
+		end
+	end
+	kroneckerproduct;
 end
 
 struct PermList
