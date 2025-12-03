@@ -8,7 +8,7 @@ authors = [
 ]
 
 # Transpiled from GAP's CAP v2025.11-01
-version = "0.6.13"
+version = "0.6.14"
 
 [deps]
 AbstractAlgebra = "c3fe647b-3220-5bb0-a1ea-a7954cac585d"
@@ -24,7 +24,7 @@ CAPJSONExtension = ["JSON3"]
 [compat]
 julia = "1.11"
 AbstractAlgebra = "0.43, 0.44, 0.45, 0.46, 0.47"
-Nemo = "0.48, 0.49, 0.50, 0.51, 0.52"
+Nemo = "0.48, 0.49, 0.50, 0.51, 0.52, 0.53"
 Base64 = "1.11"
 JSON3 = "1.14"
 
