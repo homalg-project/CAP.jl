@@ -22,15 +22,15 @@ gen-full:
 	./.generate.sh -e gen_full=1
 
 git-commit:
-	@if [ -n "$$(git diff .)" ]; then \
-	echo "Committing changes ..."; \
+	@if git diff Project.toml | grep -q '^+version ='; then \
+	echo -e "\033[32mCommitting changes in \"CAP\"\033[0m"; \
 	git add .; \
 	git commit \
 		-m "Update to GAP's $$(grep "# Transpiled from GAP's" "Project.toml" | cut -d ' ' -f 5-)" \
 		-m "Bump Version to v$$(grep "version = " "Project.toml" | cut -d '"' -f 2)" \
 		; \
 	else \
-		echo "No changes to commit."; \
+		echo -e "\033[33mNo changes in \"CAP\" to commit or no version bump detected.\033[0m"; \
 	fi
 
 codecov:

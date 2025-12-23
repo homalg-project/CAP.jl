@@ -72,6 +72,56 @@ end; CategoryFilter = cat -> HasIsFiniteCategory( cat ) && IsFiniteCategory( cat
 
 ###########################
 ##
+## In a finitely presented category
+##
+###########################
+
+##
+AddDerivationToCAP( SetOfGeneratingMorphismsOfCategory,
+        "SetOfGeneratingMorphismsOfCategory for an opposite category",
+        [ [ ObjectConstructor, 4 ],
+          [ MorphismConstructor, 2 ],
+          [ SetOfGeneratingMorphismsOfCategory, 1, OppositeCategory ] ],
+        
+  function( cat_op )
+    local cat, morphisms;
+    
+    cat = OppositeCategory( cat_op );
+    
+    morphisms = SetOfGeneratingMorphismsOfCategory( cat );
+    
+    return List( morphisms, mor ->
+                 MorphismConstructor( cat_op,
+                         ObjectConstructor( cat_op, Target( mor ) ),
+                         mor,
+                         ObjectConstructor( cat_op, Source( mor ) ) ) );
+    
+end; CategoryGetters = @rec( cat = OppositeCategory ),
+      CategoryFilter = cat_op -> HasOppositeCategory( cat_op ) );
+
+##
+AddDerivationToCAP( SetOfGeneratingMorphismsOfCategory,
+        "SetOfGeneratingMorphismsOfCategory for a reinterpreted category",
+        [ [ SetOfGeneratingMorphismsOfCategory, 1, ModelingCategory ] ],
+        
+  function( cat )
+    local modeling_category, generating_morphisms;
+    
+    modeling_category = ModelingCategory( cat );
+    
+    generating_morphisms = SetOfGeneratingMorphismsOfCategory( modeling_category );
+    
+    return List( generating_morphisms, mor ->
+                 ReinterpretationOfMorphism( cat,
+                         ReinterpretationOfObject( cat, Source( mor ) ),
+                         mor,
+                         ReinterpretationOfObject( cat, Target( mor ) ) ) );
+    
+end; CategoryGetters = @rec( modeling_category = ModelingCategory ),
+      CategoryFilter = cat -> HasModelingCategory( cat ) );
+
+###########################
+##
 ## WithGiven pairs
 ##
 ###########################
@@ -2608,18 +2658,14 @@ AddDerivationToCAP( BasisOfSolutionsOfHomogeneousLinearSystemInLinearCategory,
     
     return List( basis, m ->
               List( (1):(n), j ->
-                InterpretMorphismFromDistinguishedObjectToHomomorphismStructureAsMorphism( cat,
-                  Target( left_coefficients[1][j] ),
-                  Source( right_coefficients[1][j] ),
-                  PreCompose( range_cat, m, ProjectionInFactorOfDirectSum( range_cat, H_B_C, j ) )
-                )
-              )
-            );
+                    InterpretMorphismFromDistinguishedObjectToHomomorphismStructureAsMorphism( cat,
+                            Target( left_coefficients[1][j] ),
+                            Source( right_coefficients[1][j] ),
+                            PreCompose( range_cat, m, ProjectionInFactorOfDirectSum( range_cat, H_B_C, j ) ) ) ) );
     
   end,
   CategoryGetters = @rec( range_cat = RangeCategoryOfHomomorphismStructure ),
-  CategoryFilter = cat -> HasIsLinearCategoryOverCommutativeRing( cat ) && IsLinearCategoryOverCommutativeRing( cat ) && HasRangeCategoryOfHomomorphismStructure( cat )
-);
+  CategoryFilter = cat -> HasIsLinearCategoryOverCommutativeRing( cat ) && IsLinearCategoryOverCommutativeRing( cat ) && HasRangeCategoryOfHomomorphismStructure( cat ) );
 
 ##
 AddDerivationToCAP( BasisOfSolutionsOfHomogeneousDoubleLinearSystemInLinearCategory,
@@ -2650,17 +2696,15 @@ AddDerivationToCAP( BasisOfSolutionsOfHomogeneousDoubleLinearSystemInLinearCateg
     
     H_A_D = List( (1):(m), i -> HomomorphismStructureOnObjects( cat, Source( alpha[i][1] ), Target( beta[i][1] ) ) );
     
-    list_1 =
-      List( (1):(n),
-      j -> List( (1):(m), i -> HomomorphismStructureOnMorphisms( cat, alpha[i][j], beta[i][j] ) )
-    );
+    list_1 = List( (1):(n), j ->
+                    List( (1):(m), i ->
+                          HomomorphismStructureOnMorphisms( cat, alpha[i][j], beta[i][j] ) ) );
     
     H_1 = MorphismBetweenDirectSums( range_cat, H_B_C, list_1, H_A_D );
 
-    list_2 =
-      List( (1):(n),
-      j -> List( (1):(m), i -> HomomorphismStructureOnMorphisms( cat, gamma[i][j], delta[i][j] ) )
-    );
+    list_2 = List( (1):(n), j ->
+                    List( (1):(m), i ->
+                          HomomorphismStructureOnMorphisms( cat, gamma[i][j], delta[i][j] ) ) );
     
     H_2 = MorphismBetweenDirectSums( range_cat, H_B_C, list_2, H_A_D );
     
@@ -2671,19 +2715,15 @@ AddDerivationToCAP( BasisOfSolutionsOfHomogeneousDoubleLinearSystemInLinearCateg
     B = List( B, m -> PreCompose( range_cat, m, iota ) );
     
     return List( B, m ->
-              List( (1):(n), j ->
-                InterpretMorphismFromDistinguishedObjectToHomomorphismStructureAsMorphism( cat,
-                  Target( alpha[1][j] ),
-                  Source( beta[1][j] ),
-                  PreCompose( range_cat, m, ProjectionInFactorOfDirectSum( range_cat, H_B_C, j ) )
-                )
-              )
-            );
+                 List( (1):(n), j ->
+                       InterpretMorphismFromDistinguishedObjectToHomomorphismStructureAsMorphism( cat,
+                               Target( alpha[1][j] ),
+                               Source( beta[1][j] ),
+                               PreCompose( range_cat, m, ProjectionInFactorOfDirectSum( range_cat, H_B_C, j ) ) ) ) );
     
   end,
   CategoryGetters = @rec( range_cat = RangeCategoryOfHomomorphismStructure ),
-  CategoryFilter = cat -> HasIsLinearCategoryOverCommutativeRing( cat ) && IsLinearCategoryOverCommutativeRing( cat ) && HasRangeCategoryOfHomomorphismStructure( cat )
-);
+  CategoryFilter = cat -> HasIsLinearCategoryOverCommutativeRing( cat ) && IsLinearCategoryOverCommutativeRing( cat ) && HasRangeCategoryOfHomomorphismStructure( cat ) );
 
 ## Final methods for Equalizer
 

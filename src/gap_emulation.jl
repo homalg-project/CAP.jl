@@ -1230,6 +1230,11 @@ function Immutable(R::CAPRecord)
 	R
 end
 
+function Immutable(S::String)
+	# TODO: mark string as immutable?
+	S
+end
+
 function First(list)
 	if isempty(list)
 		fail
