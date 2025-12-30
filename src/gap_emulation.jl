@@ -1439,6 +1439,10 @@ function Binomial( n, k )
 	binomial(n, k)
 end
 
+function BoolToBigInt(b::Bool)
+    BigInt(b)
+end
+
 # Recursively generate all tuples obtained by replacing the next k positions
 # of tup (starting at index i) with all possible elements from set
 function TuplesK( set, k, tup, i )
