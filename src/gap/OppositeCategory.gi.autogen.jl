@@ -384,6 +384,7 @@ end );
                
  @FunctionWithNamedArguments(
   [
+    [ "FinalizeCategory", true ],
     [ "only_primitive_operations", false ],
     [ "only_primitive_operations_and_hom_structure", false ],
   ],
@@ -552,7 +553,11 @@ end );
     
     CAP_INTERNAL_INSTALL_OPPOSITE_ADDS_FROM_CATEGORY( opposite_category, category, only_primitive_operations, only_primitive_operations_and_hom_structure );
     
-    Finalize( opposite_category );
+    if (FinalizeCategory)
+        
+        Finalize( opposite_category );
+        
+    end;
     
     if (category.predicate_logic)
         
