@@ -272,6 +272,26 @@ end );
 end ) );
 
 ##
+@InstallMethod( SetOfObjects,
+        [ IsCapTerminalCategoryWithSingleObject ],
+        
+  function( T )
+    
+    return SetOfObjectsOfCategory( T );
+    
+end );
+
+##
+@InstallMethod( SetOfMorphisms,
+        [ IsCapTerminalCategoryWithSingleObject ],
+        
+  function( T )
+    
+    return SetOfMorphismsOfFiniteCategory( T );
+    
+end );
+
+##
 @InstallMethod( TerminalCategoryWithSingleObjectUniqueObject,
                [ IsCapTerminalCategoryWithSingleObject ],
                

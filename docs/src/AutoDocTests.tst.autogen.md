@@ -373,7 +373,7 @@ false
 julia> IsWellDefined( z )
 true
 
-julia> Length( SetOfObjectsOfCategory( T ) )
+julia> Length( SetOfObjects( T ) )
 1
 
 julia> id_z = IdentityMorphism( z )
@@ -391,7 +391,7 @@ true
 julia> IsCongruentForMorphisms( id_z, fn_z )
 true
 
-julia> Length( SetOfMorphismsOfFiniteCategory( T ) )
+julia> Length( SetOfMorphisms( T ) )
 1
 
 julia> IsLiftable( id_z, fn_z )
