@@ -474,6 +474,14 @@ function PrintString(obj)
 	StringGAP(obj)
 end
 
+function StringView(obj)
+	sprint(show, MIME"text/plain"(), obj)
+end
+
+function StringDisplay(obj)
+	sprint(show, MIME"text/plain"(), obj) * "\n"
+end
+
 @InstallMethod( StringGAP, [ IsObject ], obj -> "<object>" );
 
 # booleans
