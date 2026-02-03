@@ -150,6 +150,7 @@ function FiberProduct end
 global const FiberProductOp = FiberProduct
 
 global const Log10 = log10
+global const EQ = ==
 
 function TensorProductOp end
 function TensorProduct(arg...)
