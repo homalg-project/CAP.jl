@@ -6,6 +6,15 @@ struct Filter <: Function
 	additional_predicate::Function
 end
 
+# Add a better show method for filters (emulating GAP's view method)
+function Base.show(io::IO, filter::Filter)
+	print(io, "<Filter \"$(filter.name)\">")
+end
+
+function Base.show(io::IO, ::MIME"text/plain", filter::Filter)
+	print(io, "<Filter \"$(filter.name)\">")
+end
+
 function Filter(name::String, abstract_type::Type)
 	Filter(name, abstract_type, obj -> true)
 end
