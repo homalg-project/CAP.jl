@@ -6,6 +6,66 @@ function next_id()
     GLOBAL_COUNTER[] += 1
 end
 
+# --- Shared helpers for method installation macros ---
+
+"""Check if the operation should be skipped (ViewObj, Display, Iterator)."""
+function should_skip_operation(operation::Symbol)
+	if operation === :ViewObj
+		println("ignoring installation for ViewObj, use ViewString instead")
+		return true
+	elseif operation === :Display
+		println("ignoring installation for Display, use DisplayString instead")
+		return true
+	elseif operation === :Iterator
+		println("ignoring installation for Iterator, install iterator in Julia instead")
+		return true
+	end
+	return false
+end
+
+"""Normalize a function expression (symbol, lambda, macrocall) into a `:function` form."""
+function normalize_func_to_function_expr(func, filter_count::Int, mod::Module)
+	if !(func isa Expr)
+		if filter_count == 0
+			func = :((args...) -> $func(args...))
+		else
+			vars = Vector{Any}(map(i -> Symbol("arg", i), 1:filter_count))
+			func = :(($(vars...),) -> $func($(vars...),))
+		end
+	end
+	
+	if func.head === :macrocall
+		func = macroexpand(mod, func; recursive = false)
+	end
+	
+	if func.head === :->  
+		func.head = :function
+		if func.args[1] isa Symbol
+			func.args[1] = Expr(:tuple, func.args[1])
+		end
+	end
+	
+	@assert func.head === :function "Expected :function expression, got :$(func.head)"
+	return func
+end
+
+"""Set the callable (self-argument) in a function expression."""
+function set_func_callable!(func::Expr, callable::Expr, filter_list)
+	if func.args[1].head === :tuple
+		func.args[1] = Expr(:call, callable, func.args[1].args...)
+	elseif func.args[1].head === :...
+		@assert filter_list === :nothing
+		func.args[1] = Expr(:call, callable, func.args[1])
+	else
+		error("unsupported head: ", func.args[1].head)
+	end
+end
+
+"""Check if a function expression has keyword arguments."""
+func_has_kwargs(func::Expr) = length(func.args[1].args) >= 2 && func.args[1].args[2] isa Expr && func.args[1].args[2].head === :parameters
+
+# --- End shared helpers ---
+
 macro DeclareOperation(name::String, filter_list = [])
 	# prevent attributes from being redefined as operations
 	if isdefined(__module__, Symbol(name))
@@ -51,53 +111,26 @@ function get_operation_for_installation(operation, filter_list)
 end
 
 macro InstallMethod(operation::Symbol, filter_list, func)
-	if operation === :ViewObj
-		println("ignoring installation for ViewObj, use ViewString instead")
-		return
-	elseif operation === :Display
-		println("ignoring installation for Display, use DisplayString instead")
-		return
-	elseif operation === :Iterator
-		println("ignoring installation for Iterator, install iterator in Julia instead")
-		return
+	
+	should_skip_operation(operation) && return
+	
+	# Delegate to @InstallFilterDispatchedMethod if the operation is declared as dispatchable
+	if isdefined(__module__, operation)
+		op_val = getfield(__module__, operation)
+		if is_dispatchable(op_val)
+			return esc(:(@InstallFilterDispatchedMethod($operation, $filter_list, $func)))
+		end
 	end
 	
 	@assert (filter_list === :nothing || (filter_list isa Expr && filter_list.head === :vect && all(f -> f isa Symbol, filter_list.args))) "Assertion failed while installing $(operation) with the filter_list: $(filter_list)"
 	
-	if !(func isa Expr)
-		if filter_list === :nothing
-			func = :((args...) -> $func(args...))
-		else
-			vars = Vector{Any}(map(i -> Symbol("arg", i), 1:length(filter_list.args)))
-			func = :(($(vars...),) -> $func($(vars...),))
-		end
-	end
-	
-	if func.head === :macrocall
-		func = macroexpand(__module__, func; recursive = false)
-	end
-	
-	if func.head === :->
-		func.head = :function
-		if func.args[1] isa Symbol
-			func.args[1] = Expr(:tuple, func.args[1])
-		end
-	end
-	
-	@assert func.head === :function
+	filter_count = filter_list === :nothing ? 0 : length(filter_list.args)
+	func = normalize_func_to_function_expr(func, filter_count, __module__)
 	
 	callable = :(::typeof(get_operation_for_installation($operation, $filter_list)))
+	set_func_callable!(func, callable, filter_list)
 	
-	if func.args[1].head === :tuple
-		func.args[1] = Expr(:call, callable, func.args[1].args...)
-	elseif func.args[1].head === :...
-		@assert filter_list === :nothing # InstallMethod in GAP cannot be used for functions with varargs
-		func.args[1] = Expr(:call, callable, func.args[1])
-	else
-		error("unsupported head: ", func.args[1].head)
-	end
-	
-	is_kwarg = length(func.args[1].args) >= 2 && func.args[1].args[2] isa Expr && func.args[1].args[2].head === :parameters
+	is_kwarg = func_has_kwargs(func)
 	
 	if filter_list !== :nothing
 		if is_kwarg
@@ -174,6 +207,7 @@ function InstallMethod(operation, filter_list, func)
 end
 
 function InstallMethod(mod::Module, operation::Function, filter_list, func::Function)
+	
 	if operation === ViewObj
 		println("ignoring installation for ViewObj, use ViewString instead")
 		return

@@ -363,6 +363,9 @@ include("gap_emulation/filters.jl")
 # operations
 include("gap_emulation/operations.jl")
 
+# property based dispatch (must be before attributes since attributes can be dispatchable)
+include("gap_emulation/filter_based_dispatch.jl")
+
 # attributes
 include("gap_emulation/attributes.jl")
 

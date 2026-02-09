@@ -7,9 +7,11 @@ function ==(attr1::Attribute, attr2::Attribute)
 	isequal(attr1.name, attr2.name)
 end
 
+is_dispatchable(attr::Attribute) = attr.is_dispatchable
+
 CAP_JL_INTERNAL_LIST_OF_PROPERTIES = []
 
-function declare_attribute_or_property(mod, name::String, is_property::Bool)
+function declare_attribute_or_property(mod, name::String, is_property::Bool, is_dispatchable::Bool = false)
 	# attributes and properties might be installed for different parent filters
 	# since we do not take the parent filter into account here, we only have to install
 	# the attribute or property once
@@ -23,7 +25,7 @@ function declare_attribute_or_property(mod, name::String, is_property::Bool)
 	type_symbol = Symbol("TheJuliaAttributeType", name)
 	tester_filter_name = "Has" * name
 	esc(quote
-		function $symbol_op end
+		global const $symbol_op = $is_dispatchable ? CAP.FilterDispatchedOperation($name * "_OPERATION") : (function $symbol_op end; $symbol_op)
 		
 		# Mirror GAP behavior - HasProperty/Attribute is a filter
 		global const $symbol_tester = let local_name = $name
@@ -46,14 +48,15 @@ function declare_attribute_or_property(mod, name::String, is_property::Bool)
 		
 		mutable struct $type_symbol <: Attribute
 			name::String
-			operation::Function
+			operation::Union{Function, FilterDispatchedOperation}
 			tester::Function
 			setter::Function
+			is_dispatchable::Bool
 			is_property::Bool
 			implied_properties::Vector{Attribute}
 		end
 		
-		global const $symbol = $type_symbol($name, $symbol_op, $symbol_tester, $symbol_setter, $is_property, [])
+		global const $symbol = $type_symbol($name, $symbol_op, $symbol_tester, $symbol_setter, $is_dispatchable, $is_property, [])
 		
 		function (::$type_symbol)(obj::IsAttributeStoringRep.abstract_type; kwargs...)
 			if !$symbol_tester(obj)
@@ -63,17 +66,34 @@ function declare_attribute_or_property(mod, name::String, is_property::Bool)
 			dict[Symbol($name)]
 		end
 		
+		# Multi-argument fallback for filter-dispatched attributes
+		if $is_dispatchable
+			function (::$type_symbol)(arg1, arg2, rest...)
+				all_args = (arg1, arg2, rest...)
+				method_func = CAP.find_filter_method(Symbol($name), all_args...)
+				if method_func !== nothing
+					return Base.invokelatest(method_func, all_args...)
+				else
+					error("No method found for ", $name, " with ", length(all_args), " arguments")
+				end
+			end
+		end
+		
 		if $symbol.is_property
 			push!(CAP_JL_INTERNAL_LIST_OF_PROPERTIES, $symbol)
 		end
 	end)
 end
 
-macro DeclareAttribute(name::String, parent_filter, mutability = missing)
-	declare_attribute_or_property(__module__, name, false)
+macro DeclareAttribute(name::String, parent_filter, mutability=missing)
+	declare_attribute_or_property(__module__, name, false, false)
 end
 
-export @DeclareAttribute
+macro DeclareFilterDispatchedAttribute(name::String, parent_filter, mutability=missing)
+	declare_attribute_or_property(__module__, name, false, true)
+end
+
+export @DeclareAttribute, @DeclareFilterDispatchedAttribute
 
 function IsAttribute( obj )
 	obj isa Attribute
@@ -93,10 +113,14 @@ macro DeclareSynonymAttr(name::String, attr)
 end
 
 macro DeclareProperty(name::String, parent_filter)
-	declare_attribute_or_property(__module__, name, true)
+	declare_attribute_or_property(__module__, name, true, false)
 end
 
-export @DeclareProperty
+macro DeclareFilterDispatchedProperty(name::String, parent_filter)
+	declare_attribute_or_property(__module__, name, true, true)
+end
+
+export @DeclareProperty, @DeclareFilterDispatchedProperty
 
 function IsProperty( obj )
 	obj isa Attribute && obj.is_property
