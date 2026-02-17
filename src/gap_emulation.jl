@@ -603,6 +603,16 @@ function ObjectifyWithAttributes( record::CAPRecord, type::DataType, attributes_
 		value = attributes_and_values[i + 1]
 		symbol_setter(obj, value)
 	end
+
+	# If the object's filter carries implied properties, eagerly set them to true so Has<Property>(obj) becomes true immediately.
+	local obj_filter = FilterOfObject(obj)
+	if obj_filter !== nothing
+		for prop in obj_filter.implied_properties
+			if IsProperty(prop)
+				Setter(prop)(obj, true)
+			end
+		end
+	end
 	obj
 end
 

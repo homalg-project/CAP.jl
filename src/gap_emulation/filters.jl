@@ -4,6 +4,8 @@ struct Filter <: Function
 	concrete_type::Type
 	subtypable::Bool
 	additional_predicate::Function
+	implied_filters::Set{Function}
+	implied_properties::Set{Function}
 end
 
 # Add a better show method for filters (emulating GAP's view method)
@@ -20,7 +22,7 @@ function Filter(name::String, abstract_type::Type)
 end
 
 function Filter(name::String, abstract_type::Type, additional_predicate::Function)
-	Filter(name, abstract_type, Any, true, additional_predicate)
+	Filter(name, abstract_type, Any, true, additional_predicate, Set{Function}(), Set{Function}())
 end
 
 function (filter::Filter)(obj)
@@ -35,14 +37,18 @@ macro DeclareFilter(name::String, parent_filter::Union{Symbol,Expr} = :IsObject)
 	filter_symbol = Symbol(name)
 	abstract_type_symbol = Symbol("TheJuliaAbstractType", name)
 	concrete_type_symbol = Symbol("TheJuliaConcreteType", name)
+	additional_predicate = :(obj -> $parent_filter.additional_predicate(obj))
+	implied_filters = :(union(Set([$parent_filter]), $parent_filter.implied_filters))
+	
 	# all our macros are meant to fully execute in the context where the macro is called -> always fully escape them
 	esc(quote
-		@assert $parent_filter.subtypable
-		abstract type $abstract_type_symbol <: $parent_filter.abstract_type end
+		local parent = $parent_filter
+		@assert parent.subtypable
+		abstract type $abstract_type_symbol <: parent.abstract_type end
 		struct $concrete_type_symbol{T} <: $abstract_type_symbol
 			dict::Dict{Symbol, Any}
 		end
-		global const $filter_symbol = Filter($name, $abstract_type_symbol, $concrete_type_symbol, true, obj -> true)
+		global const $filter_symbol = Filter($name, $abstract_type_symbol, $concrete_type_symbol, true, $additional_predicate, $implied_filters, Set{Function}())
 		nothing # suppress output when using the macro in tests
 	end)
 end
@@ -55,7 +61,10 @@ function NewFilter( name, parent_filter )
 	end
 	type_symbol = Symbol(name, gensym())
 	concrete_type = parent_filter.concrete_type{type_symbol}
-	Filter(name, concrete_type, concrete_type, false, obj -> true)
+	additional_predicate = parent_filter.additional_predicate
+	implied_filters = union(Set([parent_filter]), parent_filter.implied_filters)
+	implied_properties = parent_filter.implied_properties
+	Filter(name, concrete_type, concrete_type, false, parent_filter.additional_predicate, implied_filters, implied_properties)
 end
 
 global const NewCategory = NewFilter

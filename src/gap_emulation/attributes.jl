@@ -99,9 +99,14 @@ function IsProperty( obj )
 	obj isa Attribute && obj.is_property
 end
 
-function InstallTrueMethod(prop1, prop2)
-	@assert IsProperty( prop1 ) && IsProperty( prop2 )
-	push!(prop2.implied_properties, prop1)
+function InstallTrueMethod(p1, p2)
+	if IsProperty( p1 ) && IsProperty( p2 )
+		push!(p2.implied_properties, p1)
+	elseif IsFilter( p1 ) && IsFilter( p2 )
+		push!(p2.implied_filters, p1)
+	else
+		throw("InstallTrueMethod can only be used to install implications between properties or between filters")
+	end
 end
 
 function ListImpliedFilters(prop)
