@@ -26,12 +26,91 @@ function Filter(name::String, abstract_type::Type, additional_predicate::Functio
 end
 
 function (filter::Filter)(obj)
-	isa(obj, filter.abstract_type) && filter.additional_predicate(obj)
+	if isa(obj, filter.abstract_type)
+		return filter.additional_predicate(obj)
+	end
+	
+	filter_obj = FilterOfObject(obj)
+	
+	if filter_obj === nothing
+		return false
+	end
+	
+  if (filter in filter_obj.implied_filters) || (filter_obj in filter.implied_filters)
+		return filter.additional_predicate(obj)
+	end
+	
+	if !isempty(filter.implied_properties)
+		base_filter = FilterOfType(supertype(filter.abstract_type))
+		if base_filter in filter_obj.implied_filters
+			return filter.additional_predicate(obj)
+		end
+	end
+	
+	return false
 end
 
 function IsFilter( obj )
 	obj isa Filter
 end
+
+# Get the filter associated with a type by deriving filter name from type name
+function FilterOfType(T::Type)
+	# Walk up the type hierarchy to find a filter
+	current_type = T
+	while current_type != Any
+		# Get the base type name (without parameters)
+		
+		type_name = (current_type isa UnionAll) ? string(current_type) : string(Base.typename(current_type).name)
+		
+		# Check if this looks like a filter type marker.
+	# Concrete types are named like TheJuliaConcreteType<FilterName>.
+	# Abstract types are named like TheJuliaAbstractType<FilterName>.
+		if startswith(type_name, "TheJuliaConcreteType") || startswith(type_name, "TheJuliaAbstractType")
+			# Extract filter name by removing the prefix (20 chars)
+			filter_name = type_name[21:end]
+			
+			filter_symbol = Symbol(filter_name)
+			
+			# Get the module where the type was defined
+			type_module = Base.typename(current_type).module
+			
+			# Search in the type's module first, then Main and ModulesForEvaluationStack
+			search_modules = unique([type_module, Main, ModulesForEvaluationStack...])
+			
+			for mod in search_modules
+				if isdefined(mod, filter_symbol)
+					candidate = getfield(mod, filter_symbol)
+					if IsFilter(candidate)
+						return candidate
+					end
+				end
+			end
+		end
+		
+		# Move to supertype
+		current_type = supertype(current_type)
+	end
+	
+	return nothing
+end
+
+# Get the filter associated with an object
+function FilterOfObject(obj)
+	FilterOfType(typeof(obj))
+end
+
+function CategoriesOfObject(obj)
+	filter = FilterOfObject(obj)
+	if filter === nothing
+		return Filter[]
+	end
+	filters = [filter]
+	append!(filters, collect(filter.implied_filters))
+	return filters
+end
+
+export FilterOfType, FilterOfObject, CategoriesOfObject
 
 macro DeclareFilter(name::String, parent_filter::Union{Symbol,Expr} = :IsObject)
 	filter_symbol = Symbol(name)
