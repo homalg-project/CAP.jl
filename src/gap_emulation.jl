@@ -366,6 +366,9 @@ include("gap_emulation/operations.jl")
 # attributes
 include("gap_emulation/attributes.jl")
 
+# filters intersection
+include("gap_emulation/filters_intersection.jl")
+
 # files
 include("gap_emulation/files.jl")
 

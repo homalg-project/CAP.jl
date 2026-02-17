@@ -116,6 +116,35 @@ macro DeclareFilter(name::String, parent_filter::Union{Symbol,Expr} = :IsObject)
 	filter_symbol = Symbol(name)
 	abstract_type_symbol = Symbol("TheJuliaAbstractType", name)
 	concrete_type_symbol = Symbol("TheJuliaConcreteType", name)
+	
+	# Check if parent_filter is a FilterIntersection expression
+	if parent_filter isa Expr && parent_filter.head == :call && parent_filter.args[1] == :FilterIntersection
+		
+		args = parent_filter.args[2:end]
+		
+		length(args) < 2 && error("@DeclareFilter: Filter intersection must have at least two arguments")
+		all(a -> a isa Symbol, args) || error("@DeclareFilter: all arguments must be symbol names")
+		
+		intersection_name = Symbol(join(string.(args), "_and_"))
+		
+		# Create the intersection filter using the unified @FilterIntersection
+		return esc(quote
+			if !@isdefined($intersection_name)
+				@FilterIntersection $(args...)
+			end
+			
+			# Now declare the actual filter
+			local parent = $intersection_name
+			@assert parent.subtypable
+			abstract type $abstract_type_symbol <: parent.abstract_type end
+			struct $concrete_type_symbol{T} <: $abstract_type_symbol
+				dict::Dict{Symbol, Any}
+			end
+			global const $filter_symbol = Filter($name, $abstract_type_symbol, $concrete_type_symbol, true, obj -> parent.additional_predicate(obj), union(Set([parent]), parent.implied_filters), parent.implied_properties)
+			nothing # suppress output when using the macro in tests
+		end)
+	end
+	
 	additional_predicate = :(obj -> $parent_filter.additional_predicate(obj))
 	implied_filters = :(union(Set([$parent_filter]), $parent_filter.implied_filters))
 	
