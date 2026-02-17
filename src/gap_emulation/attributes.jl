@@ -21,12 +21,15 @@ function declare_attribute_or_property(mod, name::String, is_property::Bool)
 	symbol_tester = Symbol("Has", name)
 	symbol_setter = Symbol("Set", name)
 	type_symbol = Symbol("TheJuliaAttributeType", name)
+	tester_filter_name = "Has" * name
 	esc(quote
 		function $symbol_op end
 		
-		function $symbol_tester(obj::AttributeStoringRep)
-			dict = getfield(obj, :dict)
-			haskey(dict, Symbol($name))
+		# Mirror GAP behavior - HasProperty/Attribute is a filter
+		global const $symbol_tester = let local_name = $name
+			Filter( $tester_filter_name,
+				IsAttributeStoringRep.abstract_type,
+				obj -> haskey(getfield(obj, :dict), Symbol(local_name)))
 		end
 		CAP_precompile($symbol_tester, (AttributeStoringRep, ))
 		
