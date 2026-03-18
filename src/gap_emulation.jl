@@ -30,7 +30,7 @@ if Base.VERSION < v"1.11"
 	function generating_output()
 		ccall(:jl_generating_output, Cint, ()) != 0
 	end
-else
+elseif !isdefined(@__MODULE__, :generating_output)
 	const generating_output = Base.generating_output
 end
 

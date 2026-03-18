@@ -8,7 +8,7 @@ authors = [
 ]
 
 # Transpiled from GAP's CAP v2026.02-01
-version = "0.6.19"
+version = "0.6.20"
 
 [deps]
 AbstractAlgebra = "c3fe647b-3220-5bb0-a1ea-a7954cac585d"
