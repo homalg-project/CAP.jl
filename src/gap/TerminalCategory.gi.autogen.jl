@@ -91,8 +91,8 @@
     
     completed_record.properties = properties;
     
-    if (@not @IsBound( completed_record.commutative_ring_of_linear_category ))
-        completed_record.commutative_ring_of_linear_category = Integers;
+    if (@not @IsBound( completed_record.commutative_semiring_of_linear_category ))
+        completed_record.commutative_semiring_of_linear_category = Integers;
     end;
     
     T = CategoryConstructor( completed_record );

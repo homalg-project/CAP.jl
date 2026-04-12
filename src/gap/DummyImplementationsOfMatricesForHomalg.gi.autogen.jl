@@ -14,8 +14,8 @@ CAP_INTERNAL_DUMMY_HOMALG_RING_COUNTER = 1;
 @InstallGlobalFunction( DummyHomalgRing, function( )
   local ring_filter, ring_element_filter, name, ring;
     
-    ring_filter = NewFilter( "DummyHomalgRingFilter", IsDummyHomalgRing );
-    ring_element_filter = NewFilter( "DummyHomalgRingElementFilter", IsDummyHomalgRingElement );
+    ring_filter = NewFilter( "DummyHomalgSemiringFilter", IsDummyHomalgRing );
+    ring_element_filter = NewFilter( "DummyHomalgSemiringElementFilter", IsDummyHomalgRingElement );
     
     name = @Concatenation( "Dummy homalg ring ", StringGAP( CAP_INTERNAL_DUMMY_HOMALG_RING_COUNTER ) );
     CAP_INTERNAL_DUMMY_HOMALG_RING_COUNTER = CAP_INTERNAL_DUMMY_HOMALG_RING_COUNTER + 1;
@@ -23,8 +23,8 @@ CAP_INTERNAL_DUMMY_HOMALG_RING_COUNTER = 1;
     ring = CreateGapObjectWithAttributes( NewType( TheFamilyOfDummyHomalgRings, IsAttributeStoringRep && ring_filter ),
         Name, name,
         StringGAP, name,
-        RingFilter, ring_filter,
-        RingElementFilter, ring_element_filter
+        SemiringFilter, ring_filter,
+        SemiringElementFilter, ring_element_filter
     );
     
     return ring;
@@ -41,8 +41,8 @@ CAP_INTERNAL_DUMMY_COMMUTATIVE_HOMALG_RING_COUNTER = 1;
 @InstallGlobalFunction( DummyCommutativeHomalgRing, function( )
   local ring_filter, ring_element_filter, name, ring;
     
-    ring_filter = NewFilter( "DummyCommutativeHomalgRingFilter", IsDummyCommutativeHomalgRing );
-    ring_element_filter = NewFilter( "DummyCommutativeHomalgRingElementFilter", IsDummyCommutativeHomalgRingElement );
+    ring_filter = NewFilter( "DummyCommutativeHomalgSemiringFilter", IsDummyCommutativeHomalgRing );
+    ring_element_filter = NewFilter( "DummyCommutativeHomalgSemiringElementFilter", IsDummyCommutativeHomalgRingElement );
     
     name = @Concatenation( "Dummy commutative homalg ring ", StringGAP( CAP_INTERNAL_DUMMY_COMMUTATIVE_HOMALG_RING_COUNTER ) );
     CAP_INTERNAL_DUMMY_COMMUTATIVE_HOMALG_RING_COUNTER = CAP_INTERNAL_DUMMY_COMMUTATIVE_HOMALG_RING_COUNTER + 1;
@@ -50,8 +50,8 @@ CAP_INTERNAL_DUMMY_COMMUTATIVE_HOMALG_RING_COUNTER = 1;
     ring = CreateGapObjectWithAttributes( NewType( TheFamilyOfDummyCommutativeHomalgRings, IsAttributeStoringRep && ring_filter ),
         Name, name,
         StringGAP, name,
-        RingFilter, ring_filter,
-        RingElementFilter, ring_element_filter,
+        SemiringFilter, ring_filter,
+        SemiringElementFilter, ring_element_filter,
         IsCommutative, true
     );
     
@@ -78,8 +78,8 @@ CAP_INTERNAL_DUMMY_HOMALG_FIELD_COUNTER = 1;
     ring = CreateGapObjectWithAttributes( NewType( TheFamilyOfDummyHomalgFields, IsAttributeStoringRep && ring_filter ),
         Name, name,
         StringGAP, name,
-        RingFilter, ring_filter,
-        RingElementFilter, ring_element_filter,
+        SemiringFilter, ring_filter,
+        SemiringElementFilter, ring_element_filter,
         IsField, true,
         IsFieldForHomalg, true
     );

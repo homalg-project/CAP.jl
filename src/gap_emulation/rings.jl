@@ -4,6 +4,9 @@ import Nemo
 import Nemo.ZZ
 import Nemo.QQ
 
+global const IsSemiring = Filter("IsSemiring", Nemo.Ring)
+global const IsSemiringElement = Filter("IsSemiringElement", Nemo.NCRingElement)
+
 global const IsRing = Filter("IsRing", Nemo.Ring)
 global const IsRingElement = Filter("IsRingElement", Nemo.NCRingElement)
 
@@ -53,30 +56,30 @@ function IsIntegralDomain(::Union{typeof(Integers), typeof(Rationals)})
 	true
 end
 
-function HasRingFilter(::Union{typeof(Integers), typeof(Rationals)})
+function HasSemiringFilter(::Union{typeof(Integers), typeof(Rationals)})
 	true
 end
 
-function RingFilter(::typeof(Integers))
+function SemiringFilter(::typeof(Integers))
 	IsIntegers
 end
 
-function RingFilter(::typeof(Rationals))
+function SemiringFilter(::typeof(Rationals))
 	IsRationals
 end
 
-function HasRingElementFilter(::Union{typeof(Integers), typeof(Rationals)})
+function HasSemiringElementFilter(::Union{typeof(Integers), typeof(Rationals)})
 	true
 end
 
 global const IsZZRingElem = Filter("IsZZRingElem", Nemo.ZZRingElem)
 global const IsQQFieldElem = Filter("IsQQFieldElem", Nemo.QQFieldElem)
 
-function RingElementFilter(::typeof(Integers))
+function SemiringElementFilter(::typeof(Integers))
 	IsZZRingElem
 end
 
-function RingElementFilter(::typeof(Rationals))
+function SemiringElementFilter(::typeof(Rationals))
 	IsQQFieldElem
 end
 

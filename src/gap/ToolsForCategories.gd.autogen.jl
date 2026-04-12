@@ -435,4 +435,10 @@
 #= comment for Julia
 # This is relevant only in Julia to avoid world-age conflicts
 @BindGlobal( "CallFuncListAtRuntime", CallFuncList );
+
+# The GAP emulation in Julia uses FilterIntersection to join filters
+@BindGlobal( "FilterIntersection",
+  function(args...)
+    return Iterated( args, (a, b) -> a && b );
+end );
 # =#

@@ -19,7 +19,7 @@
         category_morphism_filter = IsFilter,
         object_datum_type = IsObject, # IsFilter || IsRecord
         morphism_datum_type = IsObject, # IsFilter || IsRecord
-        commutative_ring_of_linear_category = R -> IsRing( R ) && HasIsCommutative( R ) && IsCommutative( R ),
+        commutative_semiring_of_linear_category = R -> IsRing( R ) && HasIsCommutative( R ) && IsCommutative( R ),
         range_category_of_homomorphism_structure = cat -> IsCapCategory( cat ) || cat == "self",
         properties = IsList,
         object_constructor = IsFunction,
@@ -122,9 +122,9 @@
     
     CC.compiler_hints = @rec( );
     
-    if (@IsBound( options.commutative_ring_of_linear_category ))
+    if (@IsBound( options.commutative_semiring_of_linear_category ))
         
-        SetCommutativeRingOfLinearCategory( CC, options.commutative_ring_of_linear_category );
+        SetCommutativeSemiringOfLinearCategory( CC, options.commutative_semiring_of_linear_category );
         
     end;
     
@@ -260,7 +260,7 @@
         info = CAP_INTERNAL_METHOD_NAME_RECORD[name];
         
         # check if filters and return_type are known
-        unknown_filters = Filtered( info.filter_list, filter -> @not filter in [ "category", "object", "morphism", "integer", "element_of_commutative_ring_of_linear_structure", "list_of_elements_of_commutative_ring_of_linear_structure", "nonneg_integer_or_infinity", "list_of_objects", "list_of_morphisms", "list_of_lists_of_morphisms", "pair_of_morphisms", "list_of_integers_and_list_of_morphisms" ] );
+        unknown_filters = Filtered( info.filter_list, filter -> @not filter in [ "category", "object", "morphism", "integer", "element_of_commutative_semiring_of_linear_structure", "list_of_elements_of_commutative_semiring_of_linear_structure", "nonneg_integer_or_infinity", "list_of_objects", "list_of_morphisms", "list_of_lists_of_morphisms", "pair_of_morphisms", "list_of_integers_and_list_of_morphisms" ] );
         
         if (@not IsEmpty( unknown_filters ))
             
@@ -364,7 +364,7 @@
                     
                     return @Concatenation( options.underlying_morphism_getter_string, "( cat, ", argument_name, " )" );
                     
-                elseif (filter == "integer" || filter == "element_of_commutative_ring_of_linear_structure" || filter == "list_of_elements_of_commutative_ring_of_linear_structure" || filter == "nonneg_integer_or_infinity")
+                elseif (filter == "integer" || filter == "element_of_commutative_semiring_of_linear_structure" || filter == "list_of_elements_of_commutative_semiring_of_linear_structure" || filter == "nonneg_integer_or_infinity")
                     
                     return argument_name;
                     

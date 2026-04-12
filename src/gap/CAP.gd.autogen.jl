@@ -276,6 +276,21 @@ AddCategoricalProperty( [ "IsSkeletalCategory", "IsSkeletalCategory" ] );
 AddCategoricalProperty( [ "IsAbCategory", "IsAbCategory" ] );
 
 #! @Description
+#!  The property of the category <A>C</A> being linear over a commutative semiring.
+#! @Arguments C
+@DeclareProperty( "IsLinearCategoryOverCommutativeSemiring", IsCapCategory );
+
+AddCategoricalProperty( [ "IsLinearCategoryOverCommutativeSemiring", "IsLinearCategoryOverCommutativeSemiring" ] );
+
+#! @Description
+#!  The property of the category <A>C</A> being linear over a commutative semiring $k$
+#!  such that all external homs are finitely generated free $k$-modules.
+#! @Arguments C
+@DeclareProperty( "IsLinearCategoryOverCommutativeSemiringWithFinitelyGeneratedFreeExternalHoms", IsCapCategory );
+
+AddCategoricalProperty( [ "IsLinearCategoryOverCommutativeSemiringWithFinitelyGeneratedFreeExternalHoms", "IsLinearCategoryOverCommutativeSemiringWithFinitelyGeneratedFreeExternalHoms" ] );
+
+#! @Description
 #!  The property of the category <A>C</A> being linear over a commutative ring.
 #! @Arguments C
 @DeclareProperty( "IsLinearCategoryOverCommutativeRing", IsCapCategory );
@@ -498,25 +513,25 @@ AddCategoricalProperty( [ "IsLocallyOfFiniteInjectiveDimension", "IsLocallyOfFin
 #! The output is a commutative ring over which the category is linear.
 #! @Arguments C
 #! @Returns a ring
-@DeclareAttribute( "CommutativeRingOfLinearCategory",
+@DeclareAttribute( "CommutativeSemiringOfLinearCategory",
                   IsCapCategory );
 
-# display a warning when trying to overwrite an existing CommutativeRingOfLinearCategory with a different one
+# display a warning when trying to overwrite an existing CommutativeSemiringOfLinearCategory with a different one
 #= comment for Julia, which does not have "TryNextMethod"
-@InstallMethod( SetCommutativeRingOfLinearCategory,
+@InstallMethod( SetCommutativeSemiringOfLinearCategory,
                [ IsCapCategory, IsObject ],
                
   function( category, ring )
     
     if (!(IsRing( ring ) && HasIsCommutative( ring ) && IsCommutative( ring )))
         
-        Error( "CommutativeRingOfLinearCategory must be a commutative ring" );
+        Error( "CommutativeSemiringOfLinearCategory must be a commutative ring" );
         
     end;
     
-    if (HasCommutativeRingOfLinearCategory( category ) && @not IsIdenticalObj( ring, CommutativeRingOfLinearCategory( category ) ))
+    if (HasCommutativeSemiringOfLinearCategory( category ) && @not IsIdenticalObj( ring, CommutativeSemiringOfLinearCategory( category ) ))
         
-        Print( "WARNING: Trying to set CommutativeRingOfLinearCategory to a ring with name \"", StringGAP( ring ), "\" but a different ring with name \"", StringGAP( CommutativeRingOfLinearCategory( category ) ), "\" is already set.\n" );
+        Print( "WARNING: Trying to set CommutativeSemiringOfLinearCategory to a ring with name \"", StringGAP( ring ), "\" but a different ring with name \"", StringGAP( CommutativeSemiringOfLinearCategory( category ) ), "\" is already set.\n" );
         
     end;
     

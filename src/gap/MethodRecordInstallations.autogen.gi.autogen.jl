@@ -5532,17 +5532,17 @@ end );
     )
 );
 
-## MultiplyWithElementOfCommutativeRingForMorphisms
-@InstallMethod( AddMultiplyWithElementOfCommutativeRingForMorphisms,
+## MultiplyWithElementOfCommutativeSemiringForMorphisms
+@InstallMethod( AddMultiplyWithElementOfCommutativeSemiringForMorphisms,
                [ IsCapCategory, IsFunction ],
                
   function( category, func )
     
-    AddCapOperation( "MultiplyWithElementOfCommutativeRingForMorphisms", category, func, -1 );
+    AddCapOperation( "MultiplyWithElementOfCommutativeSemiringForMorphisms", category, func, -1 );
     
 end );
 
-@InstallMethod( AddMultiplyWithElementOfCommutativeRingForMorphisms,
+@InstallMethod( AddMultiplyWithElementOfCommutativeSemiringForMorphisms,
                [ IsCapCategory, IsFunction, IsInt ],
                
     @FunctionWithNamedArguments(
@@ -5551,7 +5551,7 @@ end );
         ],
         function( CAP_NAMED_ARGUMENTS, category, func, weight )
             
-            AddCapOperation( "MultiplyWithElementOfCommutativeRingForMorphisms", category, func, weight; IsPrecompiledDerivation = IsPrecompiledDerivation );
+            AddCapOperation( "MultiplyWithElementOfCommutativeSemiringForMorphisms", category, func, weight; IsPrecompiledDerivation = IsPrecompiledDerivation );
             
         end
     )

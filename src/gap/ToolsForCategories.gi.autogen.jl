@@ -206,25 +206,25 @@ end );
             
         end;
         
-    elseif (string == "element_of_commutative_ring_of_linear_structure")
+    elseif (string == "element_of_commutative_semiring_of_linear_structure")
         
-        if (@not IsIdenticalObj( category, false ) && @not HasCommutativeRingOfLinearCategory( category ))
+        if (@not IsIdenticalObj( category, false ) && @not HasCommutativeSemiringOfLinearCategory( category ))
             
-            Print( "WARNING: You are calling an Add function for a CAP operation for \"", Name( category ), "\" which is part of the linear structure over a commutative ring but the category has no CommutativeRingOfLinearCategory (yet).\n" );
+            Print( "WARNING: You are calling an Add function for a CAP operation for \"", Name( category ), "\" which is part of the linear structure over a commutative ring but the category has no CommutativeSemiringOfLinearCategory (yet).\n" );
             
         end;
         
-        if (IsIdenticalObj( category, false ) || @not HasCommutativeRingOfLinearCategory( category ))
+        if (IsIdenticalObj( category, false ) || @not HasCommutativeSemiringOfLinearCategory( category ))
             
             return CapJitDataTypeOfElementOfRing( false );
             
         end;
         
-        return CapJitDataTypeOfElementOfRing( CommutativeRingOfLinearCategory( category ) );
+        return CapJitDataTypeOfElementOfRing( CommutativeSemiringOfLinearCategory( category ) );
         
-    elseif (string == "list_of_elements_of_commutative_ring_of_linear_structure")
+    elseif (string == "list_of_elements_of_commutative_semiring_of_linear_structure")
         
-        return CapJitDataTypeOfListOf( CAP_INTERNAL_GET_DATA_TYPE_FROM_STRING( "element_of_commutative_ring_of_linear_structure", category ) );
+        return CapJitDataTypeOfListOf( CAP_INTERNAL_GET_DATA_TYPE_FROM_STRING( "element_of_commutative_semiring_of_linear_structure", category ) );
         
     elseif (string == "list_of_integers_and_list_of_morphisms")
         
@@ -1245,7 +1245,7 @@ end );
     else
         
         type = @rec(
-            filter = RingFilter( ring ),
+            filter = SemiringFilter( ring ),
             ring = ring,
         );
         
@@ -1268,7 +1268,7 @@ end );
     else
         
         type = @rec(
-            filter = RingElementFilter( ring ),
+            filter = SemiringElementFilter( ring ),
             ring = ring,
         );
         

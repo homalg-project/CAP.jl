@@ -1,7 +1,7 @@
 pop!(ModulesForEvaluationStack)
 @Assert( 0, IsEmpty( ModulesForEvaluationStack ) )
 
-function MultiplyWithElementOfCommutativeRingForMorphisms(C::IsCapCategory.abstract_type, r::Any, alpha::IsCapCategoryMorphism.abstract_type)
-    ring = CommutativeRingOfLinearCategory( C );
-    return MultiplyWithElementOfCommutativeRingForMorphisms( C, ring( r ), alpha );
+function MultiplyWithElementOfCommutativeSemiringForMorphisms(C::IsCapCategory.abstract_type, r::Any, alpha::IsCapCategoryMorphism.abstract_type)
+    semiring = CommutativeSemiringOfLinearCategory( C );
+    return MultiplyWithElementOfCommutativeSemiringForMorphisms( C, semiring( r ), alpha );
 end

@@ -4,6 +4,39 @@
 # Implementations
 #
 
+## dummy commutative semirings
+
+@BindGlobal( "TheFamilyOfDummyCommutativeSemirings",
+        NewFamily( "TheFamilyOfDummyCommutativeSemirings" ) );
+
+CAP_INTERNAL_DUMMY_COMMUTATIVE_SEMIRING_COUNTER = 1;
+
+@InstallGlobalFunction( DummyCommutativeSemiring, function( )
+  local semiring_filter, semiring_element_filter, name, semiring;
+    
+    semiring_filter = NewFilter( "DummyCommutativeSemiringFilter", IsDummyCommutativeSemiring );
+    semiring_element_filter = NewFilter( "DummyCommutativeSemiringElementFilter", IsDummyCommutativeSemiringElement );
+    
+    name = @Concatenation( "Dummy commutative semiring ", StringGAP( CAP_INTERNAL_DUMMY_COMMUTATIVE_SEMIRING_COUNTER ) );
+    CAP_INTERNAL_DUMMY_COMMUTATIVE_SEMIRING_COUNTER = CAP_INTERNAL_DUMMY_COMMUTATIVE_SEMIRING_COUNTER + 1;
+    
+    semiring = CreateGapObjectWithAttributes( NewType( TheFamilyOfDummyCommutativeSemirings, IsAttributeStoringRep && semiring_filter ),
+        Name, name,
+        StringGAP, name,
+        SemiringFilter, semiring_filter,
+        SemiringElementFilter, semiring_element_filter,
+        IsCommutative, true
+    );
+    
+    CapJitAddTypeSignature( "+", [ semiring_element_filter, semiring_element_filter ], semiring_element_filter );
+    CapJitAddTypeSignature( "ZeroImmutable", [ semiring_filter ], semiring_element_filter );
+    CapJitAddTypeSignature( "*", [ semiring_element_filter, semiring_element_filter ], semiring_element_filter );
+    CapJitAddTypeSignature( "OneImmutable", [ semiring_filter ], semiring_element_filter );
+    
+    return semiring;
+    
+end );
+
 ## dummy rings
 
 @BindGlobal( "TheFamilyOfDummyRings",
@@ -14,8 +47,8 @@ CAP_INTERNAL_DUMMY_RING_COUNTER = 1;
 @InstallGlobalFunction( DummyRing, function( )
   local ring_filter, ring_element_filter, name, ring;
     
-    ring_filter = NewFilter( "DummyRingFilter", IsDummyRing );
-    ring_element_filter = NewFilter( "DummyRingElementFilter", IsDummyRingElement );
+    ring_filter = NewFilter( "DummySemiringFilter", IsDummyRing );
+    ring_element_filter = NewFilter( "DummySemiringElementFilter", IsDummyRingElement );
     
     name = @Concatenation( "Dummy ring ", StringGAP( CAP_INTERNAL_DUMMY_RING_COUNTER ) );
     CAP_INTERNAL_DUMMY_RING_COUNTER = CAP_INTERNAL_DUMMY_RING_COUNTER + 1;
@@ -23,8 +56,8 @@ CAP_INTERNAL_DUMMY_RING_COUNTER = 1;
     ring = CreateGapObjectWithAttributes( NewType( TheFamilyOfDummyRings, IsAttributeStoringRep && ring_filter ),
         Name, name,
         StringGAP, name,
-        RingFilter, ring_filter,
-        RingElementFilter, ring_element_filter
+        SemiringFilter, ring_filter,
+        SemiringElementFilter, ring_element_filter
     );
     
     CapJitAddTypeSignature( "+", [ ring_element_filter, ring_element_filter ], ring_element_filter );
@@ -47,8 +80,8 @@ CAP_INTERNAL_DUMMY_COMMUTATIVE_RING_COUNTER = 1;
 @InstallGlobalFunction( DummyCommutativeRing, function( )
   local ring_filter, ring_element_filter, name, ring;
     
-    ring_filter = NewFilter( "DummyCommutativeRingFilter", IsDummyCommutativeRing );
-    ring_element_filter = NewFilter( "DummyCommutativeRingElementFilter", IsDummyCommutativeRingElement );
+    ring_filter = NewFilter( "DummyCommutativeSemiringFilter", IsDummyCommutativeRing );
+    ring_element_filter = NewFilter( "DummyCommutativeSemiringElementFilter", IsDummyCommutativeRingElement );
     
     name = @Concatenation( "Dummy commutative ring ", StringGAP( CAP_INTERNAL_DUMMY_COMMUTATIVE_RING_COUNTER ) );
     CAP_INTERNAL_DUMMY_COMMUTATIVE_RING_COUNTER = CAP_INTERNAL_DUMMY_COMMUTATIVE_RING_COUNTER + 1;
@@ -56,8 +89,8 @@ CAP_INTERNAL_DUMMY_COMMUTATIVE_RING_COUNTER = 1;
     ring = CreateGapObjectWithAttributes( NewType( TheFamilyOfDummyCommutativeRings, IsAttributeStoringRep && ring_filter ),
         Name, name,
         StringGAP, name,
-        RingFilter, ring_filter,
-        RingElementFilter, ring_element_filter,
+        SemiringFilter, ring_filter,
+        SemiringElementFilter, ring_element_filter,
         IsCommutative, true
     );
     
@@ -90,8 +123,8 @@ CAP_INTERNAL_DUMMY_FIELD_COUNTER = 1;
     ring = CreateGapObjectWithAttributes( NewType( TheFamilyOfDummyFields, IsAttributeStoringRep && ring_filter ),
         Name, name,
         StringGAP, name,
-        RingFilter, ring_filter,
-        RingElementFilter, ring_element_filter,
+        SemiringFilter, ring_filter,
+        SemiringElementFilter, ring_element_filter,
         IsField, true
     );
     
