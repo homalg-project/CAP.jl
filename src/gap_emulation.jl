@@ -540,18 +540,6 @@ end
 @InstallMethod( StringGAP, [ IsString ], s -> s );
 
 # lists
-function ViewObj(list::Vector)
-	print("[ ")
-	for i in 1:length(list)
-		ViewObj(list[i])
-		if i < length(list)
-			print(", ")
-		end
-	end
-	ViewObj(last(list))
-	print(" ]")
-end
-
 function ViewString(list::Vector)
 	string("[ ", join(map(x -> ViewString(x), list), ", "), " ]")
 end
