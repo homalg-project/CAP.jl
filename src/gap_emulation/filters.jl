@@ -36,7 +36,7 @@ function (filter::Filter)(obj)
 		return false
 	end
 	
-  if (filter in filter_obj.implied_filters) || (filter_obj in filter.implied_filters)
+	if (filter in filter_obj.implied_filters) || (filter_obj in filter.implied_filters)
 		return filter.additional_predicate(obj)
 	end
 	
