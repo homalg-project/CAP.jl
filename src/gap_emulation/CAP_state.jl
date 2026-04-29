@@ -19,6 +19,7 @@ function SAVE_CAP_STATE()
 		CAP_INTERNAL_DERIVATION_GRAPH_derivations_by_used_ops = derivations_by_used_ops,
 		CAP_INTERNAL_FINAL_DERIVATION_LIST = ShallowCopy( CAP_INTERNAL_FINAL_DERIVATION_LIST ),
 		implied_properties = List( CAP_JL_INTERNAL_LIST_OF_PROPERTIES, p -> (property = p, implied_properties = ShallowCopy( p.implied_properties ) ) ),
+		FILTER_DISPATCHED_OPERATIONS_REGISTRY = Dict(k => copy(v) for (k, v) in FILTER_DISPATCHED_OPERATIONS_REGISTRY),
 	)
 end
 
@@ -140,6 +141,16 @@ function RESTORE_CAP_STATE(state)
 		for p in x.implied_properties
 			if !(p in x.property.implied_properties)
 				push!(x.property.implied_properties, p)
+			end
+		end
+	end
+
+	##
+	for (op_name, entries) in state.FILTER_DISPATCHED_OPERATIONS_REGISTRY
+		for (filter_sig, method_func) in entries
+			if !haskey(FILTER_DISPATCHED_OPERATIONS_REGISTRY, op_name) ||
+				!any(e -> e[2] === method_func, FILTER_DISPATCHED_OPERATIONS_REGISTRY[op_name])
+				register_filter_method(op_name, filter_sig, method_func)
 			end
 		end
 	end
