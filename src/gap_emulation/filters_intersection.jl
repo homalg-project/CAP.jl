@@ -73,3 +73,12 @@ macro FilterIntersection(args...)
 end
 
 export @FilterIntersection
+
+# Runtime function form of FilterIntersection: looks up the pre-registered filter intersection
+# created by @FilterIntersection. The lookup key matches the naming convention used by the macro:
+# the filter names joined by "_and_".
+function FilterIntersection(args...)
+	ValueGlobal(join([f.name for f in args], "_and_"))
+end
+
+export FilterIntersection
