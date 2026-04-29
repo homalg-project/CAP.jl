@@ -47,6 +47,15 @@ function (filter::Filter)(obj)
 		end
 	end
 	
+	# Fallback for intersection filters (names joined by "_and_"):
+	if contains(filter.name, "_and_")
+		parts = split(filter.name, "_and_")
+		if all(part -> IsBoundGlobal(part) && IsFilter(ValueGlobal(part)), parts) &&
+				all(part -> ValueGlobal(part)(obj), parts)
+			return filter.additional_predicate(obj)
+		end
+	end
+	
 	return false
 end
 
