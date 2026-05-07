@@ -219,6 +219,11 @@ function InstallMethod(mod::Module, operation::Function, filter_list, func::Func
 		return
 	end
 	
+	if is_dispatchable(operation)
+		register_filter_method(Symbol(operation.name), Filter[filter_list...], func)
+		return
+	end
+	
 	nargs = length(filter_list)
 	vars = Vector{Any}(map(i -> Symbol("arg", i), 1:nargs))
 	types = [filter.abstract_type for filter in filter_list]
