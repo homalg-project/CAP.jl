@@ -212,6 +212,8 @@
 #! @Arguments group
 @DeclareGlobalFunction( "CapJitDataTypeOfGroup" );
 #! @Arguments group
+@DeclareGlobalFunction( "CapJitDataTypeOfSubgroup" );
+#! @Arguments group
 @DeclareGlobalFunction( "CapJitDataTypeOfElementOfGroup" );
 #! @EndGroup
 
