@@ -249,7 +249,7 @@ end );
                     
                     return @Concatenation( "MorphismDatum( cat, ", argument_name, " )" );
                     
-                elseif (filter in [ "integer", "element_of_commutative_semiring_of_linear_structure", "nonneg_integer_or_infinity", "list_of_elements_of_commutative_semiring_of_linear_structure" ])
+                elseif (filter in [ "integer", "element_of_commutative_semiring_of_linear_structure", "nonneg_integer_or_infinity", "list_of_integers", "list_of_elements_of_commutative_semiring_of_linear_structure" ])
                     
                     return argument_name;
                     

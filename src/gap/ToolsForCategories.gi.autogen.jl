@@ -128,6 +128,10 @@ end );
         
         return CapJitDataTypeOfTwoCellOfCategory( category );
         
+    elseif (string == "list_of_integers")
+        
+        return CapJitDataTypeOfListOf( @rec( filter = IsInt ) );
+        
     elseif (string == "list_of_objects")
         
         return CapJitDataTypeOfListOf( CapJitDataTypeOfObjectOfCategory( category ) );
