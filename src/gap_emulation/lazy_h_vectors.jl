@@ -14,16 +14,22 @@ end
 
 Base.length(L::LazyHVector) = length(L.domain)
 
-function Base.getindex(L::LazyHVector, i::Int)
-	if !L.evaluated[i]
-		L.values[i] = L.func(L.domain[i])
-		L.evaluated[i] = true
+function Base.getindex(L::LazyHVector, i::Integer)
+	j = Int(i)
+	if !L.evaluated[j]
+		L.values[j] = L.func(L.domain[j])
+		L.evaluated[j] = true
 	end
-	L.values[i]
+	L.values[j]
 end
 
-function Base.getindex(L::LazyHVector, I::Vector)
+function Base.getindex(L::LazyHVector, I::AbstractVector{<:Integer})
 	[L[i] for i in I]
+end
+
+function Base.getindex(L::LazyHVector, I::AbstractVector)
+	all(i -> i isa Integer, I) || throw(MethodError(getindex, (L, I)))
+	[L[Int(i)] for i in I]
 end
 
 Base.iterate(L::LazyHVector, state=1) = state > length(L) ? nothing : (L[state], state + 1)
@@ -46,4 +52,8 @@ end
 
 function ListOfValues(L::LazyHVector)
 	[L[i] for i in 1:length(L)]
+end
+
+function ListOfValues(L::Vector{T}) where T
+	L
 end
