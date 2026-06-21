@@ -385,6 +385,9 @@ include("gap_emulation/sets.jl")
 # lazy h-vectors
 include("gap_emulation/lazy_h_vectors.jl")
 
+# z-functions
+include("gap_emulation/zfunctions.jl")
+
 # CAP state
 include("gap_emulation/CAP_state.jl")
 
@@ -408,6 +411,8 @@ global const IsNegInt = Filter("IsNegInt", Int, i -> i < 0)
 global const IsRecord = Filter("IsRecord", CAPRecord)
 # integer or infinity (a float)
 global const IsCyclotomic = Filter("IsCyclotomic", Union{Int,Float64}, i -> i isa Int || i === Inf)
+global const IsZFunction = Filter("IsZFunction", ZFunction)
+global const IsZFunctionWithInductiveSides = Filter("IsZFunctionWithInductiveSides", ZFunction, z -> z.is_inductive)
 
 global const Float = Float64
 
