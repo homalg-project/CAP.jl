@@ -294,3 +294,9 @@ function InstallMethodWithCache( operation, description, filter_list, func; Inst
 	InstallMethod( operation, filter_list, func )
 end
 global const InstallMethodWithCrispCache = InstallMethod
+
+function ApplicableMethod(operation, args::AbstractVector)
+	l = map(arg -> typeof(arg), args)
+	applicable_methods = Base.methods(operation, Tuple{l...})
+	length(applicable_methods) == 0 ? fail : applicable_methods[1]
+end
