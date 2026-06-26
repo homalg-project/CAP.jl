@@ -7,10 +7,10 @@ string(op::FilterDispatchedOperation) = op.name
 is_dispatchable(::Any) = false
 is_dispatchable(::FilterDispatchedOperation) = true
 
-function (op::FilterDispatchedOperation)(args...)
+function (op::FilterDispatchedOperation)(args...; kwargs...)
 	method_func = find_filter_method(Symbol(op.name), args...)
 	if method_func !== nothing
-		return Base.invokelatest(method_func, args...)
+		return Base.invokelatest(method_func, args...; kwargs...)
 	else
 		error("No method found for ", op.name, " with the given arguments")
 	end
