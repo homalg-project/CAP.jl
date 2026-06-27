@@ -473,7 +473,11 @@ function ViewString(obj)
 end
 
 function PrintObj(obj)
-	print(PrintString(obj))
+	if (obj isa CAPDict) && (obj.Name != nothing)
+		print(obj.Name)
+	else
+		print(PrintString(obj))
+	end
 end
 
 function PrintString(obj)
