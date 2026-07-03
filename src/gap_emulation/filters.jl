@@ -165,7 +165,7 @@ macro DeclareFilter(name::String, parent_filter::Union{Symbol,Expr} = :IsObject)
 		struct $concrete_type_symbol{T} <: $abstract_type_symbol
 			dict::Dict{Symbol, Any}
 		end
-		global const $filter_symbol = Filter($name, $abstract_type_symbol, $concrete_type_symbol, true, $additional_predicate, $implied_filters, Set{Function}())
+		global const $filter_symbol = Filter($name, $abstract_type_symbol, $concrete_type_symbol, true, $additional_predicate, $implied_filters, parent.implied_properties)
 		nothing # suppress output when using the macro in tests
 	end)
 end
