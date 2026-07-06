@@ -118,6 +118,10 @@ function CompareFunction(z::ZFunction)
 	z.compare_function
 end
 
+function HasBaseZFunctions(z::ZFunction)
+	z.base_z_functions !== nothing
+end
+
 function BaseZFunctions(z::ZFunction)
 	z.base_z_functions
 end
