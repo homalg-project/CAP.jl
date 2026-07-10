@@ -741,6 +741,10 @@ end
 
 export @DeclareInfoClass
 
+# Standard GAP info classes
+global const InfoWarning = InfoClass("InfoWarning", 1)
+export InfoWarning
+
 function InfoLevel(infoclass::InfoClass)
 	infoclass.level
 end
