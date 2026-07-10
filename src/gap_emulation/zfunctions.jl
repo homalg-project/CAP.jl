@@ -21,20 +21,22 @@ mutable struct ZFunction
 	# Extra read-only attributes for ApplyMap
 	base_z_functions::Union{Vector, Nothing}
 	applied_map::Union{Function, Nothing}
+	# Cache for computed values
+	cache::Dict{Int, Any}
 end
 
 # -- Constructors --
 
 function VoidZFunction()
-	ZFunction(nothing, false, nothing, 0, false, nothing, 0, false, nothing, nothing, nothing, nothing, nothing, nothing, nothing)
+	ZFunction(nothing, false, nothing, 0, false, nothing, 0, false, nothing, nothing, nothing, nothing, nothing, nothing, nothing, Dict{Int, Any}())
 end
 
 function AsZFunction(func::Function)
-	ZFunction(func, false, nothing, 0, false, nothing, 0, false, nothing, nothing, nothing, nothing, nothing, nothing, nothing)
+	ZFunction(func, false, nothing, 0, false, nothing, 0, false, nothing, nothing, nothing, nothing, nothing, nothing, nothing, Dict{Int, Any}())
 end
 
 function ZFunctionWithInductiveSides(N::Int, value_N, lower_func::Function, upper_func::Function, compare_func::Function)
-	z = ZFunction(nothing, false, nothing, 0, false, nothing, 0, true, N, value_N, upper_func, lower_func, compare_func, nothing, nothing)
+	z = ZFunction(nothing, false, nothing, 0, false, nothing, 0, true, N, value_N, upper_func, lower_func, compare_func, nothing, nothing, Dict{Int, Any}())
 	
 	func = function(i::Int)
 		if i == N
@@ -153,7 +155,9 @@ function Base.getindex(z::ZFunction, i::Int)
 	if z.has_stable_upper_value && i >= z.index_of_stable_upper_value
 		return z.stable_upper_value
 	end
-	z.underlying_function(i)
+	get!(z.cache, i) do
+		z.underlying_function(i)
+	end
 end
 
 function ZFunctionValue(z::ZFunction, i::Int)
