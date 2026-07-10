@@ -673,6 +673,10 @@ macro InstallGlobalFunction(name::String, func)
 end
 
 macro InstallGlobalFunction(name::Symbol, func)
+	# Expand nested @FunctionWithNamedArguments before delegating to @InstallMethod
+	if func isa Expr && func.head === :macrocall && func.args[1] === Symbol("@FunctionWithNamedArguments")
+		func = macroexpand(__module__, func; recursive = false)
+	end
 	esc(:(@InstallMethod($name, nothing, $func)))
 end
 
