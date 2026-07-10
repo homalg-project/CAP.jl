@@ -79,4 +79,12 @@ IsF1_and_IsF2_and_IsF3 instance
 
 julia> TestOp(F123)
 "Method for IsF1_and_IsF2_and_IsF3"
+
+julia> IsF1_and_SatisfiesPropertyP1( F12 )
+false
+
+julia> SetSatisfiesPropertyP1( F12, true )
+
+julia> IsF1_and_SatisfiesPropertyP1( F12 )
+true
 ```

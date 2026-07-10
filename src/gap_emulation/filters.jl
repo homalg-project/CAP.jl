@@ -36,14 +36,29 @@ function (filter::Filter)(obj)
 		return false
 	end
 	
-	if (filter in filter_obj.implied_filters) || (filter_obj in filter.implied_filters)
+	if filter in filter_obj.implied_filters
 		return filter.additional_predicate(obj)
 	end
 	
-	if !isempty(filter.implied_properties)
-		base_filter = FilterOfType(supertype(filter.abstract_type))
-		if base_filter in filter_obj.implied_filters
-			return filter.additional_predicate(obj)
+	# For intersection filters ("_and_" in name): if filter_obj is one of the
+	# base components, check the *extra* components (those not already covered
+	# by filter_obj's own implied chain) with a full filter call, then evaluate
+	# the predicate (which handles any property/attribute conditions).
+	# Using a full filter call for extras means:
+	#   IsF1_and_IsF2(F1)                        → IsF2(F1) fails isa → false ✓
+	#   IsF1_and_HasRangeCategoryOf...(F1)        → passes after Set...  → true ✓
+	#   IsF1_and_SatisfiesPropertyP1(F1)          → extra = {} (prop not a Filter);
+	#                                                predicate checks property   ✓
+	# IsCategoryFromNerveData is never reached because its name has no "_and_". ✓
+	#   IsCapCategory_and_IsInitialCategory(InitialCategory()) → filter_obj is
+	#   IsInitialCapCategory which implies IsCapCategory ∈ filter.implied_filters ✓
+	if contains(filter.name, "_and_")
+		filter_obj_covered = union(Set{Function}([filter_obj]), filter_obj.implied_filters)
+		if !isempty(intersect(filter.implied_filters, filter_obj_covered))
+			extra = setdiff(filter.implied_filters, filter_obj_covered)
+			if all(f -> f(obj), extra)
+				return filter.additional_predicate(obj)
+			end
 		end
 	end
 	
