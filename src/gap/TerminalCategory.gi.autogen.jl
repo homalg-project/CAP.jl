@@ -23,7 +23,11 @@
 ####################################
 
 @InstallGlobalFunction( CAP_INTERNAL_CONSTRUCTOR_FOR_TERMINAL_CATEGORY,
-  function( input_record )
+  @FunctionWithNamedArguments(
+  [
+    [ "overhead", true ],
+  ],
+  function( CAP_NAMED_ARGUMENTS, input_record )
     local completed_record, list_of_operations_to_install, skip, info, properties, excluded_properties, T, operation_name, operation;
     
     completed_record = ShallowCopy( input_record );
@@ -95,7 +99,7 @@
         completed_record.commutative_semiring_of_linear_category = Integers;
     end;
     
-    T = CategoryConstructor( completed_record );
+    T = CategoryConstructor( completed_record; overhead = overhead );
     
     ##
     AddIsCongruentForMorphisms( T,
@@ -108,7 +112,7 @@
     
     return T;
     
-end );
+end ) );
 
 #########################################
 #
