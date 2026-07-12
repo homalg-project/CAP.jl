@@ -812,6 +812,10 @@ function Sum(list::Union{Vector, UnitRange, StepRange, Tuple}, init = 0)
 	end
 end
 
+function Sum(list::Union{Vector, UnitRange, StepRange, Tuple}, func::Function, init)
+	Sum(map(func, list), init)
+end
+
 function Sum(list::Union{Vector, UnitRange, StepRange, Tuple}, func::Function)
 	Sum(map(func, list))
 end
