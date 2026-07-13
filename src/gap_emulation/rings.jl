@@ -83,6 +83,10 @@ function SemiringElementFilter(::typeof(Rationals))
 	IsQQFieldElem
 end
 
+function SemiringElementFilter(::Nemo.Ring)
+	IsRingElement
+end
+
 @InstallMethod( StringGAP, [ IsZZRingElem ], n -> string(n) );
 
 @InstallMethod( StringGAP, [ IsQQFieldElem ], function( n )
