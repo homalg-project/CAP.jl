@@ -715,6 +715,11 @@ end
 
 export @BindGlobal
 
+# LaTeX bracket constants (used in GAP source via concatenation to avoid transpiler { -> [ conversion)
+const LATEX_LBRACE = "{"
+const LATEX_RBRACE = "}"
+export LATEX_LBRACE, LATEX_RBRACE
+
 # options
 
 function ValueOption( name )

@@ -71,3 +71,7 @@ for op in [ :ComponentOfMorphismIntoDirectProduct, :ComponentOfMorphismFromCopro
         end
     end
 end
+
+## LaTeXOutput for Nemo ring types (moved from MatricesForHomalg)
+LaTeXOutput( ::Nemo.ZZRing ) = "\\mathbb{Z}"
+LaTeXOutput( ::Nemo.QQField ) = "\\mathbb{Q}"
