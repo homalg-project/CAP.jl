@@ -1244,8 +1244,8 @@ function CallFuncList( func::Function, list )
 	func(list...)
 end
 
-function CallFuncListAtRuntime( func::Function, list )
-	Base.invokelatest(func, list...)
+function CallFuncListAtRuntime( func::Function, list; kwargs... )
+	Base.invokelatest(func, list...; kwargs...)
 end
 
 global const IsEmpty = isempty
