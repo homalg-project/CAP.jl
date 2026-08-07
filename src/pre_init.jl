@@ -5,3 +5,14 @@ function GapToJsonString end
 
 include("gap_emulation.jl")
 
+# Shared GAP declarations used by otherwise unrelated CAP packages.
+@DeclareAttribute( "PseudoInverse", IsObject )
+@DeclareAttribute( "Size", IsObject )
+@DeclareAttribute( "Cardinality", IsObject )
+@DeclareAttribute( "Dimension", IsObject )
+@DeclareAttribute( "UnderlyingMorphism", IsObject )
+@DeclareAttribute( "AmbientCategory", IsObject )
+@DeclareAttribute( "UnderlyingCategory", IsObject )
+@DeclareAttribute( "UnderlyingDatum", IsObject )
+@DeclareOperation( "Visualize" )
+
