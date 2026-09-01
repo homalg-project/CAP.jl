@@ -72,6 +72,15 @@ for op in [ :ComponentOfMorphismIntoDirectProduct, :ComponentOfMorphismFromCopro
     end
 end
 
+# Make functors and natural transformations callable on objects and cells, respectively.
+function (F::IsCapFunctor.abstract_type)(c::IsCapCategoryCell.abstract_type)
+    CallFuncList(F, [c])
+end
+
+function (F::IsCapNaturalTransformation.abstract_type)(c::IsCapCategoryObject.abstract_type)
+    CallFuncList(F, [c])
+end
+
 ## LaTeXOutput for Nemo ring types (moved from MatricesForHomalg)
 LaTeXOutput( ::Nemo.ZZRing ) = "\\mathbb{Z}"
 LaTeXOutput( ::Nemo.QQField ) = "\\mathbb{Q}"
