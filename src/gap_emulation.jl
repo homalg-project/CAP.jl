@@ -801,7 +801,7 @@ function Perform( list, func )
 	end
 end
 
-function Product(list::Union{Vector, UnitRange, StepRange, Tuple})
+function Product(list::Union{Vector, LazyHVector, UnitRange, StepRange, Tuple})
 	if length(list) == 0
 		1
 	else
@@ -809,7 +809,7 @@ function Product(list::Union{Vector, UnitRange, StepRange, Tuple})
 	end
 end
 
-function Sum(list::Union{Vector, UnitRange, StepRange, Tuple}, init = 0)
+function Sum(list::Union{Vector, LazyHVector, UnitRange, StepRange, Tuple}, init = 0)
 	if length(list) == 0
 		init
 	else
