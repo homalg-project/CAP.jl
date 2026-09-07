@@ -191,6 +191,10 @@ macro InstallFilterDispatchedMethod(operation::Symbol, filter_list, func)
 		# Define numbered operation
 		function $numbered_operation end
 		
+		# internal-only name, never meant to be called directly across packages: exclude it
+		# from auto-export so unrelated packages installing the same operation don't clash
+		push!(CAP.ExcludedNames, $(QuoteNode(numbered_operation)))
+		
 		# Install method
 		$func
 	end
