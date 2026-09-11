@@ -1395,13 +1395,14 @@ function TransposedMat(M)
 	end
 end
 
-function KroneckerProduct(mat1::Vector{Vector{T}}, mat2::Vector{Vector{T}}) where T
-	kroneckerproduct = Vector{Vector{T}}()
+function KroneckerProduct(mat1::Vector{Vector{S}}, mat2::Vector{Vector{T}}) where {S, T}
+	U = promote_type(S, T)
+	kroneckerproduct = Vector{Vector{U}}()
 	for row1 in mat1
 		for row2 in mat2
-			row = Vector{T}()
-			for i  in row1
-				append!( row, i * row2 )
+			row = Vector{U}()
+			for i in row1
+				append!( row, map(x -> i * x, row2) )
 			end
 		push!( kroneckerproduct, row )
 		end
