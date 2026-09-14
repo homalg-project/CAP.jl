@@ -102,41 +102,43 @@ export @FunctionWithNamedArguments
 
 function DirectSum(arg...)
 	
-    if IsCapCategory( arg[1] ) then
-        
+	if IsCapCategory( arg[1] )
+		
 		Error( "this case should never be triggered" )
-        
-    end;
-    
-    if Length( arg ) == 1 &&
-       IsList( arg[1] ) &&
-       ForAll( arg[1], IsCapCategoryObject ) then
-       
-       return DirectSum( CapCategory( arg[1][1] ), arg[1] );
-       
-    end;
-    
-    return DirectSum( CapCategory( arg[1] ), arg );
+		
+	end;
+	
+	if Length( arg ) == 1 &&
+	   IsList( arg[1] ) &&
+			ForAll( arg[1], IsCapCategoryObject )
+		
+		return DirectSum( CapCategory( arg[1][1] ), arg[1] );
+		
+	end;
+	
+	return DirectSum( CapCategory( arg[1] ), arg );
 	
 end
+
 global const DirectSumOp = DirectSum
+
 function DirectProduct(arg...)
 	
-    if IsCapCategory( arg[1] ) then
-        
+	if IsCapCategory( arg[1] )
+		
 		Error( "this case should never be triggered" )
-        
-    end;
-    
-    if Length( arg ) == 1 &&
-       IsList( arg[1] ) &&
-       ForAll( arg[1], IsCapCategoryObject ) then
-       
-       return DirectProduct( CapCategory( arg[1][1] ), arg[1] );
-       
-    end;
-    
-    return DirectProduct( CapCategory( arg[1] ), arg );
+		
+	end;
+	
+	if Length( arg ) == 1 &&
+		IsList( arg[1] ) &&
+		ForAll( arg[1], IsCapCategoryObject )
+		
+		return DirectProduct( CapCategory( arg[1][1] ), arg[1] );
+		
+	end;
+	
+	return DirectProduct( CapCategory( arg[1] ), arg );
 	
 end
 global const DirectProductOp = DirectProduct
@@ -1415,7 +1417,7 @@ struct PermList
 end
 
 function PermutationMat(perm::PermList, dim::Int)
-	if length(perm.list) !== dim then
+	if length(perm.list) !== dim
 		Error("this case is not implemented yet");
 	end
 	id = IdentityMat(dim);
