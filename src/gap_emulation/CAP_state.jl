@@ -138,6 +138,11 @@ function RESTORE_CAP_STATE(state)
 	
 	##
 	for x in state.implied_properties
+		# re-register properties declared in an earlier-compiled dependency (compiled in a
+		# separate process), otherwise a later package's own SAVE_CAP_STATE can never see them
+		if !(x.property in CAP_JL_INTERNAL_LIST_OF_PROPERTIES)
+			push!(CAP_JL_INTERNAL_LIST_OF_PROPERTIES, x.property)
+		end
 		for p in x.implied_properties
 			if !(p in x.property.implied_properties)
 				push!(x.property.implied_properties, p)
