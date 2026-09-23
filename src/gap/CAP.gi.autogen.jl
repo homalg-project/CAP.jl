@@ -333,6 +333,8 @@ end );
     end;
     
     obj.added_functions = @rec( );
+
+    obj.number_of_installed_methods = @rec( );
     
     obj.operations = @rec( );
     
