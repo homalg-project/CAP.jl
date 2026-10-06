@@ -84,3 +84,10 @@ end
 ## LaTeXOutput for Nemo ring types (moved from MatricesForHomalg)
 LaTeXOutput( ::Nemo.ZZRing ) = "\\mathbb{Z}"
 LaTeXOutput( ::Nemo.QQField ) = "\\mathbb{Q}"
+
+function Show( c::Union{IsCapCategoryObject.abstract_type, IsCapCategoryMorphism.abstract_type}; scale = "1", width = "10in", height = "15in" )
+    str = LaTeXOutput( c )
+    if str !== fail
+        Show( str; scale = scale, width = width, height = height )
+    end
+end
