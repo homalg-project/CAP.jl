@@ -10,6 +10,13 @@ authors = [
 # Transpiled from GAP's CAP v2026.07-04
 version = "0.8.19"
 
+# Current dependencies of GAP's CAP v2026.07-04
+# NeededOtherPackages:
+#   ToolsForHomalg >= 2026.04-01
+# SuggestedOtherPackages:
+#   Browse >= 1.5
+#   CompilerForCAP >= 2026.04-01
+
 [deps]
 AbstractAlgebra = "c3fe647b-3220-5bb0-a1ea-a7954cac585d"
 Nemo = "2edaba10-b0f1-5616-af89-8c11ac63239a"

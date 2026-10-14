@@ -48,12 +48,12 @@ AddDerivationToCAP( SetOfMorphismsOfFiniteCategory,
     # gap> B = FinSet( 4 );
     # |4|
     # gap> data = List( [ A, B ], AsList );
-    # [ (0):(2), (0):(3) ]
+    # [ [ 0 .. 2 ], [ 0 .. 3 ] ]
     # gap> pi1 = ProjectionInFactorOfDirectProduct( [ A, B ], 1 );
     # |12| → |3|
     # gap> pi2 = ProjectionInFactorOfDirectProduct( [ A, B ], 2 );
     # |12| → |4|
-    # gap> List( (0):(11), i -> [ pi1(i), pi2(i) ] );
+    # gap> List( [ 0 .. 11 ], i -> [ pi1(i), pi2(i) ] );
     # [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ], [ 0, 2 ], [ 1, 2 ], [ 2, 2 ], [ 0, 3 ], [ 1, 3 ], [ 2, 3 ] ]
     # gap> List( Cartesian( Reversed( data ) ), Reversed );
     # [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ], [ 0, 2 ], [ 1, 2 ], [ 2, 2 ], [ 0, 3 ], [ 1, 3 ], [ 2, 3 ] ]
