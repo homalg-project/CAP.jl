@@ -2,6 +2,8 @@
 ```jldoctest AutoDocTests
 julia> using CAP
 
+julia> # extracted from examples/DummyCategory.g
+
 julia> true
 true
 
@@ -31,6 +33,8 @@ true
 
 ```jldoctest AutoDocTests
 julia> using CAP
+
+julia> # extracted from examples/FiniteSkeletalDiscreteCategory.g
 
 julia> true
 true
@@ -83,6 +87,8 @@ julia> Length( SetOfMorphismsOfFiniteCategory( D ) )
 ```jldoctest AutoDocTests
 julia> using CAP
 
+julia> # extracted from examples/HandlePrecompiledTowers.g
+
 julia> true
 true
 
@@ -120,6 +126,8 @@ Adding precompiled operations for Constructor2
 
 ```jldoctest AutoDocTests
 julia> using CAP
+
+julia> # extracted from examples/TerminalCategoryWithMultipleObjects.g
 
 julia> true
 true
@@ -339,6 +347,8 @@ julia> Coequalizer( T, z, [ ] )
 
 ```jldoctest AutoDocTests
 julia> using CAP
+
+julia> # extracted from examples/TerminalCategoryWithSingleObject.g
 
 julia> true
 true
