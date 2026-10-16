@@ -6,7 +6,18 @@ struct Filter <: Function
 	additional_predicate::Function
 	implied_filters::Set{Function}
 	implied_properties::Set{Function}
+
+	function Filter(name::String, abstract_type::Type, concrete_type::Type,
+				subtypable::Bool, additional_predicate::Function,
+				implied_filters::Set{Function}, implied_properties::Set{Function})
+		filter = new(name, abstract_type, concrete_type, subtypable,
+						 additional_predicate, implied_filters, implied_properties)
+		push!(FILTERS, filter)
+		return filter
+	end
 end
+
+global const FILTERS = Filter[]
 
 # Add a better show method for filters (emulating GAP's view method)
 function Base.show(io::IO, filter::Filter)
@@ -77,6 +88,20 @@ end
 function IsFilter( obj )
 	obj isa Filter
 end
+
+function FilterByName(name::String)
+	if IsBoundGlobal(name)
+		candidate = ValueGlobal(name)
+		if IsFilter(candidate) || IsAttribute(candidate)
+			return candidate
+		end
+	end
+
+	filter = findfirst(filter -> filter.name == name, FILTERS)
+	return filter === nothing ? fail : FILTERS[filter]
+end
+
+export FilterByName
 
 # Get the filter associated with a type by deriving filter name from type name
 function FilterOfType(T::Type)
