@@ -1174,6 +1174,26 @@ function PositionSublist(list::Vector, sublist::Vector, start::Union{Int, BigInt
 	(index != fail) ? (start + index) : fail
 end
 
+# GAP's `Unicode` turns a UTF-8 string into a list of code points (integers),
+# so that positions and slices refer to characters and not to bytes.
+function Unicode(string::String)
+	Int[codepoint(c) for c in string]
+end
+
+function Unicode(list::Vector{<:Integer})
+	list
+end
+
+# inverse of `Unicode` (UTF-8 is the only supported encoding)
+function Encode(list::Vector{<:Integer})
+	String(Char.(list))
+end
+
+function Encode(list::Vector{<:Integer}, encoding::String)
+	@assert encoding == "UTF-8" "only the encoding \"UTF-8\" is supported"
+	Encode(list)
+end
+
 global const AsSortedList = sort
 
 function SortedList(v::AbstractVector)
