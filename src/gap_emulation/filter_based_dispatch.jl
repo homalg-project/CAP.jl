@@ -78,15 +78,11 @@ macro DeclareFilterDispatchedOperation(operation::String, args...)
   operation_symbol = Symbol(operation)
   
 	block = quote
-		if isdefined(@__MODULE__, $(QuoteNode(operation_symbol))) && getfield(@__MODULE__, $(QuoteNode(operation_symbol))) isa CAP.Attribute && getfield(@__MODULE__, $(QuoteNode(operation_symbol))).is_dispatchable
-			# already declared as filter-dispatched attribute (e.g. in CAP)
-		elseif isdefined(@__MODULE__, $(QuoteNode(operation_symbol)))
+		if isdefined(@__MODULE__, $(QuoteNode(operation_symbol)))
 			error("Operation ", $(operation), " is already defined. Cannot be declared as filter-dispatched operation.")
 		end
 		
-		if !isdefined(@__MODULE__, $(QuoteNode(operation_symbol)))
-			global const $(operation_symbol) = CAP.FilterDispatchedOperation($(QuoteNode(operation)))
-		end
+		global const $(operation_symbol) = CAP.FilterDispatchedOperation($(QuoteNode(operation)))
 		
 		nothing
 	end
