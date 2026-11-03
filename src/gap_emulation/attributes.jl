@@ -24,8 +24,12 @@ function declare_attribute_or_property(mod, name::String, is_property::Bool, is_
 	symbol_setter = Symbol("Set", name)
 	type_symbol = Symbol("TheJuliaAttributeType", name)
 	tester_filter_name = "Has" * name
+	# `function f end` must not appear inside an expression, otherwise Julia 1.11 also defines it when the branch is not taken
+	operation_declaration = is_dispatchable ?
+		:(global const $symbol_op = CAP.FilterDispatchedOperation($name * "_OPERATION")) :
+		:(function $symbol_op end)
 	esc(quote
-		global const $symbol_op = $is_dispatchable ? CAP.FilterDispatchedOperation($name * "_OPERATION") : (function $symbol_op end; $symbol_op)
+		$operation_declaration
 		
 		# Mirror GAP behavior - HasProperty/Attribute is a filter
 		global const $symbol_tester = let local_name = $name
